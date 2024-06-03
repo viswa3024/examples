@@ -1,0 +1,156 @@
+get year:
+
+python code:
+
+def getyear(key):
+    if key not in data:
+        return {key: []}
+    
+    unique_years = set()
+    for item in data[key]:
+        for entry in item["timeline"]:
+            if "year" in entry:
+                unique_years.add(entry["year"])
+    
+    return {key: list(unique_years)}
+
+# Example usage
+result = getyear("test")
+print(result)
+
+
+
+------------------------
+
+javascript code:
+
+function getyear(key) {
+    if (!(key in data)) {
+        return {[key]: []};
+    }
+
+    const uniqueYears = new Set();
+    for (const item of data[key]) {
+        for (const entry of item.timeline) {
+            if ("year" in entry) {
+                uniqueYears.add(entry.year);
+            }
+        }
+    }
+
+    return {[key]: Array.from(uniqueYears)};
+}
+
+// Example usage
+const result = getyear("test");
+console.log(result);
+
+
+===============================================================================
+
+get quarter:
+
+python code:
+
+
+def get_quarter(key, year):
+    if key not in data:
+        return {key: []}
+    
+    unique_quarters = set()
+    for item in data[key]:
+        for entry in item["timeline"]:
+            if entry.get("year") == year:
+                if "quarter" in entry:
+                    unique_quarters.add(entry["quarter"])
+    
+    return {"quarter": list(unique_quarters)}
+
+# Example usage
+result = get_quarter("test", "2024")
+print(result)
+
+{'quarter': ['t1', 't2', 't3', 't4']}
+
+---------------------------------------------
+
+javascript code:
+
+function getQuarter(key, year) {
+    if (!(key in data)) {
+        return {[key]: []};
+    }
+
+    const uniqueQuarters = new Set();
+    for (const item of data[key]) {
+        for (const entry of item.timeline) {
+            if (entry.year === year) {
+                if ("quarter" in entry) {
+                    uniqueQuarters.add(entry.quarter);
+                }
+            }
+        }
+    }
+
+    return {"quarter": Array.from(uniqueQuarters)};
+}
+
+// Example usage
+const result = getQuarter("test", "2024");
+console.log(result);
+
+
+======================================================================
+
+
+get_dsources:
+
+python code:
+
+def get_dsources(key, year, quarter):
+    if key not in data:
+        return {"d_sources": []}
+    
+    for item in data[key]:
+        timeline = item["timeline"]
+        timeline_year = next((t["year"] for t in timeline if "year" in t), None)
+        timeline_quarter = next((t["quarter"] for t in timeline if "quarter" in t), None)
+        
+        if timeline_year == year and timeline_quarter == quarter:
+            return {"d_sources": [ds["name"] for ds in item["d_sources"]]}
+    
+    return {"d_sources": []}
+
+# Example usage
+result = get_dsources("test", "2024", "t4")
+print(result)
+
+{'d_sources': ['test_eat3', 'test_ear3']}
+
+
+-------------------------------
+
+javascript code:
+
+
+function getDsources(key, year, quarter) {
+    if (!(key in data)) {
+        return { "d_sources": [] };
+    }
+
+    for (const item of data[key]) {
+        const timeline = item.timeline;
+        const timelineYear = timeline.find(entry => entry.year === year);
+        const timelineQuarter = timeline.find(entry => entry.quarter === quarter);
+        
+        if (timelineYear && timelineQuarter) {
+            return { "d_sources": item.d_sources.map(ds => ds.name) };
+        }
+    }
+
+    return { "d_sources": [] };
+}
+
+// Example usage
+const result = getDsources("test", "2024", "t4");
+console.log(result);

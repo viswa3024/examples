@@ -280,4 +280,58 @@ const TypingMarkdown = ({ children, speed = 50, dotSpeed = 500 }) => {
   );
 };
 
+
+
+
+.typing-markdown {
+  font-family: Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  display: flex;
+  align-items: center;
+}
+
+
+import React, { useState, useEffect } from 'react';
+import ReactMarkdown from 'react-markdown';
+import './styles.css'; // Import the CSS file for any additional styles
+
+const TypingMarkdown = ({ children, speed = 50, dotSpeed = 500 }) => {
+  const [displayedText, setDisplayedText] = useState('');
+  const [index, setIndex] = useState(0);
+  const [dots, setDots] = useState('');
+
+  useEffect(() => {
+    if (index < children.length) {
+      const timeoutId = setTimeout(() => {
+        setDisplayedText(displayedText + children[index]);
+        setIndex(index + 1);
+      }, speed);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [index, children, displayedText, speed]);
+
+  useEffect(() => {
+    const dotInterval = setInterval(() => {
+      setDots(prevDots => (prevDots.length < 3 ? prevDots + '.' : ''));
+    }, dotSpeed);
+    return () => clearInterval(dotInterval);
+  }, [dotSpeed]);
+
+  return (
+    <div className="typing-markdown">
+      <ReactMarkdown>{displayedText}</ReactMarkdown>
+      {index < children.length && <span className="dots">{dots}</span>}
+    </div>
+  );
+};
+
+export default TypingMarkdown;
+
+
+.dots {
+  font-size: 16px;
+  line-height: 1.5;
+}
+
 export default TypingMarkdown;

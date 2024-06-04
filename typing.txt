@@ -133,3 +133,113 @@ const App = () => {
 };
 
 export default App;
+
+
+
+
+
+
+import React, { useState, useEffect } from 'react';
+import ReactMarkdown from 'react-markdown';
+import './styles.css'; // Import the CSS file for blinking cursor
+
+const TypingMarkdown = ({ children, speed = 100 }) => {
+  const [displayedText, setDisplayedText] = useState('');
+  const [index, setIndex] = useState(0);
+
+  useEffect(() => {
+    if (index < children.length) {
+      const timeoutId = setTimeout(() => {
+        setDisplayedText(displayedText + children[index]);
+        setIndex(index + 1);
+      }, speed);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [index, children, displayedText, speed]);
+
+  return (
+    <div>
+      <ReactMarkdown>{displayedText}</ReactMarkdown>
+      <span className="blinking-cursor">|</span>
+    </div>
+  );
+};
+
+export default TypingMarkdown;
+
+
+
+.blinking-cursor {
+  font-weight: 100;
+  font-size: 20px;
+  color: black;
+  -webkit-animation: 1s blink step-end infinite;
+  -moz-animation: 1s blink step-end infinite;
+  -ms-animation: 1s blink step-end infinite;
+  -o-animation: 1s blink step-end infinite;
+  animation: 1s blink step-end infinite;
+}
+
+@keyframes blink {
+  from, to {
+    color: transparent;
+  }
+  50% {
+    color: black;
+  }
+}
+
+@-webkit-keyframes blink {
+  from, to {
+    color: transparent;
+  }
+  50% {
+    color: black;
+  }
+}
+
+@-moz-keyframes blink {
+  from, to {
+    color: transparent;
+  }
+  50% {
+    color: black;
+  }
+}
+
+@-ms-keyframes blink {
+  from, to {
+    color: transparent;
+  }
+  50% {
+    color: black;
+  }
+}
+
+@-o-keyframes blink {
+  from, to {
+    color: transparent;
+  }
+  50% {
+    color: black;
+  }
+}
+
+
+import React from 'react';
+import TypingMarkdown from './TypingMarkdown';
+
+const App = () => {
+  const markdownContent = `
+  # Hello World
+  This is a sample markdown content with **bold text** and _italic text_.
+  `;
+
+  return (
+    <div>
+      <TypingMarkdown speed={50}>{markdownContent}</TypingMarkdown>
+    </div>
+  );
+};
+
+export default App;

@@ -455,3 +455,48 @@ export default TypingMarkdown;
   font-size: 20px;
   line-height: 1.5;
 }
+
+
+
+
+const puppeteer = require('puppeteer');
+
+(async () => {
+  const browser = await puppeteer.launch();
+  const page = await browser.newPage();
+
+  // Specify the custom font configuration
+  await page.setExtraHTTPHeaders({
+    'Content-Security-Policy': `default-src 'self'; font-src data:`
+  });
+
+  // Add custom fonts
+  await page.addStyleTag({
+    content: `
+      @font-face {
+        font-family: 'YourCustomFontName';
+        src: url(data:font/truetype;base64,/*YourBase64EncodedFontData*/) format('truetype');
+      }
+    `
+  });
+
+  await page.setContent(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <style>
+        body {
+          font-family: 'YourCustomFontName', sans-serif;
+        }
+      </style>
+    </head>
+    <body>
+      <div>This text will be displayed using the custom font.</div>
+    </body>
+    </html>
+  `);
+
+  await page.pdf({ path: 'output.pdf', format: 'A4' });
+
+  await browser.close();
+})();

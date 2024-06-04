@@ -1,0 +1,135 @@
+import React, { useState, useEffect } from 'react';
+
+const TypingEffect = ({ text, speed = 100 }) => {
+  const [displayedText, setDisplayedText] = useState('');
+  const [index, setIndex] = useState(0);
+
+  useEffect(() => {
+    if (index < text.length) {
+      const timeoutId = setTimeout(() => {
+        setDisplayedText(displayedText + text[index]);
+        setIndex(index + 1);
+      }, speed);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [index, text, displayedText, speed]);
+
+  return <div>{displayedText}</div>;
+};
+
+export default TypingEffect;
+
+
+import React from 'react';
+import TypingEffect from './TypingEffect';
+
+const App = () => {
+  return (
+    <div>
+      <TypingEffect text="Hello, welcome to my website!" speed={150} />
+    </div>
+  );
+};
+
+export default App;
+
+
+
+.blinking-cursor {
+  font-weight: 100;
+  font-size: 20px;
+  color: black;
+  -webkit-animation: 1s blink step-end infinite;
+  -moz-animation: 1s blink step-end infinite;
+  -ms-animation: 1s blink step-end infinite;
+  -o-animation: 1s blink step-end infinite;
+  animation: 1s blink step-end infinite;
+}
+
+@keyframes blink {
+  from, to {
+    color: transparent;
+  }
+  50% {
+    color: black;
+  }
+}
+
+@-webkit-keyframes blink {
+  from, to {
+    color: transparent;
+  }
+  50% {
+    color: black;
+  }
+}
+
+@-moz-keyframes blink {
+  from, to {
+    color: transparent;
+  }
+  50% {
+    color: black;
+  }
+}
+
+@-ms-keyframes blink {
+  from, to {
+    color: transparent;
+  }
+  50% {
+    color: black;
+  }
+}
+
+@-o-keyframes blink {
+  from, to {
+    color: transparent;
+  }
+  50% {
+    color: black;
+  }
+}
+
+
+
+import React, { useState, useEffect } from 'react';
+import './styles.css'; // Import the CSS file
+
+const TypingEffect = ({ text, speed = 100 }) => {
+  const [displayedText, setDisplayedText] = useState('');
+  const [index, setIndex] = useState(0);
+
+  useEffect(() => {
+    if (index < text.length) {
+      const timeoutId = setTimeout(() => {
+        setDisplayedText(displayedText + text[index]);
+        setIndex(index + 1);
+      }, speed);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [index, text, displayedText, speed]);
+
+  return (
+    <div>
+      {displayedText}
+      <span className="blinking-cursor">|</span>
+    </div>
+  );
+};
+
+export default TypingEffect;
+
+
+import React from 'react';
+import TypingEffect from './TypingEffect';
+
+const App = () => {
+  return (
+    <div>
+      <TypingEffect text="Hello, welcome to my website!" speed={150} />
+    </div>
+  );
+};
+
+export default App;

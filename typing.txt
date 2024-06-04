@@ -281,15 +281,8 @@ const TypingMarkdown = ({ children, speed = 50, dotSpeed = 500 }) => {
 };
 
 
+export default TypingMarkdown;
 
-
-.typing-markdown {
-  font-family: Arial, sans-serif;
-  font-size: 16px;
-  line-height: 1.5;
-  display: flex;
-  align-items: center;
-}
 
 
 import React, { useState, useEffect } from 'react';
@@ -329,9 +322,81 @@ const TypingMarkdown = ({ children, speed = 50, dotSpeed = 500 }) => {
 export default TypingMarkdown;
 
 
+.typing-markdown {
+  font-family: Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  display: flex;
+  align-items: center;
+}
+
 .dots {
   font-size: 16px;
   line-height: 1.5;
 }
 
+
+
+
+
+
+
+
+import React, { useState, useEffect } from 'react';
+import ReactMarkdown from 'react-markdown';
+import './styles.css'; // Import the CSS file for any additional styles
+
+const TypingMarkdown = ({ children, speed = 50 }) => {
+  const [displayedText, setDisplayedText] = useState('');
+  const [index, setIndex] = useState(0);
+  const [showDot, setShowDot] = useState(false);
+
+  useEffect(() => {
+    if (index < children.length) {
+      const timeoutId = setTimeout(() => {
+        setDisplayedText(displayedText + children[index]);
+        setIndex(index + 1);
+        setShowDot(true);
+      }, speed);
+      return () => clearTimeout(timeoutId);
+    } else {
+      setShowDot(false);
+    }
+  }, [index, children, displayedText, speed]);
+
+  return (
+    <div className="typing-markdown">
+      <ReactMarkdown>{displayedText}</ReactMarkdown>
+      {showDot && <span className="big-dot">•</span>}
+    </div>
+  );
+};
+
 export default TypingMarkdown;
+
+
+
+.typing-markdown {
+  font-family: Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  display: inline-flex;
+  align-items: center;
+}
+
+.big-dot {
+  margin-left: 5px;
+  font-size: 20px;
+  line-height: 1.5;
+  animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+  from, to {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+

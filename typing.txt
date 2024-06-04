@@ -243,3 +243,41 @@ const App = () => {
 };
 
 export default App;
+
+
+
+import React, { useState, useEffect } from 'react';
+import ReactMarkdown from 'react-markdown';
+import './styles.css'; // Import the CSS file for any additional styles
+
+const TypingMarkdown = ({ children, speed = 50, dotSpeed = 500 }) => {
+  const [displayedText, setDisplayedText] = useState('');
+  const [index, setIndex] = useState(0);
+  const [dots, setDots] = useState('');
+
+  useEffect(() => {
+    if (index < children.length) {
+      const timeoutId = setTimeout(() => {
+        setDisplayedText(displayedText + children[index]);
+        setIndex(index + 1);
+      }, speed);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [index, children, displayedText, speed]);
+
+  useEffect(() => {
+    const dotInterval = setInterval(() => {
+      setDots(prevDots => (prevDots.length < 3 ? prevDots + '.' : ''));
+    }, dotSpeed);
+    return () => clearInterval(dotInterval);
+  }, [dotSpeed]);
+
+  return (
+    <div className="typing-markdown">
+      <ReactMarkdown>{displayedText}</ReactMarkdown>
+      {index < children.length && <span>{dots}</span>}
+    </div>
+  );
+};
+
+export default TypingMarkdown;

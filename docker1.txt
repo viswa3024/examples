@@ -1,0 +1,50 @@
+# Use the official Debian 12 slim image
+FROM debian:12-slim
+
+# Install necessary dependencies
+RUN apt-get update && apt-get install -y \
+    wget \
+    curl \
+    gnupg \
+    ca-certificates \
+    fontconfig \
+    --no-install-recommends
+
+# Install Node.js 18.x
+RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
+    apt-get install -y nodejs && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Install Chromium dependencies
+RUN apt-get update && apt-get install -y \
+    libasound2 \
+    libatk1.0-0 \
+    libcups2 \
+    libdrm2 \
+    libxrandr2 \
+    libgbm1 \
+    libxdamage1 \
+    libxcomposite1 \
+    libxshmfence1 \
+    libnss3 \
+    libxss1 \
+    libxtst6 \
+    xdg-utils \
+    fonts-liberation \
+    libappindicator3-1 \
+    libatk-bridge2.0-0 \
+    libatspi2.0-0 \
+    libgtk-3-0 \
+    --no-install-recommends
+
+# Install Puppeteer
+RUN npm install puppeteer
+
+# Add a script to run Puppeteer (modify as needed)
+COPY run-puppeteer.js /usr/src/app/run-puppeteer.js
+
+# Set the working directory
+WORKDIR /usr/src/app
+
+# Command to run the script
+CMD ["node", "run-puppeteer.js"]

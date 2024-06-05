@@ -1,0 +1,64 @@
+@keyframes typewriter {
+  from { width: 0; }
+  to { width: 100%; }
+}
+
+@keyframes blink {
+  0% { border-right-color: rgba(0,0,0,.75); }
+  50% { border-right-color: transparent; }
+  100% { border-right-color: rgba(0,0,0,.75); }
+}
+
+.typewriter-container {
+  display: inline-block;
+  overflow: hidden; /* Ensures the text does not wrap */
+  border-right: .15em solid black; /* The cursor */
+  white-space: nowrap; /* Keeps the content on a single line */
+  animation: typewriter 4s steps(40, end), blink .75s step-end infinite;
+}
+
+
+import React, { useState, useEffect } from 'react';
+import ReactMarkdown from 'react-markdown';
+import './Typewriter.css'; // Assuming the CSS is saved in Typewriter.css
+
+const Typewriter = ({ content }) => {
+  const [displayedContent, setDisplayedContent] = useState('');
+
+  useEffect(() => {
+    let timeout;
+    if (displayedContent.length < content.length) {
+      timeout = setTimeout(() => {
+        setDisplayedContent(content.substring(0, displayedContent.length + 1));
+      }, 100); // Adjust the speed of the typewriter effect here
+    }
+    return () => clearTimeout(timeout);
+  }, [displayedContent, content]);
+
+  return (
+    <div className="typewriter-container">
+      <ReactMarkdown>{displayedContent}</ReactMarkdown>
+    </div>
+  );
+};
+
+export default Typewriter;
+
+
+import React from 'react';
+import Typewriter from './Typewriter';
+
+const App = () => {
+  const markdownContent = `
+    # Hello World
+    This is a typewriter effect with react-markdown.
+  `;
+
+  return (
+    <div>
+      <Typewriter content={markdownContent} />
+    </div>
+  );
+};
+
+export default App;

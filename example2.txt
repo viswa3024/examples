@@ -229,3 +229,52 @@ const Typewriter = ({ content }) => {
 };
 
 export default Typewriter;
+
+
+
+
+
+
+
+import React, { useState, useEffect } from 'react';
+import ReactMarkdown from 'react-markdown';
+import './Typewriter.css';
+
+const Typewriter = ({ content }) => {
+  const [displayedContent, setDisplayedContent] = useState('');
+  const [isTyping, setIsTyping] = useState(true);
+
+  useEffect(() => {
+    let textPosition = 0;
+    const speed = 100; // Adjust the typing speed as needed
+
+    const typeWriter = () => {
+      const textToShow = content.substring(0, textPosition);
+      const blinkingCursor = textPosition === content.length ? '' : '<span id="blinker">&#9646;</span>';
+      setDisplayedContent(textToShow + blinkingCursor);
+
+      if (textPosition < content.length) {
+        textPosition++;
+        setTimeout(typeWriter, speed);
+      } else {
+        setIsTyping(false);
+      }
+    };
+
+    typeWriter();
+
+    return () => {
+      // Cleanup if component unmounts while typing
+      setIsTyping(false);
+    };
+  }, [content]);
+
+  return (
+    <div className="typewriter-container">
+      <ReactMarkdown>{displayedContent}</ReactMarkdown>
+    </div>
+  );
+};
+
+export default Typewriter;
+

@@ -1,0 +1,9 @@
+const strings = ["test", "test2", "test3"];
+let finalString = "";
+
+for (let i = 0; i < strings.length; i++) {
+    setTimeout((index) => {
+        finalString += strings[index] + "\n";
+        console.log(finalString); // Print the intermediate result
+    }, i * 1000, i); // Passing 'i' as an argument to the arrow function
+}

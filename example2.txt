@@ -287,3 +287,4 @@ const blinkingCursor = displayedContent.length === content.length ? (
   </svg>
 ) : '';
 
+•

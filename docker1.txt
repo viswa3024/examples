@@ -112,3 +112,12 @@ ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 # Command to run the script
 CMD ["node", "run-puppeteer.js"]
 
+
+
+
+docker run -it --rm debian:12-slim /bin/bash
+apt-get update
+apt-get install -y chromium
+
+which chromium
+exit

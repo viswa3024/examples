@@ -288,3 +288,11 @@ const blinkingCursor = displayedContent.length === content.length ? (
 ) : '';
 
 •
+
+
+.result-streaming>:not(ol):not(ul):not(pre):last-child:after, .result-streaming>pre:last-child code:after {
+    content: "\25CF";
+    font-family: Circle, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif;
+    line-height: normal;
+    margin-left: .25rem;
+    vertical-align: baseline;

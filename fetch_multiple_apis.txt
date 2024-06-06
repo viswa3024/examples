@@ -1,0 +1,75 @@
+// Step 1: Define the API endpoints
+const apiUrls = [
+  'https://api.example.com/data1',
+  'https://api.example.com/data2',
+  'https://api.example.com/data3'
+];
+
+// Step 2: Create a function to fetch data from an API
+const fetchData = (url) => {
+  return fetch(url)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return response.json();
+    });
+};
+
+// Step 3: Use Promise.all to fetch data from all APIs in parallel
+const fetchAllData = (urls) => {
+  const fetchPromises = urls.map(url => fetchData(url));
+  return Promise.all(fetchPromises);
+};
+
+// Calling the function and handling the results
+fetchAllData(apiUrls)
+  .then(dataArray => {
+    // dataArray contains the data from all API responses in the same order as the URLs
+    console.log(dataArray);
+  })
+  .catch(error => {
+    console.error('Error fetching data:', error);
+  });
+
+
+
+
+// Define the API endpoints
+const apiUrls = [
+  'https://api.example.com/data1',
+  'https://api.example.com/data2',
+  'https://api.example.com/data3'
+];
+
+// Create a function to fetch data from an API
+const fetchData = (url) => {
+  return fetch(url)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return response.json();
+    });
+};
+
+// Use Promise.allSettled to fetch data from all APIs in parallel and handle both success and error cases
+const fetchAllData = (urls) => {
+  const fetchPromises = urls.map(url => fetchData(url));
+  return Promise.allSettled(fetchPromises);
+};
+
+// Calling the function and handling the results
+fetchAllData(apiUrls)
+  .then(results => {
+    results.forEach((result, index) => {
+      if (result.status === 'fulfilled') {
+        console.log(`Response from API ${index + 1}:`, result.value);
+      } else {
+        console.error(`Error from API ${index + 1}:`, result.reason);
+      }
+    });
+  })
+  .catch(error => {
+    console.error('Error in fetching data:', error);
+  });

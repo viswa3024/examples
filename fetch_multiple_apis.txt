@@ -73,3 +73,70 @@ fetchAllData(apiUrls)
   .catch(error => {
     console.error('Error in fetching data:', error);
   });
+
+
+
+
+
+import React, { useState, useEffect } from 'react';
+
+const apiUrls = [
+  'https://api.example.com/data1',
+  'https://api.example.com/data2',
+  'https://api.example.com/data3'
+];
+
+const fetchData = (url) => {
+  return fetch(url)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return response.json();
+    });
+};
+
+const FetchComponent = () => {
+  const [data, setData] = useState([]);
+  const [errors, setErrors] = useState([]);
+
+  useEffect(() => {
+    const fetchAllData = async (urls) => {
+      const fetchPromises = urls.map(url => fetchData(url));
+      const results = await Promise.allSettled(fetchPromises);
+      
+      const successData = results
+        .filter(result => result.status === 'fulfilled')
+        .map(result => result.value);
+      
+      const errorData = results
+        .filter(result => result.status === 'rejected')
+        .map(result => result.reason);
+      
+      setData(successData);
+      setErrors(errorData);
+    };
+
+    fetchAllData(apiUrls);
+  }, []);
+
+  return (
+    <div>
+      <h1>API Responses</h1>
+      <h2>Success Data:</h2>
+      <ul>
+        {data.map((item, index) => (
+          <li key={index}>{JSON.stringify(item)}</li>
+        ))}
+      </ul>
+      <h2>Errors:</h2>
+      <ul>
+        {errors.map((error, index) => (
+          <li key={index}>{error.message}</li>
+        ))}
+      </ul>
+    </div>
+  );
+};
+
+export default FetchComponent;

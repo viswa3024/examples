@@ -219,3 +219,92 @@ const FetchComponent = () => {
 
 export default FetchComponent;
 
+
+
+
+
+import React, { useState, useEffect } from 'react';
+
+const apiUrls = [
+  'https://api.example.com/data1',
+  'https://api.example.com/data2',
+  'https://api.example.com/data3'
+];
+
+const fetchData = (url) => {
+  return fetch(url)
+    .then(response => {
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      return response.json();
+    });
+};
+
+const FetchComponent = () => {
+  const [apiOneSuccess, setApiOneSuccess] = useState(null);
+  const [apiTwoSuccess, setApiTwoSuccess] = useState(null);
+  const [apiThreeSuccess, setApiThreeSuccess] = useState(null);
+  const [apiOneError, setApiOneError] = useState(null);
+  const [apiTwoError, setApiTwoError] = useState(null);
+  const [apiThreeError, setApiThreeError] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchAllData = async () => {
+      setLoading(true); // Set loading to true before starting the fetch
+      const fetchPromises = apiUrls.map(url => fetchData(url));
+      const results = await Promise.allSettled(fetchPromises);
+      
+      if (results[0].status === 'fulfilled') {
+        setApiOneSuccess(results[0].value);
+      } else {
+        setApiOneError(results[0].reason);
+      }
+      
+      if (results[1].status === 'fulfilled') {
+        setApiTwoSuccess(results[1].value);
+      } else {
+        setApiTwoError(results[1].reason);
+      }
+      
+      if (results[2].status === 'fulfilled') {
+        setApiThreeSuccess(results[2].value);
+      } else {
+        setApiThreeError(results[2].reason);
+      }
+
+      setLoading(false); // Set loading to false after all fetches are completed
+    };
+
+    fetchAllData();
+  }, []);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  return (
+    <div>
+      <h1>API Responses</h1>
+      
+      <h2>API One Success:</h2>
+      <pre>{JSON.stringify(apiOneSuccess, null, 2)}</pre>
+      <h2>API One Error:</h2>
+      <pre>{apiOneError && apiOneError.message}</pre>
+      
+      <h2>API Two Success:</h2>
+      <pre>{JSON.stringify(apiTwoSuccess, null, 2)}</pre>
+      <h2>API Two Error:</h2>
+      <pre>{apiTwoError && apiTwoError.message}</pre>
+      
+      <h2>API Three Success:</h2>
+      <pre>{JSON.stringify(apiThreeSuccess, null, 2)}</pre>
+      <h2>API Three Error:</h2>
+      <pre>{apiThreeError && apiThreeError.message}</pre>
+    </div>
+  );
+};
+
+export default FetchComponent;
+

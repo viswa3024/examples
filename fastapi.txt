@@ -56,3 +56,36 @@ async def read_root():
     # Accessing the app state within a route
     some_state = app.state.some_state
     return {"Hello": "World", "state": some_state}
+
+
+
+from fastapi import FastAPI, APIRouter, Depends, Request
+from contextlib import asynccontextmanager
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup code
+    print("Starting up...")
+    app.state.some_state = "This is some state data"
+    yield
+    # Shutdown code
+    print("Shutting down...")
+    del app.state.some_state
+
+app = FastAPI(lifespan=lifespan)
+
+router = APIRouter()
+
+def get_app_state(request: Request):
+    return request.app.state.some_state
+
+@router.get("/router-endpoint")
+async def read_router_endpoint(state_data: str = Depends(get_app_state)):
+    return {"Router Endpoint State": state_data}
+
+app.include_router(router)
+
+@app.get("/")
+async def read_root(state_data: str = Depends(get_app_state)):
+    return {"Hello": "World", "State": state_data}
+

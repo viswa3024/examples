@@ -121,3 +121,87 @@ class Settings(BaseSettings):
 settings = Settings()
 
 
+
+Updating @validator to @field_validator
+
+Before (Pydantic v1.x)
+
+from pydantic import BaseModel, validator
+
+class UserModel(BaseModel):
+    name: str
+    age: int
+
+    @validator('name')
+    def name_must_have_space(cls, v):
+        if ' ' not in v:
+            raise ValueError('must contain a space')
+        return v
+
+    @validator('age')
+    def age_must_be_positive(cls, v):
+        if v <= 0:
+            raise ValueError('must be positive')
+        return v
+
+
+After (Pydantic v2.x)
+
+from pydantic import BaseModel, field_validator
+
+class UserModel(BaseModel):
+    name: str
+    age: int
+
+    @field_validator('name')
+    def name_must_have_space(cls, v):
+        if ' ' not in v:
+            raise ValueError('must contain a space')
+        return v
+
+    @field_validator('age')
+    def age_must_be_positive(cls, v):
+        if v <= 0:
+            raise ValueError('must be positive')
+        return v
+
+
+Updating @root_validator to @model_validator
+
+Before (Pydantic v1.x)
+
+
+from pydantic import BaseModel, root_validator
+
+class UserModel(BaseModel):
+    name: str
+    age: int
+
+    @root_validator
+    def check_name_and_age(cls, values):
+        name = values.get('name')
+        age = values.get('age')
+        if ' ' not in name:
+            raise ValueError('name must contain a space')
+        if age <= 0:
+            raise ValueError('age must be positive')
+        return values
+
+
+After (Pydantic v2.x)
+
+from pydantic import BaseModel, model_validator
+
+class UserModel(BaseModel):
+    name: str
+    age: int
+
+    @model_validator(mode='after')
+    def check_name_and_age(cls, values):
+        name = values.name
+        age = values.age
+        if ' ' not in name:
+            raise ValueError('name must contain a space')
+        if age <= 0:
+            raise ValueError('age must be positive')
+        return values

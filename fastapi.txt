@@ -89,3 +89,34 @@ app.include_router(router)
 async def read_root(state_data: str = Depends(get_app_state)):
     return {"Hello": "World", "State": state_data}
 
+
+
+
+from pydantic_settings import BaseSettings
+
+
+from pydantic import BaseSettings
+
+class Settings(BaseSettings):
+    app_name: str = "MyApp"
+    admin_email: str
+
+    class Config:
+        env_file = ".env"
+
+settings = Settings()
+
+
+
+from pydantic_settings import BaseSettings
+
+class Settings(BaseSettings):
+    app_name: str = "MyApp"
+    admin_email: str
+
+    class Config:
+        env_file = ".env"
+
+settings = Settings()
+
+

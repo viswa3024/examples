@@ -28,3 +28,31 @@ app = FastAPI(lifespan=lifespan)
 @app.get("/")
 async def read_root():
     return {"Hello": "World"}
+
+
+from fastapi import FastAPI
+from contextlib import asynccontextmanager
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Accessing the app instance to add a startup message
+    print("Starting up...")
+
+    # You can modify the app instance here if needed
+    app.state.some_state = "This is some state data"
+
+    yield  # This point is where the lifespan of the app is active
+
+    # Accessing the app instance to add a shutdown message
+    print("Shutting down...")
+
+    # Clean up or modify the app state on shutdown
+    del app.state.some_state
+
+app = FastAPI(lifespan=lifespan)
+
+@app.get("/")
+async def read_root():
+    # Accessing the app state within a route
+    some_state = app.state.some_state
+    return {"Hello": "World", "state": some_state}

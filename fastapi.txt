@@ -90,6 +90,7 @@ async def read_root(state_data: str = Depends(get_app_state)):
     return {"Hello": "World", "State": state_data}
 
 
+pip install pydantic-settings
 
 
 from pydantic_settings import BaseSettings

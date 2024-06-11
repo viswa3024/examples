@@ -7,3 +7,54 @@ ol, ul {
 ol li, ul li {
   display: list-item;
 }
+
+
+
+import React from 'react';
+import ReactMarkdown from 'react-markdown';
+
+const markdown = `
+1. First item
+2. Second item
+3. Third item
+`;
+
+const markdownStyles = {
+  ol: {
+    listStyle: 'initial',
+    marginLeft: '20px',
+    paddingLeft: '20px',
+  },
+  ul: {
+    listStyle: 'initial',
+    marginLeft: '20px',
+    paddingLeft: '20px',
+  },
+  li: {
+    display: 'list-item',
+    listStylePosition: 'inside',
+  },
+  marker: {
+    display: 'inline',
+    content: 'initial',
+    marginRight: '5px',
+  },
+};
+
+function MarkdownComponent() {
+  return (
+    <div className="markdown-container" style={{ padding: '20px' }}>
+      <ReactMarkdown
+        components={{
+          ol: ({ node, ...props }) => <ol style={markdownStyles.ol} {...props} />,
+          ul: ({ node, ...props }) => <ul style={markdownStyles.ul} {...props} />,
+          li: ({ node, ...props }) => <li style={markdownStyles.li} {...props} />,
+        }}
+      >
+        {markdown}
+      </ReactMarkdown>
+    </div>
+  );
+}
+
+export default MarkdownComponent;

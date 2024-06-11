@@ -1,0 +1,9 @@
+ol, ul {
+  list-style: initial; /* Ensure default list styling */
+  margin-left: 20px;   /* Adjust indentation if necessary */
+  padding-left: 20px;
+}
+
+ol li, ul li {
+  display: list-item;
+}

@@ -1,0 +1,193 @@
+If you want to baseline an existing production database using Prisma and prefer using pip instead of npx, you'll need to leverage prisma-py tools within a Python environment. Unfortunately, prisma-py tools like the Prisma Client and migrations management are inherently designed to work with Node.js (hence the use of npx). There is no direct pip alternative to manage Prisma migrations or schema introspection because Prisma's core functionality relies on Node.js tools.
+
+
+
+However, I can guide you through setting up a workflow that uses Prisma's Node.js tools within a Python project. Here's how you can manage it effectively:
+
+Step-by-Step Guide to Baseline an Existing Production Database with Prisma in a Python Environment
+Install Prisma CLI using Node.js
+
+Although you'll be using a Python project, you need the Prisma CLI to manage the database schema. Install Node.js and npm if you haven't already.
+
+
+# npm install -g prisma
+
+
+Introspect the Existing Database
+
+Use the Prisma CLI to introspect your existing database schema and generate the Prisma schema file.
+
+# prisma db pull
+
+
+This command connects to your database, reads the schema, and updates the prisma/schema.prisma file.
+
+Review and Adjust the Prisma Schema
+
+Open the prisma/schema.prisma file and review the generated models. Make any necessary adjustments to align with your application's needs.
+
+Create a Baseline Migration
+
+Create an initial migration based on the current state of your schema.
+
+
+#prisma migrate diff --from-empty --to-schema-datamodel prisma/schema.prisma > prisma/migrations/init.sql
+
+
+This command generates a SQL script that represents the current state of your schema.
+
+Mark the Migration as Applied
+
+Resolve this migration as applied to align Prisma's migration history with your existing database schema.
+
+# prisma migrate resolve --applied 2024XXXXXX_init
+
+
+Replace 2024XXXXXX_init with the actual timestamp and name of the generated migration directory.
+
+Generate the Prisma Client
+
+Generate the Prisma client to reflect the current state of the schema.
+
+#prisma generate
+
+
+Using Prisma in a Python Project
+Once the Prisma setup is complete, you can use the Prisma Client in your Python project.
+
+Install Prisma Client for Python
+
+#pip install prisma
+
+
+Set Up Your Python Project
+
+Ensure your Python project can use the generated Prisma client. Here's an example project structure:
+
+
+my-fastapi-prisma-app/
+├── main.py
+├── env/
+├── prisma/
+│   ├── schema.prisma
+│   ├── migrations/
+│   │   └── 2024XXXXXX_init/
+│   │       └── init.sql
+├── .env
+├── requirements.txt
+└── README.md
+
+
+# Example FastAPI Application (main.py)
+
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+from prisma import Prisma
+
+app = FastAPI
+
+
+
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+from prisma import Prisma
+
+app = FastAPI()
+prisma = Prisma()
+
+class UserCreate(BaseModel):
+    email: str
+    name: str
+
+@app.on_event("startup")
+async def startup():
+    await prisma.connect()
+
+@app.on_event("shutdown")
+async def shutdown():
+    await prisma.disconnect()
+
+@app.post("/users/", response_model=UserCreate)
+async def create_user(user: UserCreate):
+    existing_user = await prisma.user.find_unique(where={"email": user.email})
+    if existing_user:
+        raise HTTPException(status_code=400, detail="Email already registered")
+    new_user = await prisma.user.create(data=user.dict())
+    return new_user
+
+@app.get("/users/{user_id}", response_model=UserCreate)
+async def read_user(user_id: int):
+    user = await prisma.user.find_unique(where={"id": user_id})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    return user
+
+
+
+Full Project Structure
+
+
+my-fastapi-prisma-app/
+├── main.py
+├── env/
+├── prisma/
+│   ├── schema.prisma
+│   ├── migrations/
+│   │   └── 2024XXXXXX_init/
+│   │       └── init.sql
+├── .env
+├── requirements.txt
+└── README.md
+
+
+Steps to Reset the Schema and Apply Migrations
+Ensure Prisma CLI and Prisma Client are installed:
+Make sure you have Prisma CLI installed. If not, install it using npm.
+
+
+# npm install -g prisma
+
+
+Run the Migration Command:
+Run the prisma migrate dev command with a migration name, such as "init".
+
+# prisma migrate dev --name init
+
+
+Confirm Schema Reset:
+When prompted with the message asking if you want to reset the schema and warning that all data will be lost, type y to confirm and proceed.
+
+Example Command and Confirmation
+
+# prisma migrate dev --name init
+
+
+Output:
+
+We need to reset the "public" schema at "127.0.0.1:5432"
+
+Do you want to continue? All data will be lost (y/N)
+
+
+Type y and press Enter to confirm and reset the schema.
+
+Automate the Process
+If you want to automate this process (e.g., for CI/CD pipelines), you can use the --force flag to bypass the confirmation prompt:
+
+# prisma migrate reset --force
+
+
+This command will reset the database schema without prompting for confirmation, so use it with caution.
+
+Full Steps
+Reset the Database Schema:
+Run the following command to reset the schema without prompting for confirmation:
+
+# prisma migrate reset --force
+
+This command will reset the database schema and apply all migrations from scratch.
+
+Generate the Prisma Client:
+After resetting the schema and applying migrations, generate the Prisma client to reflect the current state of the schema:
+
+# prisma generate

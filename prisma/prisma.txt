@@ -694,3 +694,77 @@ async def get_users():
         raise HTTPException(status_code=404, detail="No users found")
     return users
 
+import os
+from fastapi import FastAPI, HTTPException
+from prisma import Prisma
+import logging
+
+# Initialize logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+app = FastAPI()
+prisma = Prisma()
+
+@app.on_event("startup")
+async def startup():
+    await prisma.connect()
+
+@app.on_event("shutdown")
+async def shutdown():
+    await prisma.disconnect()
+
+@app.get("/")
+async def read_root():
+    return {"message": "Hello, World!"}
+
+@app.get("/users/")
+async def get_users():
+    try:
+        users = await prisma.user.find_many()
+        if not users:
+            raise HTTPException(status_code=404, detail="No users found")
+        return users
+    except Exception as e:
+        logger.error(f"Error retrieving users: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")
+
+
+import os
+from fastapi import FastAPI, HTTPException
+from prisma import Prisma
+import logging
+
+# Initialize logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+app = FastAPI()
+prisma = Prisma()
+
+@app.on_event("startup")
+async def startup():
+    await prisma.connect()
+
+@app.on_event("shutdown")
+async def shutdown():
+    await prisma.disconnect()
+
+@app.get("/")
+async def read_root():
+    return {"message": "Hello, World!"}
+
+@app.get("/users/")
+async def get_users():
+    try:
+        # Custom logging of SQL queries
+        query = prisma.user.find_many.to_string()
+        logger.info(f"Executing query: {query}")
+
+        users = await prisma.user.find_many()
+        if not users:
+            raise HTTPException(status_code=404, detail="No users found")
+        return users
+    except Exception as e:
+        logger.error(f"Error retrieving users: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")

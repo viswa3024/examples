@@ -655,5 +655,5 @@ By following these steps, you ensure that the Prisma client is correctly generat
 
 
 
-
+docker run -d -p 8000:8000 --env-file .env my_fastapi_app
 

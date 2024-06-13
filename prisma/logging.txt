@@ -68,3 +68,36 @@ async def get_users():
     except Exception as e:
         logger.error(f"Error retrieving users: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
+
+
+
+
+
+
+
+
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  logLevel = "query"
+}
+
+
+from fastapi import FastAPI
+from prisma import Client as PrismaClient
+
+app = FastAPI()
+
+prisma = PrismaClient(log_level="query")  # Configure Prisma Client with query logging
+
+@app.get("/")
+def read_root():
+    results = prisma.query.your_model.find_many()
+    return {"results": results}
+
+# Optional: Close the Prisma Client on shutdown
+@app.on_event("shutdown")
+def shutdown_event():
+    prisma.disconnect()
+

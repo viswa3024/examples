@@ -1,0 +1,70 @@
+prisma_logging.py
+
+import logging
+from prisma import Prisma
+
+# Initialize logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+
+
+# Initialize Prisma client
+prisma = Prisma()
+
+# Function to log and execute Prisma queries
+async def log_and_execute_query(query_function, *args, **kwargs):
+    query_str = query_function.to_string()
+    logger.info(f"Executing query: {query_str}")
+    return await query_function(*args, **kwargs)
+
+# Example usage:
+async def example_query():
+    # Wrap your Prisma query function with logging
+    result = await log_and_execute_query(prisma.user.find_many)
+    return result
+
+# Run example query
+if __name__ == "__main__":
+    import asyncio
+    result = asyncio.run(example_query())
+    print(result)
+
+
+
+import os
+from fastapi import FastAPI, HTTPException
+from prisma import Prisma
+import logging
+from prisma_logging import log_and_execute_query  # Import your logging utility
+
+# Initialize logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+app = FastAPI()
+prisma = Prisma()
+
+@app.on_event("startup")
+async def startup():
+    await prisma.connect()
+
+@app.on_event("shutdown")
+async def shutdown():
+    await prisma.disconnect()
+
+@app.get("/")
+async def read_root():
+    return {"message": "Hello, World!"}
+
+@app.get("/users/")
+async def get_users():
+    try:
+        # Wrap your Prisma query function with logging
+        users = await log_and_execute_query(prisma.user.find_many)
+        if not users:
+            raise HTTPException(status_code=404, detail="No users found")
+        return users
+    except Exception as e:
+        logger.error(f"Error retrieving users: {e}")
+        raise HTTPException(status_code=500, detail="Internal server error")

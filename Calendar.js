@@ -34,3 +34,53 @@ const Calendar = () => {
 };
 
 export default Calendar;
+
+
+
+
+
+
+
+// src/components/Calendar.js
+import React, { useState } from 'react';
+import moment from 'moment';
+import './Calendar.css';
+
+const Calendar = () => {
+  const [selectedDate, setSelectedDate] = useState(moment().format('YYYY-MM-DD'));
+  const [selectedTime, setSelectedTime] = useState(moment().format('HH:mm'));
+
+  const handleDateChange = (e) => {
+    setSelectedDate(e.target.value);
+  };
+
+  const handleTimeChange = (e) => {
+    setSelectedTime(e.target.value);
+  };
+
+  return (
+    <div className="calendar">
+      <div className="date-picker">
+        <label htmlFor="date">Select Date: </label>
+        <input
+          type="date"
+          id="date"
+          value={selectedDate}
+          onChange={handleDateChange}
+        />
+      </div>
+      <div className="time-picker">
+        <label htmlFor="time">Select Time: </label>
+        <input
+          type="time"
+          id="time"
+          value={selectedTime}
+          onChange={handleTimeChange}
+        />
+      </div>
+    </div>
+  );
+};
+
+export default Calendar;
+

@@ -70,3 +70,35 @@ const YearSelect = ({ onYearChange }) => {
 
 export default YearSelect
 
+
+
+import React, { useState } from 'react';
+
+const YearSelect = ({ startYear, endYear, onYearChange }) => {
+  const [selectedYear, setSelectedYear] = useState('');
+
+  const generateYearOptions = () => {
+    const options = [];
+    for (let year = endYear; year >= startYear; year--) {
+      options.push({ value: year, label: `${year}` });
+    }
+    return options;
+  };
+
+  const handleChange = (e) => {
+    const year = e.target.value;
+    setSelectedYear(year);
+    onYearChange(year);
+  };
+
+  return (
+    <select value={selectedYear} onChange={handleChange}>
+      <option value="">Select a year</option>
+      {generateYearOptions().map(option => (
+        <option key={option.value} value={option.value}>{option.label}</option>
+      ))}
+    </select>
+  );
+};
+
+export default YearSelect;

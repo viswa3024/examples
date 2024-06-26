@@ -12,3 +12,38 @@ query = """
 
 # Execute the query with the interval as a parameter
 result = await database.execute(query=text(query), values={'interval': interval})
+
+
+
+
+
+from sqlalchemy import create_engine, text
+from sqlalchemy.orm import sessionmaker
+from datetime import datetime
+
+# Replace with your actual database URL
+DATABASE_URL = "postgresql+psycopg2://user:password@localhost/dbname"
+
+# Create an engine
+engine = create_engine(DATABASE_URL, echo=True)
+
+# Create a sessionmaker
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+def get_data(session, interval: str):
+    query = """
+        SELECT * FROM your_table
+        WHERE "timestamp" >= current_date AT TIME ZONE 'UTC' - INTERVAL :interval
+    """
+    result = session.execute(text(query), {'interval': interval})
+    return result.fetchall()
+
+# Usage
+session = SessionLocal()
+
+try:
+    interval = '7 days'
+    data = get_data(session, interval)
+    print(data)
+finally:
+    session.close()

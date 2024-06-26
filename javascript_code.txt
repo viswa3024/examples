@@ -1,0 +1,15 @@
+
+
+const outputData = {};
+
+inputData.forEach(entry => {
+    const { app_name, timestamp, score_name, score } = entry;
+    
+    if (!outputData[app_name]) {
+        outputData[app_name] = { harmfulness: [], faithfulness: [] };
+    }
+    
+    outputData[app_name][score_name].push({ timestamp, score });
+});
+
+console.log(JSON.stringify(outputData, null, 4));

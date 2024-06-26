@@ -1,0 +1,19 @@
+import json
+from collections import defaultdict
+
+output_data = defaultdict(lambda: defaultdict(list))
+
+for entry in input_data:
+    app_name = entry["app_name"]
+    score_name = entry["score_name"]
+    score_entry = {
+        "timestamp": entry["timestamp"],
+        "score": entry["score"]
+    }
+    output_data[app_name][score_name].append(score_entry)
+
+# Convert defaultdict to regular dict
+output_data = {app_name: dict(scores) for app_name, scores in output_data.items()}
+
+# Print the output in JSON format
+print(json.dumps(output_data, indent=4))

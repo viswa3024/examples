@@ -136,3 +136,89 @@ export async function PATCH(request, { params }) {
   });
 }
 
+
+
+
+Static API Route Example
+In this example, the route.js file will handle multiple HTTP methods with a unified handler.
+
+File: app/api/example/route.js
+
+
+// app/api/example/route.js
+
+async function handleRequest(request) {
+  switch (request.method) {
+    case 'GET':
+      return new Response(JSON.stringify({ message: 'This is a GET request' }), {
+        headers: { 'Content-Type': 'application/json' },
+      });
+    case 'POST':
+      const postData = await request.json();
+      return new Response(JSON.stringify({ message: 'This is a POST request', data: postData }), {
+        headers: { 'Content-Type': 'application/json' },
+      });
+    case 'PUT':
+      const putData = await request.json();
+      return new Response(JSON.stringify({ message: 'This is a PUT request', data: putData }), {
+        headers: { 'Content-Type': 'application/json' },
+      });
+    case 'DELETE':
+      return new Response(JSON.stringify({ message: 'This is a DELETE request' }), {
+        headers: { 'Content-Type': 'application/json' },
+      });
+    case 'PATCH':
+      const patchData = await request.json();
+      return new Response(JSON.stringify({ message: 'This is a PATCH request', data: patchData }), {
+        headers: { 'Content-Type': 'application/json' },
+      });
+    default:
+      return new Response('Method not allowed', { status: 405 });
+  }
+}
+
+export { handleRequest as GET, handleRequest as POST, handleRequest as PUT, handleRequest as DELETE, handleRequest as PATCH };
+
+
+
+Dynamic API Route Example
+For the dynamic API route, we will also use a unified handler to manage multiple HTTP methods.
+
+File: app/api/users/[id]/route.js
+
+
+// app/api/users/[id]/route.js
+
+async function handleRequest(request, { params }) {
+  const { id } = params;
+
+  switch (request.method) {
+    case 'GET':
+      return new Response(JSON.stringify({ message: 'GET user', userId: id }), {
+        headers: { 'Content-Type': 'application/json' },
+      });
+    case 'POST':
+      const postData = await request.json();
+      return new Response(JSON.stringify({ message: 'POST user', userId: id, data: postData }), {
+        headers: { 'Content-Type': 'application/json' },
+      });
+    case 'PUT':
+      const putData = await request.json();
+      return new Response(JSON.stringify({ message: 'PUT user', userId: id, data: putData }), {
+        headers: { 'Content-Type': 'application/json' },
+      });
+    case 'DELETE':
+      return new Response(JSON.stringify({ message: 'DELETE user', userId: id }), {
+        headers: { 'Content-Type': 'application/json' },
+      });
+    case 'PATCH':
+      const patchData = await request.json();
+      return new Response(JSON.stringify({ message: 'PATCH user', userId: id, data: patchData }), {
+        headers: { 'Content-Type': 'application/json' },
+      });
+    default:
+      return new Response('Method not allowed', { status: 405 });
+  }
+}
+
+export { handleRequest as GET, handleRequest as POST, handleRequest as PUT, handleRequest as DELETE, handleRequest as PATCH };

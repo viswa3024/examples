@@ -45,3 +45,94 @@ async function handler(request) {
   }
   
   export { handler as GET, handler as POST };
+
+
+
+
+
+
+
+
+
+app/api/example/route.js
+
+// app/api/example/route.js
+
+export async function GET(request) {
+  return new Response(JSON.stringify({ message: 'This is a GET request' }), {
+    headers: { 'Content-Type': 'application/json' },
+  });
+}
+
+export async function POST(request) {
+  const data = await request.json();
+  return new Response(JSON.stringify({ message: 'This is a POST request', data }), {
+    headers: { 'Content-Type': 'application/json' },
+  });
+}
+
+export async function PUT(request) {
+  const data = await request.json();
+  return new Response(JSON.stringify({ message: 'This is a PUT request', data }), {
+    headers: { 'Content-Type': 'application/json' },
+  });
+}
+
+export async function DELETE(request) {
+  return new Response(JSON.stringify({ message: 'This is a DELETE request' }), {
+    headers: { 'Content-Type': 'application/json' },
+  });
+}
+
+export async function PATCH(request) {
+  const data = await request.json();
+  return new Response(JSON.stringify({ message: 'This is a PATCH request', data }), {
+    headers: { 'Content-Type': 'application/json' },
+  });
+}
+
+
+Dynamic API Route Example
+
+File: app/api/users/[id]/route.js
+
+// app/api/users/[id]/route.js
+
+export async function GET(request, { params }) {
+  const { id } = params;
+  return new Response(JSON.stringify({ message: 'GET user', userId: id }), {
+    headers: { 'Content-Type': 'application/json' },
+  });
+}
+
+export async function POST(request, { params }) {
+  const { id } = params;
+  const data = await request.json();
+  return new Response(JSON.stringify({ message: 'POST user', userId: id, data }), {
+    headers: { 'Content-Type': 'application/json' },
+  });
+}
+
+export async function PUT(request, { params }) {
+  const { id } = params;
+  const data = await request.json();
+  return new Response(JSON.stringify({ message: 'PUT user', userId: id, data }), {
+    headers: { 'Content-Type': 'application/json' },
+  });
+}
+
+export async function DELETE(request, { params }) {
+  const { id } = params;
+  return new Response(JSON.stringify({ message: 'DELETE user', userId: id }), {
+    headers: { 'Content-Type': 'application/json' },
+  });
+}
+
+export async function PATCH(request, { params }) {
+  const { id } = params;
+  const data = await request.json();
+  return new Response(JSON.stringify({ message: 'PATCH user', userId: id, data }), {
+    headers: { 'Content-Type': 'application/json' },
+  });
+}
+

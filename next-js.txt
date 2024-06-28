@@ -271,3 +271,27 @@ export default function Meals() {
     </div>
   );
 }
+
+
+
+@font-face {
+  font-family: 's';
+  src: url('/fonts/Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 's';
+  src: url('/fonts/Bold.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 's';
+  src: url('/fonts/SemiBold.ttf') format('truetype');
+  font-weight: 600; /* Semi-bold is typically represented by weight 600 */
+  font-style: normal;
+}
+

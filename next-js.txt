@@ -1,0 +1,19 @@
+/src
+  /app
+    /api
+      /get-meals.js
+  /pages
+
+
+
+// /src/app/api/get-meals.js
+export default function handler(req, res) {
+  res.status(200).json({ message: "Hello from get-meals API" });
+}
+
+
+// next.config.js
+module.exports = {
+  reactStrictMode: true,
+  // other configurations
+}

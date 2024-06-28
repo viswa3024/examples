@@ -222,3 +222,52 @@ async function handleRequest(request, { params }) {
 }
 
 export { handleRequest as GET, handleRequest as POST, handleRequest as PUT, handleRequest as DELETE, handleRequest as PATCH };
+
+
+
+
+// app/meals/page.js
+
+import React, { useEffect, useState } from 'react';
+
+async function fetchApi(endpoint, method = 'GET', body) {
+  const options = {
+    method,
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  };
+  if (body) {
+    options.body = JSON.stringify(body);
+  }
+
+  const response = await fetch(endpoint, options);
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  return response.json();
+}
+
+export default function Meals() {
+  const [message, setMessage] = useState('');
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    // Fetch data from the example endpoint (GET request)
+    fetchApi('/api/example')
+      .then((data) => setMessage(data.message))
+      .catch((error) => console.error('Error fetching data:', error));
+
+    // Fetch data from the dynamic user endpoint (GET request)
+    fetchApi('/api/users/1')
+      .then((data) => setUser(data.userId))
+      .catch((error) => console.error('Error fetching data:', error));
+  }, []);
+
+  return (
+    <div>
+      <h1>{message}</h1>
+      <h2>User ID: {user}</h2>
+    </div>
+  );
+}

@@ -25,3 +25,23 @@ export async function GET(request) {
       headers: { 'Content-Type': 'application/json' },
     });
   }
+
+
+
+async function handler(request) {
+    switch (request.method) {
+      case 'GET':
+        return new Response(JSON.stringify({ message: 'Hello, world1!' }), {
+          headers: { 'Content-Type': 'application/json' },
+        });
+      case 'POST':
+        const data = await request.json();
+        return new Response(JSON.stringify({ message: 'Data received', data }), {
+          headers: { 'Content-Type': 'application/json' },
+        });
+      default:
+        return new Response('Method not allowed', { status: 405 });
+    }
+  }
+  
+  export { handler as GET, handler as POST };

@@ -215,3 +215,101 @@ const App = () => {
 };
 
 export default App;
+
+
+================================================
+
+
+import React from 'react';
+
+const CustomRadioButton = ({ value, checked, onChange }) => {
+  return (
+    <div className="inline-flex items-center mt-3">
+      <input
+        type="radio"
+        value={value}
+        checked={checked}
+        onChange={onChange}
+        className="hidden"
+        id={value}
+      />
+      <label htmlFor={value} className="cursor-pointer">
+        {checked ? (
+          <svg
+            className="w-6 h-6 text-green-500"
+            fill="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <circle cx="12" cy="12" r="12" className="text-green-500" />
+            <path
+              d="M10 15.172l-3.364-3.364-1.414 1.414L10 18 18 10l-1.414-1.414L10 15.172z"
+              className="text-white"
+            />
+          </svg>
+        ) : (
+          <svg
+            className="w-6 h-6 text-gray-400"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <circle cx="12" cy="12" r="12" strokeWidth="2" />
+          </svg>
+        )}
+      </label>
+    </div>
+  );
+};
+
+export default CustomRadioButton;
+
+
+
+import React, { useState } from 'react';
+import CustomRadioButton from './CustomRadioButton';
+
+const RadioButtonGroup = ({ options }) => {
+  const [selectedOption, setSelectedOption] = useState(options[0].value);
+
+  const handleOptionChange = (event) => {
+    setSelectedOption(event.target.value);
+  };
+
+  return (
+    <div className="flex space-x-4">
+      {options.map((option, index) => (
+        <CustomRadioButton
+          key={index}
+          value={option.value}
+          checked={selectedOption === option.value}
+          onChange={handleOptionChange}
+        />
+      ))}
+    </div>
+  );
+};
+
+export default RadioButtonGroup;
+
+
+import React from 'react';
+import RadioButtonGroup from '../components/RadioButtonGroup';
+
+const App = () => {
+  const options = [
+    { label: "test 1", value: "Test 1" },
+    { label: "test 2", value: "Test 2" }
+  ];
+
+  return (
+    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+      <div className="p-8 bg-white rounded shadow-md">
+        <h1 className="text-2xl font-bold mb-4">Select an Option</h1>
+        <RadioButtonGroup options={options} />
+      </div>
+    </div>
+  );
+};
+
+export default App;
+

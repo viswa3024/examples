@@ -1,0 +1,18 @@
+POST /<index>/_update/<document_id>
+{
+  "script": {
+    "source": "ctx._source.new_field = params.new_value",
+    "lang": "painless",
+    "params": {
+      "new_value": "value"
+    }
+  }
+}
+
+
+POST /<index>/_update/<document_id>
+{
+  "doc": {
+    "new_field": "value"
+  }
+}

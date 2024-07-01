@@ -36,3 +36,56 @@ const App = () => {
 };
 
 export default App;
+
+
+
+=====================================
+
+
+import React, { useState } from 'react';
+
+const RadioButtonGroup = ({ options }) => {
+  const [selectedOption, setSelectedOption] = useState(options[0]);
+
+  const handleOptionChange = (event) => {
+    setSelectedOption(event.target.value);
+  };
+
+  return (
+    <div>
+      {options.map((option, index) => (
+        <label key={index} className="inline-flex items-center mt-3">
+          <input
+            type="radio"
+            value={option}
+            checked={selectedOption === option}
+            onChange={handleOptionChange}
+            className="form-radio h-5 w-5 text-blue-600"
+          />
+          <span className="ml-2 text-gray-700">{option}</span>
+        </label>
+      ))}
+    </div>
+  );
+};
+
+export default RadioButtonGroup;
+
+
+import React from 'react';
+import RadioButtonGroup from '../components/RadioButtonGroup';
+
+const Home = () => {
+  const options = ['Option 1', 'Option 2', 'Option 3'];
+
+  return (
+    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+      <div className="p-8 bg-white rounded shadow-md">
+        <h1 className="text-2xl font-bold mb-4">Select an Option</h1>
+        <RadioButtonGroup options={options} />
+      </div>
+    </div>
+  );
+};
+
+export default Home;

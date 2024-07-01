@@ -140,3 +140,78 @@ const App = () => {
 
 export default App;
 
+
+
+====================================
+
+
+/* styles/globals.css */
+input[type="radio"] {
+  appearance: none;
+  width: 1.25rem;
+  height: 1.25rem;
+  border: 2px solid #cbd5e0;
+  border-radius: 50%;
+  display: inline-block;
+  position: relative;
+}
+
+input[type="radio"]:checked {
+  border-color: #10b981; /* Green border */
+  background-color: #10b981; /* Green background */
+}
+
+input[type="radio"]:checked::before {
+  content: '✓';
+  font-size: 1rem;
+  color: white;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+
+import React, { useState } from 'react';
+
+const RadioButtonGroup = ({ options }) => {
+  const [selectedOption, setSelectedOption] = useState(options[0].value);
+
+  const handleOptionChange = (event) => {
+    setSelectedOption(event.target.value);
+  };
+
+  return (
+    <div className="flex space-x-4">
+      {options.map((option, index) => (
+        <div key={index} className="inline-flex items-center mt-3">
+          <input
+            type="radio"
+            value={option.value}
+            checked={selectedOption === option.value}
+            onChange={handleOptionChange}
+            className="custom-radio"
+          />
+        </div>
+      ))}
+    </div>
+  );
+};
+
+const App = () => {
+  const options = [
+    { label: "test 1", value: "Test 1" },
+    { label: "test 2", value: "Test 2" }
+  ];
+
+  return (
+    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+      <div className="p-8 bg-white rounded shadow-md">
+        <h1 className="text-2xl font-bold mb-4">Select an Option</h1>
+        <RadioButtonGroup options={options} />
+      </div>
+    </div>
+  );
+};
+
+export default App;

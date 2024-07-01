@@ -313,3 +313,96 @@ const App = () => {
 
 export default App;
 
+
+==================================================
+
+
+// components/MyComponent.jsx
+import React, { useState } from 'react';
+import './styles.css';
+
+const MyComponent = () => {
+    const [isChecked, setIsChecked] = useState(false);
+
+    const handleCheckboxChange = () => {
+        setIsChecked(!isChecked);
+    };
+
+    return (
+        <div className="container">
+            {isChecked && <div className="overlay">Checkbox Content</div>}
+            <h1 className="header">Header</h1>
+            <p className="description">Line 1 of the description</p>
+            <p className="description">Line 2 of the description</p>
+            <p className="description">Line 3 of the description</p>
+            <div className="checkbox-container">
+                <input
+                    type="checkbox"
+                    checked={isChecked}
+                    onChange={handleCheckboxChange}
+                />
+                Check me
+            </div>
+        </div>
+    );
+};
+
+export default MyComponent;
+
+
+/* styles.css */
+.container {
+    background: linear-gradient(180deg, #FFFFFF2E 0%, #F0FFFC 100%) 0% 0% no-repeat padding-box;
+    padding: 20px;
+    position: relative;
+}
+
+.header {
+    opacity: 0;
+    animation: fadeIn 3s forwards;
+}
+
+.description {
+    opacity: 0;
+    animation: fadeIn 3s forwards;
+}
+
+.description:nth-child(2) {
+    animation-delay: 1s;
+}
+
+.description:nth-child(3) {
+    animation-delay: 2s;
+}
+
+.description:nth-child(4) {
+    animation-delay: 3s;
+}
+
+.checkbox-container {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+}
+
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 20px;
+}
+
+@keyframes fadeIn {
+    0% { opacity: 0; }
+    33% { opacity: 0.33; }
+    66% { opacity: 0.66; }
+    100% { opacity: 1; }
+}
+
+

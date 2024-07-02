@@ -1,0 +1,56 @@
+import React, { useState } from 'react';
+import CheckboxCard from './CheckboxCard';
+import './App.css';
+
+const App = () => {
+  const options = ["test1", "test2"];
+  const [selectedOptions, setSelectedOptions] = useState([]);
+
+  const handleOptionChange = (option) => {
+    setSelectedOptions((prevSelectedOptions) =>
+      prevSelectedOptions.includes(option)
+        ? prevSelectedOptions.filter((opt) => opt !== option)
+        : [...prevSelectedOptions, option]
+    );
+  };
+
+  return (
+    <div className="App">
+      <h1>Checkbox Card Example</h1>
+      {options.map((option, index) => (
+        <CheckboxCard
+          key={index}
+          option={option}
+          selectedOptions={selectedOptions}
+          handleOptionChange={handleOptionChange}
+        />
+      ))}
+    </div>
+  );
+};
+
+export default App;
+
+
+import React from 'react';
+
+const CheckboxCard = ({ option, selectedOptions, handleOptionChange }) => {
+  const isSelected = selectedOptions.includes(option);
+
+  const handleDivClick = () => {
+    handleOptionChange(option);
+  };
+
+  return (
+    <div className={`card ${isSelected ? 'selected' : ''}`} onClick={handleDivClick}>
+      <input
+        type="checkbox"
+        checked={isSelected}
+        onChange={handleDivClick}
+      />
+      <label>{option}</label>
+    </div>
+  );
+};
+
+export default CheckboxCard;

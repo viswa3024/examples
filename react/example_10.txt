@@ -1,0 +1,33 @@
+// src/components/ToggleSwitch.js
+
+import React from "react";
+
+const ToggleSwitch = ({ label }) => {
+  return (
+    <div className="container text-center">
+      {label}{" "}
+      <div className="toggle-switch relative w-20 inline-block align-middle top-2">
+        <input
+          type="checkbox"
+          className="checkbox hidden"
+          name={label}
+          id={label}
+        />
+        <label
+          className="label block overflow-hidden rounded-full bg-gray-300 cursor-pointer inline-block"
+          htmlFor={label}
+        >
+          <span className="inner block w-full h-9 bg-green-600 text-white font-bold text-xs text-center flex items-center justify-center">
+            YES
+          </span>
+          <span className="switch block w-5 h-5 bg-white rounded-full absolute top-1 right-6 transition-all duration-300 ease-in-out"></span>
+          <span className="inner block w-full h-9 bg-gray-400 text-white font-bold text-xs text-center flex items-center justify-center">
+            NO
+          </span>
+        </label>
+      </div>
+    </div>
+  );
+};
+
+export default ToggleSwitch;

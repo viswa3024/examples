@@ -1,0 +1,72 @@
+import React from 'react';
+import './ArrowDiv.css'; // Make sure to import the CSS file
+
+const ArrowDiv = () => {
+  return (
+    <div className="container">
+      test test test test
+    </div>
+  );
+};
+
+export default ArrowDiv;
+
+
+.container {
+  position: relative;
+  max-width: 600px;
+  height: auto;
+  border: 1px solid #7FC9E3;
+  margin: 100px auto;
+  padding: 30px;
+  box-sizing: border-box;
+  background: #FFFFFF; 
+}
+
+.container::after {
+  position: absolute;
+  content: '';
+  width: 16px;
+  height: 16px;
+  border-top: 0px solid #7FC9E3;
+  border-right: 0px solid #7FC9E3;
+  border-bottom: 1px solid #7FC9E3;
+  border-left: 1px solid #7FC9E3;
+  background: #FFFFFF;
+  top: 50%;
+  left: -8px;
+  transform: translateY(-50%) rotate(45deg);
+}
+
+==========================
+
+arrow bottom:
+
+<div classNma="container ">test test test test </div>
+
+.container {
+position: relative;
+max-width: 600px;
+height: auto;
+border: 1px solid #7FC9E3;
+margin: 100px auto;
+padding: 30px;
+box-sizing: border-box;
+background: #FFFFFF; 
+}
+
+.container ::after {
+position: absolutel
+width:50px;
+border-top: 0px solid #7FC9E3;
+border-right: 1px solid #7FC9E3;
+border-bottom: 1px solid #7FC9E3;
+border-left: 0px solid #7FC9E3;
+top: 100%
+left: 50%;
+margin-left:-25px;
+content:'';
+transform: rotate(45deg);
+margin-top: -24px
+background: #FFFFFF;
+}

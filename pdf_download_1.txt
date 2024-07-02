@@ -1,0 +1,42 @@
+// pages/api/generate-pdf.ts
+
+import { NextApiRequest, NextApiResponse } from 'next';
+import puppeteer from 'puppeteer';
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  try {
+    // Launch a new browser instance
+    const browser = await puppeteer.launch();
+    const page = await browser.newPage();
+
+    // Define the content you want to print to PDF
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>PDF Example</title>
+      </head>
+      <body>
+        <h1>Hello, World!</h1>
+        <p>This is an example PDF generated with Puppeteer.</p>
+      </body>
+      </html>
+    `;
+
+    // Set the content of the page
+    await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
+
+    // Generate the PDF
+    const pdfBuffer = await page.pdf({ format: 'A4' });
+
+    await browser.close();
+
+    // Set the response headers and send the PDF
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', 'attachment; filename=example.pdf');
+    res.send(pdfBuffer);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Error generating PDF');
+  }
+}

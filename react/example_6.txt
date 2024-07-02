@@ -1,0 +1,78 @@
+import React, { useState } from 'react';
+import './GradientBox.css';
+
+const GradientBox = () => {
+  const [isChecked, setIsChecked] = useState(false);
+
+  const handleCheckboxChange = () => {
+    setIsChecked(!isChecked);
+  };
+
+  return (
+    <div className="relative flex flex-col items-center">
+      <div className="p-6 rounded-lg overflow-hidden gradient-box">
+        <h1 className="text-2xl font-bold opacity-0 gradient-heading">Header</h1>
+        <div className="mt-4 space-y-2 gradient-description">
+          <p className="opacity-0">Line 1 of description</p>
+          <p className="opacity-0">Line 2 of description</p>
+          <p className="opacity-0">Line 3 of description</p>
+        </div>
+      </div>
+      <div className="absolute bottom-2">
+        <div className="flex items-center checkbox-container bg-white px-3 py-1 rounded shadow">
+          <input 
+            type="checkbox" 
+            checked={isChecked} 
+            onChange={handleCheckboxChange} 
+            className="mr-2"
+          />
+          <label>Check me</label>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default GradientBox;
+
+
+.gradient-box {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.18) 0%, rgba(240, 255, 252, 1) 100%);
+  border-radius: 10px;
+  overflow: hidden;
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 25%, rgba(0, 0, 0, 0));
+  position: relative;
+  padding-bottom: 40px; /* To make space for the checkbox */
+}
+
+.gradient-heading, .gradient-description p {
+  opacity: 0;
+  animation: fadeIn 2s ease-in-out forwards;
+}
+
+.gradient-heading {
+  animation-delay: 0s;
+}
+
+.gradient-description p:nth-child(1) {
+  animation-delay: 0.5s;
+}
+
+.gradient-description p:nth-child(2) {
+  animation-delay: 1s;
+}
+
+.gradient-description p:nth-child(3) {
+  animation-delay: 1.5s;
+}
+
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+  }
+}
+
+.checkbox-container {
+  z-index: 2; /* Ensure checkbox is above the content and mask */
+  position: relative;
+}

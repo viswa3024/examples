@@ -14,3 +14,30 @@ const ArrowDiv = () => {
 };
 
 export default ArrowDiv;
+
+
+.container {
+  position: relative;
+  max-width: 600px;
+  height: auto;
+  border: 1px solid #7FC9E3;
+  margin: 100px auto;
+  padding: 30px;
+  box-sizing: border-box;
+  background: #FFFFFF; 
+}
+
+.container::after {
+  position: absolute;
+  content: '';
+  width: 16px;
+  height: 16px;
+  border-top: 1px solid #7FC9E3;
+  border-right: 1px solid #7FC9E3;
+  border-bottom: 1px solid #7FC9E3;
+  border-left: 1px solid #7FC9E3;
+  background: #FFFFFF;
+  top: 50%;
+  left: -8px;
+  transform: translateY(-50%) rotate(45deg);
+}

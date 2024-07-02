@@ -1,0 +1,44 @@
+import React from 'react';
+
+const ArrowDiv = () => {
+  return (
+    <div className="relative flex items-center bg-white shadow-lg border border-[#7FC9E3] rounded">
+      <div className="arrow"></div>
+      <div className="p-4 ml-4">
+        Your content here
+      </div>
+    </div>
+  );
+};
+
+export default ArrowDiv;
+
+
+/* Add this CSS to your global styles or the relevant CSS file */
+
+.arrow {
+  position: absolute;
+  left: -16px; /* Adjust based on arrow size */
+  top: 50%;
+  transform: translateY(-50%);
+  width: 0;
+  height: 0;
+  border-top: 12px solid transparent;
+  border-bottom: 12px solid transparent;
+  border-right: 16px solid white;
+  border-left: 1px solid #7FC9E3; /* Left border for the arrow */
+  border-top: 1px solid #7FC9E3; /* Top border for the arrow */
+  border-bottom: 1px solid #7FC9E3; /* Bottom border for the arrow */
+}
+
+.arrow::after {
+  content: '';
+  position: absolute;
+  left: 16px; /* Align with arrow right border */
+  top: -13px; /* Align with arrow top border */
+  width: 0;
+  height: 0;
+  border-top: 12px solid transparent;
+  border-bottom: 12px solid transparent;
+  border-left: 16px solid #7FC9E3;
+}

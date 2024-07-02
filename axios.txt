@@ -1,0 +1,48 @@
+npm install axios
+
+
+// pages/api/your-api-route.js
+import axios from 'axios';
+import https from 'https';
+
+const agent = new https.Agent({  
+  rejectUnauthorized: false
+});
+
+export default async function handler(req, res) {
+  try {
+    const response = await axios.get('https://your-backend-api.com/endpoint', {
+      httpsAgent: agent
+    });
+    res.status(200).json(response.data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}
+
+
+If you are using the native fetch function, you can use the node-fetch package and configure it to ignore SSL certificate errors:
+
+
+npm install node-fetch
+
+
+// pages/api/your-api-route.js
+import fetch from 'node-fetch';
+import https from 'https';
+
+const agent = new https.Agent({  
+  rejectUnauthorized: false
+});
+
+export default async function handler(req, res) {
+  try {
+    const response = await fetch('https://your-backend-api.com/endpoint', {
+      agent: agent
+    });
+    const data = await response.json();
+    res.status(200).json(data);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+}

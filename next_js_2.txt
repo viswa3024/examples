@@ -1,0 +1,74 @@
+// pages/index.js or pages/index.tsx
+export async function getStaticProps() {
+  return {
+    props: {
+      apiUrl: process.env.NEXT_PUBLIC_API_URL,
+    },
+  };
+}
+
+const Home = ({ apiUrl }) => {
+  console.log('API URL:', apiUrl);
+
+  return (
+    <div>
+      <h1>Home Page</h1>
+      <p>API URL: {apiUrl}</p>
+    </div>
+  );
+};
+
+export default Home;
+
+
+// components/StatusComponent.jsx
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+
+const StatusComponent = () => {
+  const [status, setStatus] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchStatus = async () => {
+      try {
+        const response = await axios.get('/api/get-status');
+        setStatus(response.data);
+      } catch (err) {
+        setError(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchStatus();
+  }, []);
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error.message}</div>;
+
+  return (
+    <div>
+      <h1>API Status</h1>
+      <pre>{JSON.stringify(status, null, 2)}</pre>
+    </div>
+  );
+};
+
+export default StatusComponent;
+
+
+// pages/index.jsx
+import StatusComponent from '../components/StatusComponent';
+
+const HomePage = () => {
+  return (
+    <div>
+      <h1>Welcome to Next.js</h1>
+      <StatusComponent />
+    </div>
+  );
+};
+
+export default HomePage;

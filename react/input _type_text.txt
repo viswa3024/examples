@@ -1,0 +1,42 @@
+import React, { useState } from 'react';
+import ChildComponent from './ChildComponent';
+
+const ParentComponent = () => {
+    const [text, setText] = useState('');
+
+    const handleTextChange = (newText) => {
+        setText(newText);
+    };
+
+    return (
+        <div>
+            <h1>Text Input Handler</h1>
+            <ChildComponent value={text} onChange={handleTextChange} />
+            <p>Current Text: {text}</p>
+        </div>
+    );
+};
+
+export default ParentComponent;
+
+
+import React, { useState } from 'react';
+import ChildComponent from './ChildComponent';
+
+const ParentComponent = () => {
+    const [text, setText] = useState('');
+
+    const handleTextChange = (newText) => {
+        setText(newText);
+    };
+
+    return (
+        <div>
+            <h1>Text Input Handler</h1>
+            <ChildComponent value={text} onChange={handleTextChange} />
+            <p>Current Text: {text}</p>
+        </div>
+    );
+};
+
+export default ParentComponent;

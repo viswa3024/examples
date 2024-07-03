@@ -35,3 +35,29 @@ const ChildComponent = ({ value, onChange }) => {
 };
 
 export default ChildComponent;
+
+
+
+
+import React from 'react';
+
+const ChildComponent = ({ value, onChange }) => {
+    const handleInputChange = (event) => {
+        onChange(event.target.value);
+    };
+
+    return (
+        <div className="w-full">
+            <input
+                type="text"
+                value={value}
+                onChange={handleInputChange}
+                className="w-full p-2 border border-gray-300 rounded"
+                placeholder="Enter text here"
+            />
+        </div>
+    );
+};
+
+export default ChildComponent;
+

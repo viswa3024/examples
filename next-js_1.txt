@@ -1,0 +1,21 @@
+// pages/index.js or pages/index.tsx
+export async function getStaticProps() {
+  return {
+    props: {
+      apiUrl: process.env.NEXT_PUBLIC_API_URL,
+    },
+  };
+}
+
+const Home = ({ apiUrl }) => {
+  console.log('API URL:', apiUrl);
+
+  return (
+    <div>
+      <h1>Home Page</h1>
+      <p>API URL: {apiUrl}</p>
+    </div>
+  );
+};
+
+export default Home;

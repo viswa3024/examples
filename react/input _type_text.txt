@@ -20,23 +20,18 @@ const ParentComponent = () => {
 export default ParentComponent;
 
 
-import React, { useState } from 'react';
-import ChildComponent from './ChildComponent';
+import React from 'react';
 
-const ParentComponent = () => {
-    const [text, setText] = useState('');
-
-    const handleTextChange = (newText) => {
-        setText(newText);
+const ChildComponent = ({ value, onChange }) => {
+    const handleInputChange = (event) => {
+        onChange(event.target.value);
     };
 
     return (
         <div>
-            <h1>Text Input Handler</h1>
-            <ChildComponent value={text} onChange={handleTextChange} />
-            <p>Current Text: {text}</p>
+            <input type="text" value={value} onChange={handleInputChange} />
         </div>
     );
 };
 
-export default ParentComponent;
+export default ChildComponent;

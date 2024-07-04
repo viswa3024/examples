@@ -117,3 +117,18 @@ export const useEnv = () => {
 
 
 In your _app.tsx, wrap the Component with the EnvProvider.
+
+// pages/_app.tsx
+import { EnvProvider } from "../env/provider";
+import { AppProps } from "next/app";
+
+function MyApp({ Component, pageProps }: AppProps) {
+  return (
+    <EnvProvider>
+      <Component {...pageProps} />
+    </EnvProvider>
+  );
+}
+
+export default MyApp;
+

@@ -168,3 +168,27 @@ export const EnvProvider = ({ children }) => {
 export const useEnv = () => {
   return useContext(EnvContext);
 };
+
+
+==========================
+
+// pages/api/env.ts
+import type { NextApiRequest, NextApiResponse } from 'next';
+
+// Disable caching by setting headers directly
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  // Set headers to prevent caching
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  res.setHeader('Surrogate-Control', 'no-store');
+
+  // Get environment variables
+  const env = {
+    DOCKER_MY_ENV: process.env.DOCKER_MY_ENV,
+    DOCKER_ANOTHER_ENV: process.env.DOCKER_ANOTHER_ENV,
+  };
+
+  // Return the environment variables as JSON
+  res.status(200).json(env);
+}

@@ -77,3 +77,43 @@ export const MyClientComponent = () => {
 
 
 ================================================================
+
+
+Create a file env.ts to define and export the environment variables.
+
+// env/env.ts
+export const getEnv = async () => ({
+  DOCKER_MY_ENV: process.env.DOCKER_MY_ENV,
+  DOCKER_ANOTHER_ENV: process.env.DOCKER_ANOTHER_ENV,
+  DOCKER_MY_INT: process.env.DOCKER_MY_INT,
+  DOCKER_MY_URL: process.env.DOCKER_MY_URL,
+  NEXT_PUBLIC_ANALYTICS_ID: process.env.NEXT_PUBLIC_ANALYTICS_ID,
+});
+
+
+Create a file provider.tsx to set up the context provider.
+
+// env/provider.tsx
+import { createContext, useContext, useEffect, useState } from "react";
+import { getEnv } from "./env";
+
+export const EnvContext = createContext({});
+
+export const EnvProvider = ({ children }) => {
+  const [env, setEnv] = useState({});
+
+  useEffect(() => {
+    getEnv().then((env) => {
+      setEnv(env);
+    });
+  }, []);
+
+  return <EnvContext.Provider value={env}>{children}</EnvContext.Provider>;
+};
+
+export const useEnv = () => {
+  return useContext(EnvContext);
+};
+
+
+In your _app.tsx, wrap the Component with the EnvProvider.

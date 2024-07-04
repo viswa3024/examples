@@ -1,0 +1,79 @@
+Create a file env.ts to define and export the environment variables.
+
+// env/env.ts
+export const getEnv = async () => ({
+  DOCKER_MY_ENV: process.env.DOCKER_MY_ENV,
+  DOCKER_ANOTHER_ENV: process.env.DOCKER_ANOTHER_ENV,
+  DOCKER_MY_INT: process.env.DOCKER_MY_INT,
+  DOCKER_MY_URL: process.env.DOCKER_MY_URL,
+  NEXT_PUBLIC_ANALYTICS_ID: process.env.NEXT_PUBLIC_ANALYTICS_ID,
+});
+
+Create a file provider.tsx to set up the context provider.
+
+
+// env/provider.tsx
+import { createContext, useContext, useEffect, useState } from "react";
+import { getEnv } from "./env";
+
+export const EnvContext = createContext({});
+
+export const EnvProvider = ({ children }) => {
+  const [env, setEnv] = useState({});
+
+  useEffect(() => {
+    getEnv().then((env) => {
+      setEnv(env);
+    });
+  }, []);
+
+  return <EnvContext.Provider value={env}>{children}</EnvContext.Provider>;
+};
+
+export const useEnv = () => {
+  return useContext(EnvContext);
+};
+
+In layout.tsx, wrap your children with the EnvProvider.
+
+// app/layout.tsx
+import { EnvProvider } from "@/env/provider";
+
+export default function RootLayout({ children }) {
+  return (
+    <html lang="en">
+      <body>
+        <EnvProvider>{children}</EnvProvider>
+      </body>
+    </html>
+  );
+}
+
+In your client component, you can now access the environment variables using the useEnv hook.
+
+// components/example.tsx
+import { useEnv } from "@/env/provider";
+
+export const MyClientComponent = () => {
+  const env = useEnv();
+
+  return (
+    <div>
+      <h1>This is rendered in a client component.</h1>
+      <pre
+        style={{
+          padding: "1rem",
+          backgroundColor: "#f4f4f4",
+          border: "1px solid #ccc",
+          borderRadius: "5px",
+          margin: "1rem 0",
+        }}
+      >
+        {JSON.stringify(env, null, 2)}
+      </pre>
+    </div>
+  );
+};
+
+
+================================================================

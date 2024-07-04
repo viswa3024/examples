@@ -1,0 +1,68 @@
+# Use the official Debian 12 slim image as the base image
+FROM debian:12-slim
+
+# Install Node.js
+RUN apt-get update && \
+    apt-get install -y curl && \
+    curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
+    apt-get install -y nodejs && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Set the working directory
+WORKDIR /app
+
+# Copy package.json and package-lock.json
+COPY package*.json ./
+
+# Install dependencies
+RUN npm install
+
+# Copy the rest of the application code
+COPY . .
+
+# Build the Next.js application
+RUN npm run build
+
+# Copy the entrypoint script
+COPY entrypoint.sh /usr/local/bin/
+
+# Make the entrypoint script executable
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
+# Expose the port the app runs on
+EXPOSE 3000
+
+# Use the entrypoint script to start the app
+ENTRYPOINT ["entrypoint.sh"]
+
+
+#!/bin/sh
+
+# Export runtime environment variables for use in the application
+export NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+export NEXT_PUBLIC_OTHER_VAR=${NEXT_PUBLIC_OTHER_VAR}
+
+# Start the Next.js application
+npm start
+
+
+// pages/index.js
+export default function Home() {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+  const otherVar = process.env.NEXT_PUBLIC_OTHER_VAR;
+
+  return (
+    <div>
+      <h1>Welcome to Next.js</h1>
+      <p>API URL: {apiUrl}</p>
+      <p>Other Variable: {otherVar}</p>
+    </div>
+  );
+}
+
+
+docker build -t nextjs-app .
+
+
+docker run -p 3000:3000 -e NEXT_PUBLIC_API_URL="https://api.example.com" -e NEXT_PUBLIC_OTHER_VAR="someValue" nextjs-app

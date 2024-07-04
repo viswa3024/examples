@@ -132,3 +132,39 @@ function MyApp({ Component, pageProps }: AppProps) {
 
 export default MyApp;
 
+========================================
+
+// env/env.ts
+export const getEnv = async () => {
+  return {
+    DOCKER_MY_ENV: process.env.DOCKER_MY_ENV,
+    DOCKER_ANOTHER_ENV: process.env.DOCKER_ANOTHER_ENV,
+    DOCKER_MY_INT: process.env.DOCKER_MY_INT,
+    DOCKER_MY_URL: process.env.DOCKER_MY_URL,
+    NEXT_PUBLIC_ANALYTICS_ID: process.env.NEXT_PUBLIC_ANALYTICS_ID,
+  };
+};
+
+
+// env/provider.tsx
+import { createContext, useContext, useEffect, useState } from "react";
+import { getEnv } from "./env";
+
+export const EnvContext = createContext({});
+
+export const EnvProvider = ({ children }) => {
+  const [env, setEnv] = useState({});
+
+  useEffect(() => {
+    getEnv().then((env) => {
+      console.log("Environment Variables:", env); // Debugging line
+      setEnv(env);
+    });
+  }, []);
+
+  return <EnvContext.Provider value={env}>{children}</EnvContext.Provider>;
+};
+
+export const useEnv = () => {
+  return useContext(EnvContext);
+};

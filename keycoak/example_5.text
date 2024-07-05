@@ -1,0 +1,138 @@
+// context/ConfigContext.tsx
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import Keycloak, { KeycloakInstance } from 'keycloak-js';
+
+interface Config {
+    keycloak: KeycloakInstance | null;
+    env: any; // Define your environment configuration structure here
+    authenticated: boolean;
+}
+
+interface ConfigContextType {
+    config: Config;
+    setConfig: React.Dispatch<React.SetStateAction<Config>>;
+}
+
+const initialConfig: Config = {
+    keycloak: null,
+    env: {}, // Initial empty environment configuration
+    authenticated: false,
+};
+
+const ConfigContext = createContext<ConfigContextType | undefined>(undefined);
+
+export const ConfigProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+    const [config, setConfig] = useState<Config>(initialConfig);
+
+    useEffect(() => {
+        const fetchConfig = async () => {
+            try {
+                // Fetch configuration values from API endpoint
+                const response = await fetch('/api/config'); // Replace with your API endpoint
+                if (!response.ok) {
+                    throw new Error('Failed to fetch configuration');
+                }
+                const envConfig = await response.json();
+                
+                // Initialize Keycloak instance
+                const keycloakInstance = Keycloak('/keycloak.json'); // Replace with your Keycloak config URL
+                
+                setConfig((prevConfig) => ({
+                    ...prevConfig,
+                    keycloak: keycloakInstance,
+                    env: envConfig,
+                }));
+            } catch (error) {
+                console.error('Error fetching configuration:', error);
+                // Handle error state if needed
+            }
+        };
+
+        fetchConfig();
+    }, []);
+
+    return (
+        <ConfigContext.Provider value={{ config, setConfig }}>
+            {children}
+        </ConfigContext.Provider>
+    );
+};
+
+export const useConfig = () => {
+    const context = useContext(ConfigContext);
+    if (!context) {
+        throw new Error('useConfig must be used within a ConfigProvider');
+    }
+    return context;
+};
+
+
+// pages/_app.tsx
+import { AppProps } from 'next/app';
+import { useEffect } from 'react';
+import { ConfigProvider, useConfig } from '../context/ConfigContext';
+
+function MyApp({ Component, pageProps }: AppProps) {
+    const { config, setConfig } = useConfig();
+
+    useEffect(() => {
+        if (config.keycloak) {
+            config.keycloak.init({
+                onLoad: 'check-sso',
+            }).then((authenticated) => {
+                console.log('Keycloak authentication initialized:', authenticated);
+                setConfig((prevConfig) => ({
+                    ...prevConfig,
+                    authenticated: authenticated,
+                }));
+            }).catch((error) => {
+                console.error('Keycloak initialization error:', error);
+                setConfig((prevConfig) => ({
+                    ...prevConfig,
+                    authenticated: false,
+                }));
+            });
+        }
+    }, [config.keycloak, setConfig]);
+
+    if (config.keycloak === null) {
+        return <div>Loading...</div>;
+    }
+
+    return (
+        <>
+            {config.authenticated ? (
+                <Component {...pageProps} />
+            ) : (
+                <div>Not authenticated. Show error or login page.</div>
+            )}
+        </>
+    );
+}
+
+const AppWrapper = (props: AppProps) => (
+    <ConfigProvider>
+        <MyApp {...props} />
+    </ConfigProvider>
+);
+
+export default AppWrapper;
+
+
+// pages/index.tsx
+import { useConfig } from '../context/ConfigContext';
+
+function HomePage() {
+    const { config } = useConfig();
+
+    return (
+        <div>
+            <h1>Welcome to the Home Page!</h1>
+            <p>API Endpoint: {config.env.apiEndpoint}</p>
+            <p>Authenticated: {config.authenticated ? 'Yes' : 'No'}</p>
+            {/* Access other config values as needed */}
+        </div>
+    );
+}
+
+export default HomePage;

@@ -1,0 +1,137 @@
+import React, { createContext, useState, useEffect } from 'react';
+import axios from 'axios';
+
+const KeycloakConfigContext = createContext();
+
+export const KeycloakConfigProvider = ({ children }) => {
+  const [keycloakConfig, setKeycloakConfig] = useState(null);
+
+  useEffect(() => {
+    const fetchKeycloakConfig = async () => {
+      try {
+        const response = await axios.get('/api/keycloak-config');
+        setKeycloakConfig(response.data);
+      } catch (error) {
+        console.error('Failed to fetch Keycloak config', error);
+      }
+    };
+
+    fetchKeycloakConfig();
+  }, []);
+
+  return (
+    <KeycloakConfigContext.Provider value={keycloakConfig}>
+      {children}
+    </KeycloakConfigContext.Provider>
+  );
+};
+
+export default KeycloakConfigContext;
+
+import React from 'react';
+import { KeycloakConfigProvider } from './contexts/KeycloakConfigContext';
+import AppContent from './AppContent';
+
+function App() {
+  return (
+    <KeycloakConfigProvider>
+      <AppContent />
+    </KeycloakConfigProvider>
+  );
+}
+
+export default App;
+
+
+import React, { useState, useEffect, useRef, useContext } from "react";
+import Keycloak from "keycloak-js";
+import KeycloakConfigContext from '../contexts/KeycloakConfigContext';
+
+const useAuth = () => {
+  const isRun = useRef(false);
+  const [token, setToken] = useState(null);
+  const [isLogin, setLogin] = useState(false);
+  const keycloakConfig = useContext(KeycloakConfigContext);
+
+  useEffect(() => {
+    if (isRun.current || !keycloakConfig) return;
+
+    isRun.current = true;
+
+    const keycloak = new Keycloak(keycloakConfig);
+
+    keycloak.init({
+      onLoad: keycloakConfig.onLoad || 'check-sso',
+      KeycloakResponseType: 'code',
+      silentCheckSsoRedirectUri: window.location.origin + "/silent-check-sso.html",
+      checkLoginIframe: false,
+      pkceMethod: 'S256'
+    }).then((auth) => {
+      if (!auth) {
+        window.location.reload();
+      } else {
+        setLogin(auth);
+        console.info("Authenticated");
+        console.log('auth', auth);
+        console.log('Keycloak', keycloak);
+        keycloak.onTokenExpired = () => {
+          console.log('token expired');
+        };
+        setToken(keycloak.token);
+      }
+    }, () => {
+      console.error("Authenticated Failed");
+    });
+  }, [keycloakConfig]);
+
+  return [isLogin, token];
+};
+
+export default useAuth;
+
+import React, { useEffect, useRef, useState } from 'react';
+import useAuth from './hooks/useAuth';
+import './App.css';
+
+function AppContent() {
+  const [isLogin, token] = useAuth();
+  const [infoMessage, setInfoMessage] = useState('');
+
+  return (
+    <div className="App">
+      <div className='grid'>
+        <div className='col-12'>
+          <h1>My Awesome React App</h1>
+        </div>
+        <div className='col-12'>
+          <h1 id='app-header-2'>Secured with Keycloak</h1>
+        </div>
+      </div>
+      <div className="grid">
+        <div className="col">
+          <button onClick={() => { setInfoMessage(isLogin ? 'Authenticated: TRUE' : 'Authenticated: FALSE') }} className="m-1">Is Authenticated</button>
+          <button onClick={() => { Keycloak.login() }} className='m-1'>Login</button>
+          <button onClick={() => { setInfoMessage(token) }} className="m-1">Show Access Token</button>
+          <button onClick={() => { setInfoMessage(JSON.stringify(Keycloak.tokenParsed)) }} className="m-1">Show Parsed Access token</button>
+          <button onClick={() => { setInfoMessage(Keycloak.isTokenExpired(5).toString()) }} className="m-1">Check Token expired</button>
+          <button onClick={() => { Keycloak.updateToken(10).then((refreshed) => { setInfoMessage('Token Refreshed: ' + refreshed.toString()) }, () => { setInfoMessage('Refresh Error') }) }} className="m-1">Update Token (if about to expire)</button>
+          <button onClick={() => { Keycloak.logout({ redirectUri: 'http://localhost:5173/' }) }} className="m-1">Logout</button>
+        </div>
+      </div>
+      <div className='grid'>
+        <div className='col-2'></div>
+        <div className='col-8'>
+          <h3>Info Pane</h3>
+          <div>
+            <p style={{ wordBreak: 'break-all' }} id='infoPanel'>
+              {infoMessage}
+            </p>
+          </div>
+        </div>
+        <div className='col-2'></div>
+      </div>
+    </div>
+  );
+}
+
+export default AppContent;

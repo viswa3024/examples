@@ -1,0 +1,106 @@
+// KeycloakProvider.jsx
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import Keycloak from 'keycloak-js';
+
+// Create a context for Keycloak
+const KeycloakContext = createContext();
+
+// Custom hook to use Keycloak context
+export const useKeycloak = () => useContext(KeycloakContext);
+
+// Keycloak provider component
+export const KeycloakProvider = ({ children }) => {
+  const [keycloak, setKeycloak] = useState(null);
+  const [authenticated, setAuthenticated] = useState(false);
+
+  useEffect(() => {
+    const fetchKeycloakConfig = async () => {
+      try {
+        // Fetch Keycloak configuration from your API or ConfigMap
+        const response = await fetch('/api/config'); // Replace with your actual API endpoint
+        const configData = await response.json();
+
+        // Initialize Keycloak with fetched configuration
+        const keycloakInstance = Keycloak({
+          realm: configData.realm,
+          url: configData.url,
+          clientId: configData.clientId,
+          // other options as needed
+        });
+
+        // Initialize Keycloak
+        keycloakInstance.init({
+          onLoad: 'check-sso',
+          checkLoginIframe: false,
+        }).then((auth) => {
+          if (auth) {
+            setAuthenticated(true);
+            console.info("Authenticated");
+          } else {
+            console.warn("Not authenticated");
+          }
+        }).catch(() => {
+          console.error("Authentication Failed");
+        });
+
+        setKeycloak(keycloakInstance);
+
+      } catch (error) {
+        console.error("Error fetching Keycloak config:", error);
+      }
+    };
+
+    fetchKeycloakConfig();
+  }, []);
+
+  return (
+    <KeycloakContext.Provider value={{ keycloak, authenticated }}>
+      {children}
+    </KeycloakContext.Provider>
+  );
+};
+
+
+// pages/_app.jsx
+import React from 'react';
+import { KeycloakProvider } from '../path/to/KeycloakProvider';
+
+function MyApp({ Component, pageProps }) {
+  return (
+    <KeycloakProvider>
+      <Component {...pageProps} />
+    </KeycloakProvider>
+  );
+}
+
+export default MyApp;
+
+
+// ExampleComponent.jsx
+import React from 'react';
+import { useKeycloak } from '../path/to/KeycloakProvider';
+
+const ExampleComponent = () => {
+  const { keycloak, authenticated } = useKeycloak();
+
+  const handleLogin = () => {
+    keycloak.login();
+  };
+
+  const handleLogout = () => {
+    keycloak.logout();
+  };
+
+  return (
+    <div>
+      <h1>Example Component</h1>
+      {authenticated ? (
+        <button onClick={handleLogout}>Logout</button>
+      ) : (
+        <button onClick={handleLogin}>Login</button>
+      )}
+    </div>
+  );
+};
+
+export default ExampleComponent;

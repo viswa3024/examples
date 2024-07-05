@@ -1,0 +1,101 @@
+// context/ConfigContext.tsx
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import Keycloak, { KeycloakInstance, KeycloakConfig } from 'keycloak-js';
+
+interface Config {
+    keycloak: KeycloakInstance | null;
+}
+
+interface ConfigContextType {
+    config: Config;
+    setConfig: React.Dispatch<React.SetStateAction<Config>>;
+}
+
+const initialConfig: Config = {
+    keycloak: null,
+};
+
+const ConfigContext = createContext<ConfigContextType | undefined>(undefined);
+
+export const ConfigProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+    const [config, setConfig] = useState<Config>(initialConfig);
+
+    useEffect(() => {
+        const keycloakInstance = new Keycloak('/keycloak.json'); // Replace with your Keycloak config URL
+        setConfig({ keycloak: keycloakInstance });
+    }, []);
+
+    return (
+        <ConfigContext.Provider value={{ config, setConfig }}>
+            {children}
+        </ConfigContext.Provider>
+    );
+};
+
+export const useConfig = () => {
+    const context = useContext(ConfigContext);
+    if (!context) {
+        throw new Error('useConfig must be used within a ConfigProvider');
+    }
+    return context;
+};
+
+
+
+
+// pages/_app.tsx
+import { AppProps } from 'next/app';
+import { ConfigProvider, useConfig } from '../context/ConfigContext';
+import { useEffect } from 'react';
+
+function MyApp({ Component, pageProps }: AppProps) {
+    const { config } = useConfig();
+
+    useEffect(() => {
+        if (config.keycloak) {
+            config.keycloak.init({
+                onLoad: 'check-sso',
+            }).then((authenticated) => {
+                console.log('Keycloak authentication initialized:', authenticated);
+                // Handle authentication state here, e.g., store it in global state
+            }).catch((error) => {
+                console.error('Keycloak initialization error:', error);
+            });
+        }
+    }, [config.keycloak]);
+
+    return <Component {...pageProps} />;
+}
+
+const AppWrapper = (props: AppProps) => (
+    <ConfigProvider>
+        <MyApp {...props} />
+    </ConfigProvider>
+);
+
+export default AppWrapper;
+
+
+// components/KeycloakComponent.tsx
+import React, { useEffect } from 'react';
+import { useConfig } from '../context/ConfigContext'; // Adjust path as per your actual setup
+
+function KeycloakComponent() {
+    const { config } = useConfig();
+
+    useEffect(() => {
+        if (config.keycloak) {
+            config.keycloak.init({
+                onLoad: 'login-required',
+            }).then((authenticated) => {
+                console.log('Keycloak authenticated:', authenticated);
+            }).catch((error) => {
+                console.error('Keycloak authentication error:', error);
+            });
+        }
+    }, [config.keycloak]);
+
+    return <div>Keycloak Component</div>;
+}
+
+export default KeycloakComponent;

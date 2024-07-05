@@ -1,0 +1,50 @@
+// pages/server-side.js
+import React from 'react';
+
+export async function getServerSideProps() {
+  // Fetch data from an API or perform server-side operations here
+  const data = { message: 'Hello from Server Side Props!' };
+
+  return {
+    props: {
+      data,
+    },
+  };
+}
+
+const ServerSidePage = ({ data }) => {
+  return (
+    <div>
+      <h1>Server Side Rendering Example</h1>
+      <p>{data.message}</p>
+    </div>
+  );
+};
+
+export default ServerSidePage;
+
+
+// pages/static-props.js
+import React from 'react';
+
+export async function getStaticProps() {
+  // Fetch data from an API or perform operations at build time here
+  const data = { message: 'Hello from Static Props!' };
+
+  return {
+    props: {
+      data,
+    },
+  };
+}
+
+const StaticPropsPage = ({ data }) => {
+  return (
+    <div>
+      <h1>Static Site Generation Example</h1>
+      <p>{data.message}</p>
+    </div>
+  );
+};
+
+export default StaticPropsPage;

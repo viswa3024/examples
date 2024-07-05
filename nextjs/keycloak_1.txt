@@ -1,0 +1,76 @@
+<!-- public/verify-sso.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Verify SSO</title>
+</head>
+<body>
+    <script>
+        parent.postMessage(location.href, location.origin);
+    </script>
+</body>
+</html>
+
+
+Create a new file named keycloak.js in the lib directory to handle Keycloak initialization and configuration.
+
+// lib/keycloak.js
+import Keycloak from 'keycloak-js';
+
+const keycloak = new Keycloak({
+  url: 'http://localhost:8080/auth', // Keycloak server URL
+  realm: 'myrealm', // Your realm name
+  clientId: 'myclient', // Your client ID
+});
+
+export default keycloak;
+
+
+// context/AuthContext.js
+import { createContext, useContext, useEffect, useState } from 'react';
+import keycloak from '../lib/keycloak';
+
+const AuthContext = createContext();
+
+export const AuthProvider = ({ children }) => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    keycloak
+      .init({ onLoad: 'check-sso', silentCheckSsoRedirectUri: window.location.origin + '/verify-sso.html' })
+      .then(authenticated => {
+        setIsAuthenticated(authenticated);
+      })
+      .catch(err => {
+        console.error('Failed to initialize Keycloak', err);
+      });
+  }, []);
+
+  return (
+    <AuthContext.Provider value={{ keycloak, isAuthenticated }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+export const useAuth = () => useContext(AuthContext);
+
+
+
+// pages/_app.js
+import { AuthProvider } from '../context/AuthContext';
+import '../styles/globals.css';
+
+function MyApp({ Component, pageProps }) {
+  return (
+    <AuthProvider>
+      <Component {...pageProps} />
+    </AuthProvider>
+  );
+}
+
+export default MyApp;
+
+
+
+Create a file named AuthContext.js in the context directory to manage the authentication state.

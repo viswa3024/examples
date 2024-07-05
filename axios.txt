@@ -70,3 +70,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 }
 
+
+
+The Edge Runtime in Next.js does not support Node.js modules such as https. However, you can use the Fetch API to achieve similar functionality. Unfortunately, Fetch does not natively support an option to bypass SSL certificate validation (similar to rejectUnauthorized: false in https.Agent).
+
+Given these constraints, you'll have to make your API requests to endpoints with valid SSL certificates when using the Edge Runtime.

@@ -1,0 +1,22 @@
+import fs from 'fs';
+import path from 'path';
+
+export default function handler(req, res) {
+  const jsonFilePath = path.resolve('public', 'data.json');
+
+  fs.readFile(jsonFilePath, 'utf-8', (err, data) => {
+    if (err) {
+      console.error('Error reading JSON file:', err);
+      res.status(500).json({ error: 'Failed to read JSON file' });
+      return;
+    }
+
+    try {
+      const jsonData = JSON.parse(data);
+      res.status(200).json(jsonData);
+    } catch (parseErr) {
+      console.error('Error parsing JSON file:', parseErr);
+      res.status(500).json({ error: 'Failed to parse JSON file' });
+    }
+  });
+}

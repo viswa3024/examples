@@ -1,0 +1,147 @@
+import React, { useState, useEffect, useRef } from "react";
+import Keycloak from "keycloak-js";
+import axios from 'axios';
+
+const useAuth = () => {
+  const isRun = useRef(false);
+  const [token, setToken] = useState(null);
+  const [isLogin, setLogin] = useState(false);
+
+  useEffect(() => {
+    if (isRun.current) return;
+
+    isRun.current = true;
+
+    // Fetch the Keycloak config from the API
+    axios.get('/api/keycloak-config')
+      .then(response => {
+        const config = response.data;
+        const keycloak = new Keycloak(config);
+
+        if(isLogin){
+          keycloak.init({
+            onLoad: config.onLoad,
+            KeycloakResponseType: 'code',
+            silentCheckSsoRedirectUri: window.location.origin + "/silent-check-sso.html", checkLoginIframe: false,
+            pkceMethod: 'S256'
+          }).then((auth) => {
+            if (!auth) {
+              window.location.reload();
+            } else {
+              setLogin(auth);
+              console.info("Authenticated");
+              console.log('auth', auth);
+              console.log('Keycloak', keycloak);
+              keycloak.onTokenExpired = () => {
+                console.log('token expired');
+              }
+            }
+          }, () => {
+            console.error("Authenticated Failed");
+          });
+        }
+      })
+      .catch(error => {
+        console.error("Failed to fetch Keycloak config", error);
+      });
+  }, [isLogin]);
+
+  return [isLogin, token];
+};
+
+export default useAuth;
+
+
+import React, { useState, useEffect, useRef } from 'react';
+import './App.css';
+import useAuth from "./hooks/useAuth";
+import axios from 'axios';
+import Keycloak from 'keycloak-js';
+
+function App() {
+  const isRun = useRef(false);
+  const [infoMessage, setInfoMessage] = useState('');
+  const [isTokenExpired, setIsTokenExpired] = useState(false);
+  const [keycloak, setKeycloak] = useState(null);
+
+  useEffect(() => {
+    if (isRun.current) return;
+
+    isRun.current = true;
+
+    // Fetch the Keycloak config from the API
+    axios.get('/api/keycloak-config')
+      .then(response => {
+        const config = response.data;
+        const kc = new Keycloak(config);
+        setKeycloak(kc);
+
+        kc.init({
+          onLoad: config.onLoad,
+          KeycloakResponseType: 'code',
+          silentCheckSsoRedirectUri: window.location.origin + "/assets/silent-check-sso.html",
+          checkLoginIframe: false,
+          pkceMethod: 'S256'
+        }).then((auth) => {
+          if (!auth) {
+            window.location.reload();
+          } else {
+            console.info("Authenticated");
+            console.log('auth', auth);
+            console.log('Keycloak', kc);
+            kc.onTokenExpired = () => {
+              console.log('token expired');
+            }
+          }
+        }, () => {
+          console.error("Authenticated Failed");
+          setIsTokenExpired(true);
+        });
+      })
+      .catch(error => {
+        console.error("Failed to fetch Keycloak config", error);
+      });
+  }, []);
+
+  if (!keycloak) {
+    return <div>Loading...</div>;
+  }
+
+  return (
+    <div className="App">
+      <div className='grid'>
+        <div className='col-12'>
+          <h1>My Awesome React App</h1>
+        </div>
+        <div className='col-12'>
+          <h1 id='app-header-2'>Secured with Keycloak</h1>
+        </div>
+      </div>
+      <div className="grid">
+        <div className="col">
+          <button onClick={() => { setInfoMessage(keycloak.authenticated ? 'Authenticated: TRUE' : 'Authenticated: FALSE') }} className="m-1">Is Authenticated</button>
+          <button onClick={() => { keycloak.login() }} className='m-1'>Login</button>
+          <button onClick={() => { setInfoMessage(keycloak.token) }} className="m-1">Show Access Token</button>
+          <button onClick={() => { setInfoMessage(JSON.stringify(keycloak.tokenParsed)) }} className="m-1">Show Parsed Access token</button>
+          <button onClick={() => { setInfoMessage(keycloak.isTokenExpired(5).toString()) }} className="m-1">Check Token expired</button>
+          <button onClick={() => { keycloak.updateToken(10).then((refreshed) => { setInfoMessage('Token Refreshed: ' + refreshed.toString()) }, () => { setInfoMessage('Refresh Error') }) }} className="m-1">Update Token (if about to expire)</button>
+          <button onClick={() => { keycloak.logout({ redirectUri: 'http://localhost:5173/' }) }} className="m-1">Logout</button>
+        </div>
+      </div>
+      <div className='grid'>
+        <div className='col-2'></div>
+        <div className='col-8'>
+          <h3>Info Pane</h3>
+          <div>
+            <p style={{ wordBreak: 'break-all' }} id='infoPanel'>
+              {infoMessage}
+            </p>
+          </div>
+        </div>
+        <div className='col-2'></div>
+      </div>
+    </div>
+  );
+}
+
+export default App;

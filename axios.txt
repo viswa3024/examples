@@ -46,3 +46,27 @@ export default async function handler(req, res) {
     res.status(500).json({ error: error.message });
   }
 }
+
+
+
+
+import { NextApiRequest, NextApiResponse } from 'next';
+import axios from 'axios';
+import https from 'https';
+
+// Create an https.Agent to allow self-signed certificates
+const agent = new https.Agent({
+  rejectUnauthorized: false,
+});
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  try {
+    const response = await axios.get('https://your-backend-api.com/endpoint', {
+      httpsAgent: agent,
+    });
+    res.status(200).json(response.data);
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
+}
+

@@ -40,3 +40,52 @@ Using Node.js Runtime is the default for Next.js API routes and server-side func
 export default function handler(req, res) {
   res.status(200).json({ message: 'Hello, from Node.js!' });
 }
+
+
+
+
+
+Feature |	Edge Runtime |	Node.js Runtime
+Latency |	Very low (runs closer to users) |	Higher (centralized servers)
+API & Module Support |	Limited (restricted environment) |	Full Node.js support
+Cold Start Times |	Faster |	Slower
+Suitable Use Cases |	High-performance, low-latency needs |	Complex apps, heavy computation, DB access
+
+
+
+
+Choosing the Right Runtime
+Use Edge Runtime when you need:
+
+Fast response times with low latency.
+Lightweight and simple functions.
+Global distribution.
+Use Node.js Runtime when you need:
+
+Full access to Node.js modules and APIs.
+Complex server-side logic.
+Database interactions and heavy computation.
+Combining Both Runtimes
+You can mix and match Edge and Node.js runtimes within your Next.js application. For example, use Edge Runtime for middleware and simple API routes, and Node.js Runtime for more complex backend logic.
+
+
+// pages/api/hello.js (Node.js Runtime)
+export default function handler(req, res) {
+  res.status(200).json({ message: 'Hello, from Node.js!' });
+}
+
+// middleware.js (Edge Runtime)
+export const config = {
+  matcher: '/api/:path*',
+};
+
+export default function middleware(req) {
+  return new Response('Hello, from the Edge!', {
+    headers: { 'Content-Type': 'text/plain' },
+  });
+}
+
+
+
+
+

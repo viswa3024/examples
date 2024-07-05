@@ -1,0 +1,12 @@
+// components/Keycloak.tsx
+import Keycloak, { KeycloakConfig } from 'keycloak-js';
+import { useConfig } from '@context/configprovider'; // Adjust path as per your actual setup
+
+function KeycloakComponent() {
+    const configVal = useConfig();
+    const keycloak = typeof window !== 'undefined' ? new Keycloak(configVal.initOptions) : null;
+
+    return keycloak;
+}
+
+export default KeycloakComponent;

@@ -1,0 +1,82 @@
+npm install keycloak-js react-keycloak-spa
+
+
+import Keycloak from 'keycloak-js';
+
+const keycloakConfig = {
+  url: 'http://localhost:8080/auth', // replace with your Keycloak server URL
+  realm: 'your-realm-name',
+  clientId: 'nextjs-client', // replace with your client ID
+};
+
+const keycloak = new Keycloak(keycloakConfig);
+
+export default keycloak;
+
+
+import React from 'react';
+import App from 'next/app';
+import { KeycloakProvider } from 'react-keycloak-spa';
+import keycloak from '../keycloak';
+
+function MyApp({ Component, pageProps }) {
+  return (
+    <KeycloakProvider keycloak={keycloak}>
+      <Component {...pageProps} />
+    </KeycloakProvider>
+  );
+}
+
+export default MyApp;
+
+
+import React from 'react';
+import { useKeycloak } from 'react-keycloak-spa';
+
+function Profile() {
+  const { keycloak, initialized } = useKeycloak();
+
+  if (!initialized) {
+    return <div>Loading...</div>;
+  }
+
+  if (!keycloak.authenticated) {
+    return <div>Please login to view this page.</div>;
+  }
+
+  return (
+    <div>
+      <h1>User Profile</h1>
+      <p>Welcome, {keycloak.tokenParsed.preferred_username}</p>
+    </div>
+  );
+}
+
+export default Profile;
+
+
+import React from 'react';
+import { useKeycloak } from 'react-keycloak-spa';
+
+function Home() {
+  const { keycloak, initialized } = useKeycloak();
+
+  if (!initialized) {
+    return <div>Loading...</div>;
+  }
+
+  return (
+    <div>
+      {!keycloak.authenticated ? (
+        <button onClick={() => keycloak.login()}>Login</button>
+      ) : (
+        <div>
+          <p>Welcome, {keycloak.tokenParsed.preferred_username}</p>
+          <button onClick={() => keycloak.logout()}>Logout</button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default Home;

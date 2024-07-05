@@ -1,0 +1,84 @@
+import Keycloak from 'keycloak-js';
+
+export interface KeycloakConfig {
+  url: string;
+  realm: string;
+  clientId: string;
+}
+
+let keycloakConfig: KeycloakConfig = {
+  url: 'http://localhost:8080/auth', // Default value or fallback
+  realm: 'default-realm', // Default value or fallback
+  clientId: 'default-client-id', // Default value or fallback
+};
+
+export const getKeycloakConfig = () => {
+  return keycloakConfig;
+};
+
+export const updateKeycloakConfig = (config: KeycloakConfig) => {
+  keycloakConfig = config;
+};
+
+const keycloak = new Keycloak(keycloakConfig);
+
+export default keycloak;
+
+
+
+// pages/api/config/keycloak.ts
+import { NextApiRequest, NextApiResponse } from 'next';
+
+export default function handler(req: NextApiRequest, res: NextApiResponse) {
+  try {
+    const keycloakConfig = {
+      url: process.env.KEYCLOAK_URL || 'http://localhost:8080/auth',
+      realm: process.env.KEYCLOAK_REALM || 'your-realm-name',
+      clientId: process.env.KEYCLOAK_CLIENT_ID || 'your-client-id',
+    };
+    res.status(200).json(keycloakConfig);
+  } catch (error) {
+    console.error('Error fetching Keycloak configuration:', error);
+    res.status(500).json({ error: 'Failed to fetch Keycloak configuration' });
+  }
+}
+
+
+
+// _app.tsx
+import { AppProps } from 'next/app';
+import { useEffect, useState } from 'react';
+import keycloak, { updateKeycloakConfig, getKeycloakConfig, KeycloakConfig } from '../path/to/keycloak'; // Adjust the path to your keycloak.ts file
+
+function MyApp({ Component, pageProps }: AppProps) {
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchKeycloakConfig() {
+      try {
+        const response = await fetch('/api/config/keycloak');
+        if (!response.ok) {
+          throw new Error('Failed to fetch Keycloak configuration');
+        }
+        const config = await response.json() as KeycloakConfig;
+        updateKeycloakConfig(config); // Update the Keycloak configuration in keycloak.ts
+      } catch (error) {
+        console.error('Error fetching Keycloak configuration:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchKeycloakConfig();
+  }, []);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  return (
+    <Component {...pageProps} />
+  );
+}
+
+export default MyApp;

@@ -1,0 +1,42 @@
+ In the latest versions of Next.js, getServerSideProps and getStaticProps are not supported in the app directory. Instead, you should use server components and static components.
+
+Here's an updated example using the new app directory structure:
+
+Create a Page with Server Components
+In the app directory, create a new folder called server-side and add a page.js file:
+
+
+// app/server-side/page.js
+import React from 'react';
+
+export default async function ServerSidePage() {
+  // Fetch data from an API or perform server-side operations here
+  const data = { message: 'Hello from Server Side Component!' };
+
+  return (
+    <div>
+      <h1>Server Side Rendering Example</h1>
+      <p>{data.message}</p>
+    </div>
+  );
+}
+
+
+Create a Page with Static Components
+In the app directory, create a new folder called static-props and add a page.js file:
+
+
+// app/static-props/page.js
+import React from 'react';
+
+export default function StaticPropsPage() {
+  // Fetch data from an API or perform operations at build time here
+  const data = { message: 'Hello from Static Component!' };
+
+  return (
+    <div>
+      <h1>Static Site Generation Example</h1>
+      <p>{data.message}</p>
+    </div>
+  );
+}

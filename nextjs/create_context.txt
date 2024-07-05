@@ -1,0 +1,98 @@
+Create the API Endpoint (pages/api/hello.ts):
+
+import { NextApiRequest, NextApiResponse } from 'next';
+
+export default function handler(req: NextApiRequest, res: NextApiResponse) {
+  res.status(200).json({ message: 'Hello, from Node.js!' });
+}
+
+npm install axios
+
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import axios from 'axios';
+
+interface ConfigContextProps {
+  data: any;
+}
+
+const ConfigContext = createContext<ConfigContextProps | undefined>(undefined);
+
+export const useConfig = () => {
+  const context = useContext(ConfigContext);
+  if (context === undefined) {
+    throw new Error('useConfig must be used within a ConfigProvider');
+  }
+  return context;
+};
+
+export const ConfigProvider: React.FC = ({ children }) => {
+  const [data, setData] = useState(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get('/api/hello');
+        setData(response.data);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  return (
+    <ConfigContext.Provider value={{ data }}>
+      {children}
+    </ConfigContext.Provider>
+  );
+};
+
+
+              import { AppProps } from 'next/app';
+import { ConfigProvider } from '../contexts/ConfigContext';
+
+function MyApp({ Component, pageProps }: AppProps) {
+  return (
+    <ConfigProvider>
+      <Component {...pageProps} />
+    </ConfigProvider>
+  );
+}
+
+export default MyApp;
+
+
+              import React from 'react';
+import { useConfig } from '../contexts/ConfigContext';
+
+const DisplayConfig: React.FC = () => {
+  const { data } = useConfig();
+
+  if (!data) {
+    return <div>Loading...</div>;
+  }
+
+  return (
+    <div>
+      <h1>Global Config Data</h1>
+      <pre>{JSON.stringify(data, null, 2)}</pre>
+    </div>
+  );
+};
+
+export default DisplayConfig;
+
+
+              import React from 'react';
+import DisplayConfig from '../components/DisplayConfig';
+
+const Home: React.FC = () => {
+  return (
+    <div>
+      <DisplayConfig />
+    </div>
+  );
+};
+
+export default Home;

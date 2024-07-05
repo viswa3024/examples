@@ -1,0 +1,100 @@
+import Keycloak, { KeycloakInstance } from 'keycloak-js';
+
+export interface KeycloakConfig {
+  url: string;
+  realm: string;
+  clientId: string;
+}
+
+let keycloakInstance: KeycloakInstance | null = null;
+let keycloakConfig: KeycloakConfig = {
+  url: 'http://localhost:8080/auth', // Default value or fallback
+  realm: 'default-realm', // Default value or fallback
+  clientId: 'default-client-id', // Default value or fallback
+};
+
+export const initKeycloak = async (): Promise<KeycloakInstance> => {
+  if (keycloakInstance) {
+    return keycloakInstance;
+  }
+
+  try {
+    keycloakInstance = new Keycloak(keycloakConfig);
+    await keycloakInstance.init({
+      onLoad: 'check-sso',
+    });
+    return keycloakInstance;
+  } catch (error) {
+    console.error('Keycloak initialization error:', error);
+    throw error;
+  }
+};
+
+export const getKeycloakInstance = (): KeycloakInstance | null => {
+  return keycloakInstance;
+};
+
+export const getKeycloakConfig = (): KeycloakConfig => {
+  return keycloakConfig;
+};
+
+export const updateKeycloakConfig = (config: KeycloakConfig) => {
+  keycloakConfig = config;
+  keycloakInstance = null; // Reset Keycloak instance to force re-initialization with new config
+};
+
+
+// _app.tsx
+import { AppProps } from 'next/app';
+import { useEffect, useState } from 'react';
+import keycloak, { initKeycloak, getKeycloakInstance } from '../path/to/keycloak'; // Adjust the path to your keycloak.ts file
+
+function MyApp({ Component, pageProps }: AppProps) {
+  const [loading, setLoading] = useState(true);
+  const [authenticated, setAuthenticated] = useState(false);
+
+  useEffect(() => {
+    async function initializeKeycloak() {
+      try {
+        const kc = await initKeycloak();
+        if (kc.authenticated) {
+          setAuthenticated(true);
+        }
+      } catch (error) {
+        console.error('Keycloak initialization error:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    initializeKeycloak();
+  }, []);
+
+  const login = async () => {
+    try {
+      await keycloak.login();
+      setAuthenticated(true);
+    } catch (error) {
+      console.error('Login error:', error);
+    }
+  };
+
+  const logout = async () => {
+    try {
+      await keycloak.logout();
+      setAuthenticated(false);
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  return (
+    <Component {...pageProps} keycloak={{ login, logout, authenticated }} />
+  );
+}
+
+export default MyApp;

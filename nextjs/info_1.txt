@@ -1,0 +1,42 @@
+Next.js supports two main runtimes for executing server-side code: Edge Runtime and Node.js Runtime. Each of these runtimes is optimized for different use cases, and understanding their differences can help you choose the right one for your application.
+
+Edge Runtime
+Edge Runtime is designed for ultra-fast, globally distributed execution. It runs on edge servers, closer to the end users, reducing latency and improving performance.
+
+Characteristics:
+
+Low Latency: Since code runs closer to users, it reduces the time needed for data to travel.
+Limited Environment: Edge Runtime is more restricted than Node.js. For example, it does not support many Node.js APIs and modules.
+Cold Start Times: Typically very fast.
+Use Cases: Suitable for use cases that require high performance and low latency, such as personalization, A/B testing, and simple API endpoints.
+How to Use:
+To use Edge Runtime in a Next.js API route or middleware, you can specify the runtime in your configuration.
+
+// Example of using Edge Runtime in API route
+export const config = {
+  runtime: 'edge',
+};
+
+export default function handler(req, res) {
+  return new Response('Hello, from the Edge!', {
+    headers: { 'Content-Type': 'text/plain' },
+  });
+}
+
+
+Node.js Runtime
+Node.js Runtime is the traditional server-side environment for Next.js. It provides a full-featured environment with support for the vast ecosystem of Node.js modules and APIs.
+
+Characteristics:
+
+Full Node.js Support: Access to all Node.js APIs and npm packages.
+Higher Latency: Since it runs on centralized servers, latency can be higher compared to Edge Runtime.
+Cold Start Times: Generally slower compared to Edge Runtime.
+Use Cases: Suitable for complex applications, heavy computation, accessing databases, and when using specific Node.js libraries.
+How to Use:
+Using Node.js Runtime is the default for Next.js API routes and server-side functions.
+
+// Example of using Node.js Runtime in API route
+export default function handler(req, res) {
+  res.status(200).json({ message: 'Hello, from Node.js!' });
+}

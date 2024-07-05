@@ -1,0 +1,86 @@
+// pages/_app.tsx
+import { AppProps } from 'next/app';
+import { useEffect } from 'react';
+import { ConfigProvider, useConfig } from '../context/ConfigContext';
+
+const MyApp: React.FC<AppProps> = ({ Component, pageProps }) => {
+    const { config, setConfig } = useConfig();
+
+    useEffect(() => {
+        if (config.keycloak) {
+            config.keycloak.init({
+                onLoad: 'login-required',
+            }).then((authenticated) => {
+                console.log('Keycloak authentication initialized:', authenticated);
+                setConfig((prevConfig) => ({
+                    ...prevConfig,
+                    authenticated: authenticated,
+                }));
+            }).catch((error) => {
+                console.error('Keycloak initialization error:', error);
+                setConfig((prevConfig) => ({
+                    ...prevConfig,
+                    authenticated: false,
+                }));
+            });
+        }
+    }, [config.keycloak, setConfig]);
+
+    if (config.keycloak === null) {
+        return <div>Loading...</div>;
+    }
+
+    if (!config.authenticated) {
+        return <div>Redirecting to login...</div>; // You can customize this message as needed
+    }
+
+    return <Component {...pageProps} />;
+};
+
+const AppWrapper: React.FC<AppProps> = (props) => (
+    <ConfigProvider>
+        <MyApp {...props} />
+    </ConfigProvider>
+);
+
+export default AppWrapper;
+
+
+
+// pages/index.tsx
+import { useConfig } from '../context/ConfigContext';
+
+const HomePage: React.FC = () => {
+    const { config } = useConfig();
+
+    return (
+        <div>
+            <h1>Welcome to the Home Page!</h1>
+            <p>API Endpoint: {config.env.apiEndpoint}</p>
+            <p>Authenticated: {config.authenticated ? 'Yes' : 'No'}</p>
+            {/* Access other config values as needed */}
+        </div>
+    );
+};
+
+export default HomePage;
+
+
+
+// pages/index.tsx
+import { useConfig } from '../context/ConfigContext';
+
+const HomePage: React.FC = () => {
+    const { config } = useConfig();
+
+    return (
+        <div>
+            <h1>Welcome to the Home Page!</h1>
+            <p>API Endpoint: {config.env.apiEndpoint}</p>
+            <p>Authenticated: {config.authenticated ? 'Yes' : 'No'}</p>
+            {/* Access other config values as needed */}
+        </div>
+    );
+};
+
+export default HomePage;

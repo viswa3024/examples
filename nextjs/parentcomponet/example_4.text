@@ -1,0 +1,36 @@
+// components/ParentComponent.tsx
+import React, { ReactNode, useEffect, useState } from 'react';
+
+interface ParentComponentProps {
+  children: ReactNode;
+}
+
+export default function ParentComponent({ children }: ParentComponentProps) {
+  const [login, setLogin] = useState(false);
+
+  // Simulating an effect that updates login state
+  useEffect(() => {
+    // Replace this with actual logic that updates login state
+    // This is just a simulation to toggle login state
+    const interval = setInterval(() => {
+      setLogin(prevLogin => !prevLogin);
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // Render children with login prop
+  const childrenWithProps = React.Children.map(children, child => {
+    if (React.isValidElement(child)) {
+      return React.cloneElement(child, { login });
+    }
+    return child;
+  });
+
+  return (
+    <div>
+      <h1>Parent Component</h1>
+      <div>{childrenWithProps}</div>
+    </div>
+  );
+}

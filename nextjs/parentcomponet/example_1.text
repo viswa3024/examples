@@ -1,0 +1,17 @@
+// components/ParentComponent.tsx
+import React, { ReactNode } from 'react';
+
+interface ParentComponentProps {
+  children: ReactNode;
+}
+
+const ParentComponent: React.FC<ParentComponentProps> = ({ children }) => {
+  return (
+    <div>
+      <h1>Parent Component</h1>
+      <div>{children}</div>
+    </div>
+  );
+};
+
+export default ParentComponent;

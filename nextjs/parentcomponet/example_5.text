@@ -1,0 +1,36 @@
+import React, { ReactNode, useEffect, useState } from 'react';
+import MainPage from './MainPage'; // Adjust the import path as per your project structure
+
+interface ParentComponentProps {
+  children: ReactNode;
+}
+
+type LoginType = boolean;
+
+export default function ParentComponent({ children }: ParentComponentProps) {
+  const [login, setLogin] = useState<LoginType>(false);
+
+  useEffect(() => {
+    // Simulating an effect that updates login state
+    const interval = setInterval(() => {
+      setLogin(prevLogin => !prevLogin);
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const childrenWithProps = React.Children.map(children, child => {
+    if (React.isValidElement(child)) {
+      return React.cloneElement(child, { login });
+    }
+    return child;
+  });
+
+  return (
+    <div>
+      <h1>Parent Component</h1>
+      <div>{childrenWithProps}</div>
+    </div>
+  );
+}
+

@@ -1,0 +1,34 @@
+// pages/api/getLocalUri.js
+
+export default function handler(req, res) {
+  // Extract the full URL from the request object
+  const protocol = req.headers['x-forwarded-proto'] || 'http';
+  const host = req.headers.host;
+  const fullUrl = `${protocol}://${host}${req.url}`;
+
+  // Respond with the full URL
+  res.status(200).json({ localUri: fullUrl });
+}
+
+
+import React from 'react';
+import useIsClient from './path/to/useIsClient';
+
+const MyComponent = () => {
+  const isClient = useIsClient();
+
+  const getLocalURI = () => {
+    if (isClient) {
+      return window.location.href;
+    }
+    return null;
+  };
+
+  return (
+    <div>
+      {isClient && <p>Local URI: {getLocalURI()}</p>}
+    </div>
+  );
+};
+
+export default MyComponent;

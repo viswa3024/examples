@@ -60,3 +60,18 @@ const MyComponent = () => {
 };
 
 export default My
+
+
+
+// pages/api/getQueryParams.js
+
+import { NextApiRequest, NextApiResponse } from 'next';
+
+export default function handler(req, res) {
+  // Extract query parameters from the request
+  const { param1, param2 } = req.query;
+
+  // Respond with the query parameters
+  res.status(200).json({ param1, param2 });
+}
+

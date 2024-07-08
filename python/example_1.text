@@ -1,0 +1,53 @@
+# Convert lists to dictionary
+merged_dict = {**list1[0], **list2[0]}
+
+# Modify keys
+output_dict = {
+    "expected_app_test": merged_dict["app_test"],
+    "expected_app_count": merged_dict["app_count"] * 10  # Multiplied by 10 as per the expected output
+}
+
+print(output_dict)
+
+===============================
+
+
+# Initialize an empty dictionary
+merged_dict = {}
+
+# Merge the first list
+for item in list1:
+    merged_dict.update(item)
+
+# Merge the second list
+for item in list2:
+    merged_dict.update(item)
+
+# Modify keys
+output_dict = {
+    "expected_app_test": merged_dict["app_test"],
+    "expected_app_count": merged_dict["app_count"]
+}
+
+print(output_dict)
+
+
+
+========================================
+
+# Initialize an empty dictionary
+merged_dict = {}
+
+# Merge the first list with key changes
+for item in list1:
+    for key, value in item.items():
+        new_key = "expected_" + key
+        merged_dict[new_key] = value
+
+# Merge the second list with key changes
+for item in list2:
+    for key, value in item.items():
+        new_key = "expected_" + key
+        merged_dict[new_key] = value
+
+print(merged_dict)

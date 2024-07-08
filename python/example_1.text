@@ -51,3 +51,26 @@ for item in list2:
         merged_dict[new_key] = value
 
 print(merged_dict)
+
+
+
+======================================
+
+
+
+# Initialize an empty dictionary
+merged_dict = {}
+
+# Merge the first list and rename 'app_test' to 'expected_app_test'
+for item in list1:
+    for key, value in item.items():
+        if key == 'app_test':
+            key = 'expected_app_test'
+        merged_dict[key] = value
+
+# Merge the second list
+for item in list2:
+    merged_dict.update(item)
+
+print(merged_dict)
+

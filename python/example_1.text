@@ -74,3 +74,25 @@ for item in list2:
 
 print(merged_dict)
 
+
+
+==========================
+
+
+
+# Initialize an empty dictionary
+result_dict = {}
+
+# Merge app_total into result_dict
+for item in app_total:
+    for key, value in item.items():
+        result_dict[key] = value
+
+for item in billing_count:
+    result_dict['billing'] = item
+
+for item in token_count:
+    result_dict['token'] = item
+
+print(result_dict)
+

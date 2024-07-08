@@ -96,3 +96,26 @@ for item in token_count:
 
 print(result_dict)
 
+
+===========================
+
+# Initialize an empty dictionary
+result_dict = {}
+
+# Merge app_total into result_dict
+for item in app_total:
+    for key, value in item.items():
+        result_dict[key] = value
+
+# Handle billing section
+if billing_count:
+    result_dict['billing'] = billing_count[0]
+else:
+    result_dict['billing'] = {"name": "", "billing_count": 0}
+
+# Merge token_count into result_dict under 'token' key
+for item in token_count:
+    result_dict['token'] = item
+
+print(result_dict)
+

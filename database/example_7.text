@@ -1,0 +1,38 @@
+from sqlalchemy.orm import Session
+from .repository import Repository
+
+class Service:
+    def __init__(self, repository: Repository):
+        self.repository = repository
+
+    def create_user(self, name: str, email: str):
+        db = self.repository.get_db()
+        try:
+            return self.repository.create_user(db, name, email)
+        finally:
+            db.close()
+
+    def get_users(self):
+        db = self.repository.get_db()
+        try:
+            return self.repository.get_users(db)
+        finally:
+            db.close()
+
+
+from fastapi import FastAPI
+from .service import Service
+
+class Endpoints:
+    def __init__(self, service: Service):
+        self.service = service
+        self.app = FastAPI()
+
+    def setup_routes(self):
+        @self.app.post("/create_user/")
+        def create_user(name: str, email: str):
+            return self.service.create_user(name, email)
+
+        @self.app.get("/get_users/")
+        def get_users():
+            return self.service.get_users()

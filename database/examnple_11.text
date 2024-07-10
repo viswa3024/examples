@@ -1,0 +1,41 @@
+import os
+from sqlalchemy import create_engine
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.engine import url as sa_url
+
+class Database:
+    def __init__(self, database_url: str, pool_size: int = 5, max_overflow: int = 10, pool_timeout: int = 30):
+        self.engine = create_engine(
+            sa_url.make_url(database_url),
+            pool_size=pool_size,
+            max_overflow=max_overflow,
+            pool_timeout=pool_timeout,
+            echo=True
+        )
+        self.SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=self.engine)
+        self.Base = declarative_base()
+
+    def get_db(self):
+        db = self.SessionLocal()
+        try:
+            yield db
+        finally:
+            db.close()
+
+# Get the database URL from environment variables
+SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://user:password@localhost/dbname")
+
+# Instantiate the Database class with connection pool configuration
+database = Database(
+    database_url=SQLALCHEMY_DATABASE_URL,
+    pool_size=int(os.getenv("POOL_SIZE", 5)),
+    max_overflow=int(os.getenv("MAX_OVERFLOW", 10)),
+    pool_timeout=int(os.getenv("POOL_TIMEOUT", 30))
+)
+
+
+DATABASE_URL=postgresql://user:password@localhost/dbname
+POOL_SIZE=5
+MAX_OVERFLOW=10
+POOL_TIMEOUT=30

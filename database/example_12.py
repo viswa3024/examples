@@ -95,3 +95,69 @@ def read_items(db: Session = Depends(get_db)):
     # Example of using the session to query items
     items = db.query(Item).all()
     return items
+
+
+
+
+
+
+
+
+
+
+
+    ======================================
+
+
+    import os
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker, scoped_session
+from sqlalchemy.engine import url as sa_url
+
+class Database:
+    def __init__(self, database_url: str, pool_size: int = 5, max_overflow: int = 10, pool_timeout: int = 30, echo: bool = False):
+        self.database_url = database_url
+        self.engine = self._create_engine(pool_size, max_overflow, pool_timeout, echo)
+        self.SessionLocal = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=self.engine))
+
+    def _create_engine(self, pool_size: int, max_overflow: int, pool_timeout: int, echo: bool):
+        return create_engine(
+            sa_url.make_url(self.database_url),
+            pool_size=pool_size,
+            max_overflow=max_overflow,
+            pool_timeout=pool_timeout,
+            echo=echo
+        )
+
+    def get_db(self):
+        db = self.SessionLocal()
+        try:
+            yield db
+        finally:
+            db.close()
+
+# Get the database URL from environment variables
+SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://user:password@localhost/dbname")
+
+# Instantiate the Database class
+database = Database(
+    database_url=SQLALCHEMY_DATABASE_URL,
+    pool_size=int(os.getenv("POOL_SIZE", 5)),
+    max_overflow=int(os.getenv("MAX_OVERFLOW", 10)),
+    pool_timeout=int(os.getenv("POOL_TIMEOUT", 30)),
+    echo=bool(os.getenv("SQLALCHEMY_ECHO", False))
+)
+
+
+from fastapi import FastAPI, Depends
+from sqlalchemy.orm import Session
+from .database import database
+
+app = FastAPI()
+
+@app.get("/items/")
+def read_items(db: Session = Depends(database.get_db)):
+    # Example of using the session to query items
+    items = db.query(Item).all()
+    return items
+

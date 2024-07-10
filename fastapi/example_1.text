@@ -27,3 +27,17 @@ def get_info(name: Optional[str] = Query(None, alias="name"),
              age: Optional[int] = Query(None, alias="age"),
              city: Optional[str] = Query(None, alias="city")):
     return {"name": name, "age": age, "city": city}
+
+
+from fastapi import FastAPI, Query
+from typing import Optional
+
+app = FastAPI()
+
+@app.get("/get-info")
+def get_info(
+    name: Optional[str] = Query(None, alias="name"),
+    age: Optional[int] = Query(None, gt=0, alias="age"),
+    city: Optional[str] = Query(None, alias="city")
+):
+    return {"name": name, "age": age, "city": city}

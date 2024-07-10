@@ -5,3 +5,13 @@ app = FastAPI()
 @app.get("/get-name")
 def get_name(name: str = Query(..., alias="name")):
     return {"name": name}
+
+
+from fastapi import FastAPI, Query
+
+app = FastAPI()
+
+@app.get("/search")
+def search(name: str = Query(None, alias="name"), age: int = Query(None, alias="age"), city: str = Query(None, alias="city")):
+    return {"name": name, "age": age, "city": city}
+

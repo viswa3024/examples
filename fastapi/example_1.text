@@ -1,0 +1,7 @@
+from fastapi import FastAPI, Query
+
+app = FastAPI()
+
+@app.get("/get-name")
+def get_name(name: str = Query(..., alias="name")):
+    return {"name": name}

@@ -223,4 +223,127 @@ async def shutdown():
 ========================================================================================
 
 
+db_config.py
+
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker, scoped_session
+from databases import Database
+
+class DBConfig:
+    def __init__(self, url: str, ssl_context=None):
+        self.url = url
+        self.ssl_context = ssl_context
+        self.database = Database(self.url, ssl=self.ssl_context)
+        self.engine = create_engine(self.url, echo=True, echo_pool='debug')
+        self.session = scoped_session(
+            sessionmaker(autocommit=False, autoflush=False, bind=self.engine)
+        )
+
+    def get_session(self):
+        db = self.session()
+        try:
+            yield db
+        finally:
+            db.close()
+
+# Initialize DBConfig with your database URL
+db_url = "your_database_url_here"
+ssl_context = None  # or provide your SSL context if needed
+db_config = DBConfig(db_url, ssl_context)
+
+# Dependency to get a session
+def get_db():
+    return next(db_config.get_session())
+
+
+repository.py
+
+
+from sqlalchemy.orm import Session
+from models import Item  # Replace with your actual model
+from schemas import ItemCreate  # Replace with your actual schema
+
+class Repository:
+    def __init__(self, db: Session):
+        self.db = db
+
+    def get_items(self):
+        return self.db.query(Item).all()
+
+    def create_item(self, item: ItemCreate):
+        db_item = Item(name=item.name, description=item.description)
+        self.db.add(db_item)
+        self.db.commit()
+        self.db.refresh(db_item)
+        return db_item
+
+
+endpoints.py
+
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.orm import Session
+from db_config import get_db  # Import the get_db function
+from repository import Repository
+from schemas import ItemCreate, Item  # Replace with your actual schemas
+
+router = APIRouter()
+
+@router.get("/items/", response_model=List[Item])
+def read_items(db: Session = Depends(get_db)):
+    repository = Repository(db)
+    return repository.get_items()
+
+@router.post("/items/", response_model=Item)
+def create_item(item: ItemCreate, db: Session = Depends(get_db)):
+    repository = Repository(db)
+    return repository.create_item(item)
+
+# You can define additional routers and endpoints in a similar fashion
+
+
+additional_endpoints.py
+
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.orm import Session
+from db_config import get_db  # Import the get_db function
+from repository import Repository
+from schemas import AnotherModelCreate, AnotherModel  # Replace with your actual schemas
+
+router = APIRouter()
+
+@router.get("/another-model/", response_model=List[AnotherModel])
+def read_another_models(db: Session = Depends(get_db)):
+    repository = Repository(db)
+    return repository.get_another_models()
+
+@router.post("/another-model/", response_model=AnotherModel)
+def create_another_model(item: AnotherModelCreate, db: Session = Depends(get_db)):
+    repository = Repository(db)
+    return repository.create_another_model(item)
+
+# You can define additional endpoints for different models here
+
+
+main.py
+
+from fastapi import FastAPI
+from db_config import db_config
+from endpoints import router as item_router
+from additional_endpoints import router as another_model_router
+
+app = FastAPI()
+
+# Include the routers
+app.include_router(item_router)
+app.include_router(another_model_router)
+
+# Start the database connection when the application starts
+@app.on_event("startup")
+async def startup():
+    await db_config.database.connect()
+
+# Disconnect from the database when the application shuts down
+@app.on_event("shutdown")
+async def shutdown():
+    await db_config.database.disconnect()
 

@@ -119,3 +119,17 @@ for item in token_count:
 
 print(result_dict)
 
+
+
+# Given list
+res = [{'value': 30}]
+
+# Check if res is not empty and has 'count' key
+if res and isinstance(res, list) and res[0].get('value') is not None:
+    res_value = res[0]['value']
+    output = {'total_count': res_value}
+else:
+    output = {'total_count': 0}  # or handle differently based on your requirements
+
+# Print the resulting dictionary
+print(output)

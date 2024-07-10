@@ -41,3 +41,23 @@ def get_info(
     city: Optional[str] = Query(None, alias="city")
 ):
     return {"name": name, "age": age, "city": city}
+
+
+
+from fastapi import FastAPI, Path, HTTPException
+from typing import Union
+
+app = FastAPI()
+
+@app.get("/get-page/{page}")
+def get_page(page: Union[str, int] = Path(...)):
+    try:
+        page_no = int(page)
+        if page_no <= 0:
+            raise ValueError("Page number must be greater than 0")
+    except ValueError:
+        raise HTTPException(status_code=400, detail="Invalid page number")
+    
+    page_no -= 1
+    page_no = page_no * 10
+    return {"page_start_index": page_no}

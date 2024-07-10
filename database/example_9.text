@@ -1,0 +1,48 @@
+from fastapi import FastAPI, Depends, HTTPException
+from sqlalchemy.orm import Session
+from . import models, schemas, crud
+from .database import Database, SQLALCHEMY_DATABASE_URL
+
+app = FastAPI()
+
+# Instantiate the Database class
+db = Database(SQLALCHEMY_DATABASE_URL)
+
+# Create the database tables
+models.Item.metadata.create_all(bind=db.engine)
+
+@app.post("/items/", response_model=schemas.Item)
+def create_item(item: schemas.ItemCreate, db_session: Session = Depends(db.get_db)):
+    return crud.create_item(db=db_session, item=item)
+
+@app.get("/items/", response_model=list[schemas.Item])
+def read_items(skip: int = 0, limit: int = 10, db_session: Session = Depends(db.get_db)):
+    items = crud.get_items(db=db_session, skip=skip, limit=limit)
+    return items
+
+
+
+from sqlalchemy import create_engine
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+
+class Database:
+    def __init__(self, database_url: str):
+        self.engine = create_engine(
+            database_url, connect_args={"check_same_thread": False}, echo=True
+        )
+        self.SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=self.engine)
+        self.Base = declarative_base()
+
+    def get_db(self):
+        db = self.SessionLocal()
+        try:
+            yield db
+        finally:
+            db.close()
+
+# Database URL configuration
+SQLALCHEMY_DATABASE_URL = "sqlite:///./data.db"
+
+# Instantiate the Database class
+database = Database(SQLALCHEMY_DATABASE_URL)

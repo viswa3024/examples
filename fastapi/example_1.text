@@ -63,6 +63,23 @@ def get_page(page: Union[str, int] = Path(...)):
     return {"page_start_index": page_no}
 
 
+from fastapi import FastAPI, Query, HTTPException
+from typing import Optional
+
+app = FastAPI()
+
+def validate_name(name: Optional[str] = Query(None, alias="name")):
+    if name is not None and len(name) < 3:
+        raise HTTPException(status_code=400, detail="Name must be at least 3 characters long")
+    return name
+
+@app.get("/get-info")
+def get_info(
+    name: str = Depends(validate_name),
+    age: Optional[int] = Query(None, gt=0, alias="age"),
+    city: Optional[str] = Query(None, alias="city")
+):
+    return {"name": name, "age": age, "city": city}
 
 
 

@@ -167,3 +167,35 @@ Your application does not require handling many concurrent database connections.
 You prefer a mature, stable, and synchronous approach.
 You are already using SQLAlchemy and prefer sticking to synchronous database operations.
 In summary, choose databases[asyncpg] for asynchronous operations and high concurrency needs, and choose psycopg2-binary for stability and ease of use with synchronous operations.
+
+
+
+from databases import Database
+from pydantic import BaseSettings
+from sqlalchemy.engine import URL
+
+# Database settings
+class Settings(BaseSettings):
+    drivername: str = "postgresql"
+    username: str = "user"
+    password: str = "password"
+    host: str = "localhost"
+    port: str = "5432"
+    database: str = "dbname"
+
+# Create an instance of the Settings class
+settings = Settings()
+
+# Construct the database URL using SQLAlchemy's URL class
+database_url = URL.create(
+    drivername=settings.drivername,
+    username=settings.username,
+    password=settings.password,
+    host=settings.host,
+    port=settings.port,
+    database=settings.database
+)
+
+# Database configuration
+database = Database(str(database_url))
+

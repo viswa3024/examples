@@ -61,3 +61,41 @@ def get_page(page: Union[str, int] = Path(...)):
     page_no -= 1
     page_no = page_no * 10
     return {"page_start_index": page_no}
+
+
+
+
+
+
+
+# Assuming you have the name to search for
+name = 'tes'
+
+# Construct the name_pattern with % signs
+name_pattern = f'%{name}%'
+
+# Print the constructed pattern
+print(name_pattern)
+
+
+
+
+from sqlalchemy import create_engine, text
+
+# Assuming you have an SQLAlchemy engine set up
+engine = create_engine('sqlite:///mydatabase.db')
+
+# Define your query with a LIKE clause
+query = "SELECT * FROM test WHERE name LIKE :name"
+name_pattern = '%tes%'  # The pattern to search for
+
+# Create a SQLAlchemy text object
+sql = text(query)
+
+# Execute the query with parameters
+results = engine.execute(sql, {'name': name_pattern})
+
+# Process results
+for row in results:
+    print(row)
+

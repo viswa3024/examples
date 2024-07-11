@@ -1,0 +1,29 @@
+import asyncio
+from prisma import Prisma
+
+async def main():
+    # Initialize Prisma client
+    prisma = Prisma()
+    await prisma.connect()
+
+    # Dynamic values
+    table_name = 'your_table_name'
+    condition_value = 'your_condition_value'
+
+    # Example raw SQL query with named parameters
+    raw_query = f'SELECT * FROM {table_name} WHERE condition = :value1;'
+
+    # Execute raw SQL query with named parameters
+    results = await prisma.query_raw(raw_query, {
+        'value1': condition_value
+    })
+
+    # Print the results
+    for row in results:
+        print(row)
+
+    # Disconnect the Prisma client
+    await prisma.disconnect()
+
+# Run the main function
+asyncio.run(main())

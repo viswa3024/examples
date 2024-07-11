@@ -1,0 +1,28 @@
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker, scoped_session
+from contextlib import contextmanager
+
+class DatabaseSessionManager:
+    def __init__(self, connection_string):
+        self.engine = create_engine(connection_string)
+        self.Session = scoped_session(sessionmaker(bind=self.engine))
+
+    @contextmanager
+    def get_session(self):
+        session = self.Session()
+        try:
+            yield session
+            session.commit()
+        except Exception as e:
+            session.rollback()
+            raise
+        finally:
+            session.close()
+
+# Initialize the DatabaseSessionManager
+db_manager = DatabaseSessionManager("postgresql+psycopg2://user:password@localhost/mydatabase")
+
+# Dependency to get the session
+def get_db_session():
+    with db_manager.get_session() as session:
+        yield session

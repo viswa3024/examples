@@ -1,0 +1,13 @@
+const output = data.map((item, index) => {
+  if (!colors[item.user_id]) {
+    colors[item.user_id] = colorsarray[colorIndex % colorsarray.length];
+    colorIndex++;
+  }
+  return {
+    key: item.user_id,
+    group: item.user_id,
+    value: item.cost,
+    date: item.timestamp,
+    color: colorsarray[index % colorsarray.length]
+  };
+});

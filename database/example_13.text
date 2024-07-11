@@ -54,3 +54,36 @@ def get_db():
         yield db
     finally:
         db.close()
+
+
+
+import os
+from sqlalchemy import create_engine
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+
+DATABASE_URL = "postgresql+psycopg2://user:password@localhost/dbname"
+
+# Read statement timeout from environment variable, default to 10 seconds (10000 milliseconds)
+STATEMENT_TIMEOUT = int(os.getenv("STATEMENT_TIMEOUT", "10000"))
+
+# Configure the SQLAlchemy engine with connection pooling and timeout settings
+engine = create_engine(
+    DATABASE_URL,
+    pool_size=10,         # The size of the connection pool to maintain
+    max_overflow=20,      # The maximum number of connections to allow in overflow
+    pool_timeout=30,      # The maximum number of seconds to wait before giving up on getting a connection from the pool
+    pool_recycle=1800,    # The number of seconds a connection can be idle before it is recycled
+    connect_args={"options": f"-c statement_timeout={STATEMENT_TIMEOUT}"}  # Set a dynamic statement timeout
+)
+
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+Base = declarative_base()
+
+# Dependency to get the session
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()

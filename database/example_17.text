@@ -1,0 +1,77 @@
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker, scoped_session
+from contextlib import contextmanager
+
+class DatabaseSessionManager:
+    def __init__(self, connection_string):
+        self.engine = create_engine(connection_string)
+        self.Session = scoped_session(sessionmaker(bind=self.engine))
+
+    @contextmanager
+    def get_session(self):
+        session = self.Session()
+        try:
+            yield session
+            session.commit()
+        except Exception as e:
+            session.rollback()
+            raise
+        finally:
+            session.close()
+
+
+. Define a Dependency
+Define a function to provide a session and use FastAPI's Depends to inject this dependency.
+
+
+from fastapi import FastAPI, Depends, HTTPException
+from sqlalchemy.orm import Session
+
+# Create an instance of the DatabaseSessionManager
+db_manager = DatabaseSessionManager("postgresql+psycopg2://user:password@localhost/mydatabase")
+
+# Dependency to get the session
+def get_db_session():
+    with db_manager.get_session() as session:
+        yield session
+
+app = FastAPI()
+
+# Define your models and CRUD operations here
+
+
+
+
+
+@app.get("/items/{item_id}")
+def read_item(item_id: int, db: Session = Depends(get_db_session)):
+    item = db.query(Item).filter(Item.id == item_id).first()
+    if not item:
+        raise HTTPException(status_code=404, detail="Item not found")
+    return item
+
+@app.post("/items/")
+def create_item(item: ItemCreate, db: Session = Depends(get_db_session)):
+    db_item = Item(**item.dict())
+    db.add(db_item)
+    db.commit()
+    db.refresh(db_item)
+    return db_item
+
+# Example models and schemas
+from pydantic import BaseModel
+
+class ItemCreate(BaseModel):
+    name: str
+    description: str
+
+from sqlalchemy import Column, Integer, String, Base
+
+class Item(Base):
+    __tablename__ = 'items'
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, index=True)
+    description = Column(String)
+
+# Create the database tables
+Base.metadata.create_all(bind=db_manager.engine)

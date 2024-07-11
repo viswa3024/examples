@@ -1,0 +1,21 @@
+function formatToBestUnit(ms: number): string {
+  const hours = ms / 3600000;
+  const minutes = ms / 60000;
+  const seconds = ms / 1000;
+
+  if (hours >= 1) {
+    return `${Math.floor(hours)}h`;
+  } else if (minutes >= 1) {
+    return `${Math.floor(minutes)}m`;
+  } else if (seconds >= 1) {
+    return `${Math.floor(seconds)}s`;
+  } else {
+    return `${ms}ms`;
+  }
+}
+
+// Example usage
+console.log(formatToBestUnit(10));         // Output: "10ms"
+console.log(formatToBestUnit(12000));      // Output: "12s"
+console.log(formatToBestUnit(600000));     // Output: "10m"
+console.log(formatToBestUnit(7200000));    // Output: "2h"

@@ -1,0 +1,21 @@
+from sqlalchemy.orm import sessionmaker
+from contextlib import contextmanager
+
+Session = sessionmaker(bind=engine)
+
+@contextmanager
+def get_session():
+    session = Session()
+    try:
+        yield session
+        session.commit()
+    except Exception as e:
+        session.rollback()
+        raise
+    finally:
+        session.close()
+
+# Usage
+with get_session() as session:
+    # perform database operations
+    pass

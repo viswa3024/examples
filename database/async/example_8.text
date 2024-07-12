@@ -1,0 +1,48 @@
+In SQLAlchemy, session.rollback() is typically used to rollback transactions that involve data modification operations (insert, update, delete). These operations affect the database state, and if an error occurs during them, rolling back ensures that the database remains in a consistent state.
+
+On the other hand, for select operations, which are read-only and do not modify the database, session.rollback() is not necessary or meaningful. Select queries simply retrieve data and do not have a transaction to rollback because they do not alter the database state.
+
+Handling Errors in Select Operations
+When performing select operations with SQLAlchemy, it's important to handle potential errors gracefully. Here’s how you can structure your code to handle errors in select operations without using session.rollback():
+
+
+from sqlalchemy.future import select
+from sqlalchemy.exc import SQLAlchemyError
+from app.models import User
+from fastapi_sqlalchemy import db
+
+async def get_user(user_id: int):
+    async with db():
+        async with db.session() as session:
+            try:
+                result = await session.execute(select(User).filter(User.id == user_id))
+                return result.scalars().first()
+            except SQLAlchemyError as e:
+                # Log the error or handle it as needed
+                print(f"Error fetching user: {e}")
+                return None
+
+
+In this example:
+
+We use a try-except block to catch any SQLAlchemyError that might occur during the execution of the select query.
+Inside the except block, we can log the error or handle it based on the application's requirements.
+Since select operations do not start a transaction that needs to be rolled back, there’s no need to call session.rollback().
+When to Use session.rollback()
+Use session.rollback() in scenarios where you are performing data modification operations (such as insert, update, delete) and an error occurs. For example:
+
+
+async def create_user(user_data):
+    async with db():
+        async with db.session() as session:
+            try:
+                new_user = User(**user_data)
+                session.add(new_user)
+                await session.commit()
+                return new_user
+            except SQLAlchemyError as e:
+                session.rollback()  # Rollback the transaction on error
+                print(f"Error creating user: {e}")
+                return None
+
+Here, if an error occurs during session.commit(), session.rollback() is used to undo any changes made during the transaction, ensuring data integrity.

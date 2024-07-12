@@ -1,0 +1,86 @@
+pip install fastapi fastapi-sqlalchemy uvicorn psycopg2-binary
+
+
+# models.py
+from sqlalchemy import Column, Integer, String
+from sqlalchemy.ext.declarative import declarative_base
+
+Base = declarative_base()
+
+class User(Base):
+    __tablename__ = "users"
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, index=True)
+    email = Column(String, unique=True, index=True)
+
+
+# main.py
+from fastapi import FastAPI, HTTPException, Depends
+from pydantic import BaseModel
+from fastapi_sqlalchemy import DBSessionMiddleware, db
+from sqlalchemy.orm import Session
+from models import Base, User
+import os
+
+DATABASE_URL = "postgresql://user:password@localhost/dbname"
+
+app = FastAPI()
+
+app.add_middleware(DBSessionMiddleware, db_url=DATABASE_URL)
+
+# Pydantic models
+class UserCreate(BaseModel):
+    name: str
+    email: str
+
+class UserResponse(BaseModel):
+    id: int
+    name: str
+    email: str
+
+    class Config:
+        orm_mode = True
+
+# Create the database tables
+@app.on_event("startup")
+def on_startup():
+    from sqlalchemy import create_engine
+    engine = create_engine(DATABASE_URL)
+    Base.metadata.create_all(bind=engine)
+
+@app.post("/users/", response_model=UserResponse)
+def create_user(user: UserCreate):
+    db_user = User(name=user.name, email=user.email)
+    db.session.add(db_user)
+    db.session.commit()
+    db.session.refresh(db_user)
+    return db_user
+
+@app.get("/users/{user_id}", response_model=UserResponse)
+def read_user(user_id: int):
+    db_user = db.session.query(User).filter(User.id == user_id).first()
+    if db_user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    return db_user
+
+@app.put("/users/{user_id}", response_model=UserResponse)
+def update_user(user_id: int, updated_user: UserCreate):
+    db_user = db.session.query(User).filter(User.id == user_id).first()
+    if db_user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    db_user.name = updated_user.name
+    db_user.email = updated_user.email
+    db.session.commit()
+    db.session.refresh(db_user)
+    return db_user
+
+@app.delete("/users/{user_id}")
+def delete_user(user_id: int):
+    db_user = db.session.query(User).filter(User.id == user_id).first()
+    if db_user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    db.session.delete(db_user)
+    db.session.commit()
+    return {"detail": "User deleted"}
+
+# Run the app with: uvicorn main:app --reload

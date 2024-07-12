@@ -1,0 +1,27 @@
+const user_id = "test one";
+const colorsarray = ["red", "green", "blue"];
+const colors = {};
+
+// Assign colors to each category
+Object.keys(data).forEach((key, index) => {
+    colors[key] = colorsarray[index % colorsarray.length];
+});
+
+// Construct the output array
+const output = [];
+
+for (const [group, entries] of Object.entries(data)) {
+    const color = colors[group];
+    entries.forEach(entry => {
+        output.push({
+            key: user_id,
+            group: group,
+            value: entry.score,
+            date: entry.timestamp,
+            color: color
+        });
+    });
+}
+
+console.log(colors); // Output the colors object
+console.log(output); // Output the final array

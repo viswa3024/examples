@@ -267,3 +267,89 @@ export class CustomSelectComponent {
   background-color: #007bff;
   color: white;
 }
+
+
+
+=====================================================================
+
+import { Component, Input, Output, EventEmitter, HostListener } from '@angular/core';
+
+interface SelectOption {
+  id: number;
+  content: string;
+  selected?: boolean;
+}
+
+@Component({
+  selector: 'app-custom-select',
+  templateUrl: './custom-select.component.html',
+  styleUrls: ['./custom-select.component.css']
+})
+export class CustomSelectComponent {
+  @Input() options: SelectOption[] = [];
+  @Input() placeholder: string = 'Select an option'; // Default placeholder
+  @Output() selectedOption = new EventEmitter<SelectOption>();
+
+  selectedId: number | null = null;
+  selectedContent: string | null = null;
+  dropdownOpen = false;
+
+  ngOnInit() {
+    const selected = this.options.find(option => option.selected);
+    if (selected) {
+      this.selectedId = selected.id;
+      this.selectedContent = selected.content;
+    }
+  }
+
+  toggleDropdown() {
+    this.dropdownOpen = !this.dropdownOpen;
+  }
+
+  onSelect(option: SelectOption) {
+    this.selectedId = option.id;
+    this.selectedContent = option.content;
+    this.selectedOption.emit(option);
+    this.dropdownOpen = false; // Close the dropdown after selecting an option
+  }
+
+  @HostListener('document:click', ['$event'])
+  onClickOutside(event: MouseEvent) {
+    const target = event.target as HTMLElement;
+    if (!target.closest('.custom-select')) {
+      this.dropdownOpen = false;
+    }
+  }
+}
+
+
+<div class="custom-select">
+  <div class="select-box" (click)="toggleDropdown()">
+    <div *ngIf="selectedContent !== null; else placeholderTemplate">
+      {{ selectedContent }}
+    </div>
+    <ng-template #placeholderTemplate>
+      {{ placeholder }}
+    </ng-template>
+    <svg class="dropdown-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M7 10l5 5 5-5H7z" fill="currentColor" />
+    </svg>
+  </div>
+  <div class="dropdown" *ngIf="dropdownOpen">
+    <div
+      *ngFor="let option of options"
+      (click)="onSelect(option)"
+      [class.selected]="option.id === selectedId"
+    >
+      {{ option.content }}
+    </div>
+  </div>
+</div>
+
+
+<!-- parent.component.html -->
+<app-custom-select
+  [options]="options"
+  [placeholder]="'Please select an item'"
+  (selectedOption)="handleSelectedOption($event)"
+></app-custom-select>

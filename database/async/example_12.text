@@ -1,0 +1,38 @@
+n an asynchronous FastAPI application, using asyncpg is sufficient for database connectivity and operations. asyncpg is a PostgreSQL database adapter for Python's asyncio framework, specifically designed for asynchronous operations. It allows you to work with PostgreSQL databases asynchronously without the need for psycopg2-binary, which is traditionally used for synchronous PostgreSQL connections in Python applications.
+
+When using asyncpg with FastAPI and SQLAlchemy, you can perform efficient asynchronous database operations, ensuring your application can handle concurrent requests and scale effectively. Here’s a summary of the setup:
+
+Install Dependencies:
+
+fastapi: Web framework for building APIs with Python.
+asyncpg: Asynchronous PostgreSQL database adapter for asyncio.
+
+
+pip install fastapi asyncpg
+
+
+from sqlalchemy.ext.asyncio import create_async_engine
+from sqlalchemy.orm import sessionmaker, declarative_base
+
+DATABASE_URL = "postgresql+asyncpg://user:password@localhost/dbname"
+engine = create_async_engine(DATABASE_URL, echo=True)  # Replace DATABASE_URL with your actual connection string
+
+AsyncSessionLocal = sessionmaker(
+    bind=engine,
+    expire_on_commit=False,
+    class_=AsyncSession
+)
+
+Base = declarative_base()
+
+
+from fastapi import FastAPI, Depends
+from sqlalchemy.ext.asyncio import AsyncSession
+
+app = FastAPI()
+
+@app.get("/")
+async def read_root(db: AsyncSession = Depends(AsyncSessionLocal)):
+    # Example endpoint using AsyncSession
+    # Implement your business logic here
+    return {"message": "Hello World"}

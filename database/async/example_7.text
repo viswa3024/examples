@@ -1,0 +1,25 @@
+In SQLAlchemy and similar ORM frameworks, the need to rollback transactions typically arises during data modification operations (like insert, update, delete) rather than select operations. Here’s why:
+
+Transactions and Data Modifications: When you modify data (e.g., create a new record, update existing data, delete records), you're potentially altering the state of the database. If an error occurs during such operations (e.g., database constraint violation, network issue), it's crucial to ensure that the database remains in a consistent state. This is where transactions and rollback mechanisms come into play.
+
+Select Operations: On the other hand, select operations are read-only and do not alter the database state. These operations are generally safe in terms of data consistency because they retrieve data without modifying it. Therefore, there's usually no need to explicitly rollback a select operation because it doesn't change anything in the database.
+
+Exception Handling: While it's good practice to handle exceptions in all database operations for logging and error reporting purposes, select operations typically handle exceptions differently compared to data modification operations. Exceptions in select queries are often related to connectivity issues, query syntax errors, or database server errors, which may need to be logged or reported but don't require transaction rollback for data consistency.
+
+Best Practices for Error Handling:
+Data Modification (insert, update, delete): Use session.rollback() in try-except blocks around these operations to revert changes if an error occurs, ensuring database consistency.
+
+Select Operations: Handle exceptions gracefully, log errors, and possibly return appropriate responses to clients, but you generally don't need to rollback transactions because no data modification occurred.
+
+Example:
+Here's how you might handle errors in a select operation:
+
+async def get_user(user_id: int):
+    async with db():
+        async with db.session() as session:
+            try:
+                result = await session.execute(select(User).filter(User.id == user_id))
+                return result.scalars().first()
+            except SQLAlchemyError as e:
+                logger.error(f"Error fetching user: {e}")
+                return None

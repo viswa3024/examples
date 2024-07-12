@@ -1,0 +1,175 @@
+pip install fastapi sqlalchemy databases asyncpg uvicorn
+
+
+fastapi_sqlalchemy_async/
+│
+├── app/
+│   ├── __init__.py
+│   ├── main.py
+│   ├── models.py
+│   ├── crud.py
+│   ├── database.py
+│   └── schemas.py
+└── requirements.txt
+
+
+# app/database.py
+
+from databases import Database
+from sqlalchemy import create_engine
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+
+DATABASE_URL = "postgresql+asyncpg://username:password@localhost/dbname"
+
+database = Database(DATABASE_URL)
+engine = create_engine(DATABASE_URL)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+Base = declarative_base()
+
+async def get_db():
+    async with database.transaction():
+        yield database
+
+
+# app/models.py
+
+from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy.orm import relationship
+from app.database import Base
+
+class User(Base):
+    __tablename__ = "users"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, index=True)
+    email = Column(String, unique=True, index=True)
+    hashed_password = Column(String)
+
+    items = relationship("Item", back_populates="owner")
+
+class Item(Base):
+    __tablename__ = "items"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String, index=True)
+    description = Column(String, index=True)
+    owner_id = Column(Integer, ForeignKey("users.id"))
+
+    owner = relationship("User", back_populates="items")
+
+
+# app/schemas.py
+
+from pydantic import BaseModel
+from typing import List, Optional
+
+class ItemBase(BaseModel):
+    title: str
+    description: Optional[str] = None
+
+class ItemCreate(ItemBase):
+    pass
+
+class Item(ItemBase):
+    id: int
+    owner_id: int
+
+    class Config:
+        orm_mode = True
+
+class UserBase(BaseModel):
+    name: str
+    email: str
+
+class UserCreate(UserBase):
+    password: str
+
+class User(UserBase):
+    id: int
+    items: List[Item] = []
+
+    class Config:
+        orm_mode = True
+
+
+
+# app/crud.py
+
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.future import select
+from app.models import User, Item
+from app.schemas import UserCreate, ItemCreate
+
+async def get_user(db: AsyncSession, user_id: int):
+    result = await db.execute(select(User).filter(User.id == user_id))
+    return result.scalars().first()
+
+async def get_user_by_email(db: AsyncSession, email: str):
+    result = await db.execute(select(User).filter(User.email == email))
+    return result.scalars().first()
+
+async def create_user(db: AsyncSession, user: UserCreate):
+    db_user = User(name=user.name, email=user.email, hashed_password=user.password)
+    db.add(db_user)
+    await db.commit()
+    await db.refresh(db_user)
+    return db_user
+
+async def get_items(db: AsyncSession, skip: int = 0, limit: int = 10):
+    result = await db.execute(select(Item).offset(skip).limit(limit))
+    return result.scalars().all()
+
+async def create_user_item(db: AsyncSession, item: ItemCreate, user_id: int):
+    db_item = Item(**item.dict(), owner_id=user_id)
+    db.add(db_item)
+    await db.commit()
+    await db.refresh(db_item)
+    return db_item
+
+
+# app/main.py
+
+from fastapi import FastAPI, Depends, HTTPException
+from sqlalchemy.ext.asyncio import AsyncSession
+from typing import List
+from app import crud, models, schemas
+from app.database import engine, get_db, database
+
+models.Base.metadata.create_all(bind=engine)
+
+app = FastAPI()
+
+@app.on_event("startup")
+async def startup():
+    await database.connect()
+
+@app.on_event("shutdown")
+async def shutdown():
+    await database.disconnect()
+
+@app.post("/users/", response_model=schemas.User)
+async def create_user(user: schemas.UserCreate, db: AsyncSession = Depends(get_db)):
+    db_user = await crud.get_user_by_email(db, email=user.email)
+    if db_user:
+        raise HTTPException(status_code=400, detail="Email already registered")
+    return await crud.create_user(db=db, user=user)
+
+@app.get("/users/{user_id}", response_model=schemas.User)
+async def read_user(user_id: int, db: AsyncSession = Depends(get_db)):
+    db_user = await crud.get_user(db, user_id=user_id)
+    if db_user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    return db_user
+
+@app.post("/users/{user_id}/items/", response_model=schemas.Item)
+async def create_item_for_user(
+    user_id: int, item: schemas.ItemCreate, db: AsyncSession = Depends(get_db)
+):
+    return await crud.create_user_item(db=db, item=item, user_id=user_id)
+
+@app.get("/items/", response_model=List[schemas.Item])
+async def read_items(skip: int = 0, limit: int = 10, db: AsyncSession = Depends(get_db)):
+    items = await crud.get_items(db, skip=skip, limit=limit)
+    return items

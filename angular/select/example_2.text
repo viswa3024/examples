@@ -107,3 +107,90 @@ export class CustomSelectComponent {
     </div>
   </div>
 </div>
+
+
+
+=====================================================
+
+
+import { Component, Input, Output, EventEmitter, HostListener } from '@angular/core';
+
+interface SelectOption {
+  id: number;
+  content: string;
+  selected?: boolean;
+}
+
+@Component({
+  selector: 'app-custom-select',
+  templateUrl: './custom-select.component.html',
+  styleUrls: ['./custom-select.component.css']
+})
+export class CustomSelectComponent {
+  @Input() options: SelectOption[] = [];
+  @Output() selectedOption = new EventEmitter<SelectOption>();
+
+  selectedId: number | null = null;
+  selectedContent: string | null = null;
+  dropdownOpen = false;
+
+  ngOnInit() {
+    const selected = this.options.find(option => option.selected);
+    if (selected) {
+      this.selectedId = selected.id;
+      this.selectedContent = selected.content;
+    }
+  }
+
+  toggleDropdown() {
+    this.dropdownOpen = !this.dropdownOpen;
+  }
+
+  onSelect(option: SelectOption) {
+    this.selectedId = option.id;
+    this.selectedContent = option.content;
+    this.selectedOption.emit(option);
+    this.dropdownOpen = false; // Close the dropdown after selecting an option
+  }
+
+  @HostListener('document:click', ['$event'])
+  onClickOutside(event: MouseEvent) {
+    const target = event.target as HTMLElement;
+    if (!target.closest('.custom-select')) {
+      this.dropdownOpen = false;
+    }
+  }
+}
+
+
+.custom-select {
+  position: relative;
+  display: inline-block;
+  width: 200px;
+}
+
+.select-box {
+  padding: 10px;
+  border: 1px solid #ccc;
+  cursor: pointer;
+}
+
+.dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  border: 1px solid #ccc;
+  background-color: white;
+  z-index: 1;
+}
+
+.dropdown div {
+  padding: 10px;
+  cursor: pointer;
+}
+
+.dropdown div.selected {
+  background-color: #007bff;
+  color: white;
+}

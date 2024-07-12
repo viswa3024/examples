@@ -1,0 +1,124 @@
+ng generate component custom-select
+
+
+import { Component, Input, Output, EventEmitter } from '@angular/core';
+
+interface SelectOption {
+  id: number;
+  content: string;
+  selected?: boolean;
+}
+
+@Component({
+  selector: 'app-custom-select',
+  templateUrl: './custom-select.component.html',
+  styleUrls: ['./custom-select.component.css']
+})
+export class CustomSelectComponent {
+  @Input() options: SelectOption[] = [];
+  @Output() selectedOption = new EventEmitter<SelectOption>();
+
+  selectedId: number | null = null;
+
+  ngOnInit() {
+    const selected = this.options.find(option => option.selected);
+    if (selected) {
+      this.selectedId = selected.id;
+    }
+  }
+
+  onSelect(option: SelectOption) {
+    this.selectedId = option.id;
+    this.selectedOption.emit(option);
+  }
+}
+
+
+
+<div class="custom-select">
+  <div class="select-box" (click)="toggleDropdown()">
+    <div *ngIf="selectedId !== null; else placeholder">
+      {{ options.find(option => option.id === selectedId)?.content }}
+    </div>
+    <ng-template #placeholder>
+      Select an option
+    </ng-template>
+  </div>
+  <div class="dropdown" *ngIf="dropdownOpen">
+    <div
+      *ngFor="let option of options"
+      (click)="onSelect(option)"
+      [class.selected]="option.id === selectedId"
+    >
+      {{ option.content }}
+    </div>
+  </div>
+</div>
+
+
+.custom-select {
+  position: relative;
+  display: inline-block;
+  width: 200px;
+}
+
+.select-box {
+  padding: 10px;
+  border: 1px solid #ccc;
+  cursor: pointer;
+}
+
+.dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  border: 1px solid #ccc;
+  background-color: white;
+  z-index: 1;
+}
+
+.dropdown div {
+  padding: 10px;
+  cursor: pointer;
+}
+
+.dropdown div.selected {
+  background-color: #007bff;
+  color: white;
+}
+
+
+
+<!-- parent.component.html -->
+<app-custom-select
+  [options]="options"
+  (selectedOption)="handleSelectedOption($event)"
+></app-custom-select>
+
+
+
+// parent.component.ts
+import { Component } from '@angular/core';
+
+interface SelectOption {
+  id: number;
+  content: string;
+  selected?: boolean;
+}
+
+@Component({
+  selector: 'app-parent',
+  templateUrl: './parent.component.html',
+  styleUrls: ['./parent.component.css']
+})
+export class ParentComponent {
+  options: SelectOption[] = [
+    { id: 1, content: 'test one' },
+    { id: 2, content: 'test two', selected: true }
+  ];
+
+  handleSelectedOption(option: SelectOption) {
+    console.log('Selected option:', option);
+  }
+}

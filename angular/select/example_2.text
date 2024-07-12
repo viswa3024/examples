@@ -1,0 +1,42 @@
+import { Component, Input, Output, EventEmitter } from '@angular/core';
+
+interface SelectOption {
+  id: number;
+  content: string;
+  selected?: boolean;
+}
+
+@Component({
+  selector: 'app-custom-select',
+  templateUrl: './custom-select.component.html',
+  styleUrls: ['./custom-select.component.css']
+})
+export class CustomSelectComponent {
+  @Input() options: SelectOption[] = [];
+  @Output() selectedOption = new EventEmitter<SelectOption>();
+
+  selectedId: number | null = null;
+  dropdownOpen = false;
+
+  ngOnInit() {
+    const selected = this.options.find(option => option.selected);
+    if (selected) {
+      this.selectedId = selected.id;
+    }
+  }
+
+  get selectedContent(): string {
+    const selectedOption = this.options.find(option => option.id === this.selectedId);
+    return selectedOption ? selectedOption.content : 'Select an option';
+  }
+
+  toggleDropdown() {
+    this.dropdownOpen = !this.dropdownOpen;
+  }
+
+  onSelect(option: SelectOption) {
+    this.selectedId = option.id;
+    this.selectedOption.emit(option);
+    this.dropdownOpen = false; // Close the dropdown after selecting an option
+  }
+}

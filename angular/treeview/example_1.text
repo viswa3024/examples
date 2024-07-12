@@ -1,0 +1,140 @@
+import { Component } from '@angular/core';
+
+interface DataNode {
+  name: string;
+  children?: DataNode[];
+}
+
+const TREE_DATA: DataNode[] = [
+  {
+    name: 'Daily',
+    children: [],
+  },
+  {
+    name: 'Weekly',
+    children: [
+      { name: 'test-16' },
+      { name: 'test-35' },
+    ],
+  },
+  {
+    name: 'Monthly',
+    children: [
+      { name: 'test-16' },
+      { name: 'test-35' },
+    ],
+  },
+];
+
+@Component({
+  selector: 'app-hierarchical-tree',
+  templateUrl: './hierarchical-tree.component.html',
+  styleUrls: ['./hierarchical-tree.component.css'],
+})
+export class HierarchicalTreeComponent {
+  treeData = TREE_DATA;
+}
+
+
+<ul>
+  <li *ngFor="let node of treeData">
+    <span>{{ node.name }}</span>
+    <ul *ngIf="node.children && node.children.length">
+      <li *ngFor="let child of node.children">
+        {{ child.name }}
+      </li>
+    </ul>
+  </li>
+</ul>
+
+
+ul {
+  list-style-type: none;
+  padding-left: 1em;
+}
+
+ul ul {
+  margin-left: 1em;
+  padding-left: 1em;
+  border-left: 1px solid #ccc;
+}
+
+li {
+  margin: 0.5em 0;
+}
+
+li span {
+  font-weight: bold;
+}
+
+=======================================================
+
+
+import { Component, OnInit } from '@angular/core';
+
+interface DataNode {
+  name: string;
+  identifier: string;
+}
+
+interface HierarchicalData {
+  [key: string]: DataNode[];
+}
+
+const DATA: HierarchicalData = {
+  weekly: [
+    { name: "test-16", identifier: "model_token" },
+    { name: "test-35", identifier: "model_token" }
+  ],
+  monthly: [
+    { name: "test-16", identifier: "model_token" },
+    { name: "test-35", identifier: "model_token" }
+  ]
+};
+
+@Component({
+  selector: 'app-hierarchical-tree',
+  templateUrl: './hierarchical-tree.component.html',
+  styleUrls: ['./hierarchical-tree.component.css'],
+})
+export class HierarchicalTreeComponent implements OnInit {
+  data: HierarchicalData = DATA;
+
+  constructor() { }
+
+  ngOnInit(): void { }
+}
+
+
+
+<ul>
+  <li *ngFor="let category of getKeys(data)">
+    <span>{{ category | titlecase }}</span>
+    <ul>
+      <li *ngFor="let item of data[category]">
+        {{ item.name }}
+      </li>
+    </ul>
+  </li>
+</ul>
+
+
+
+ul {
+  list-style-type: none;
+  padding-left: 1em;
+}
+
+ul ul {
+  margin-left: 1em;
+  padding-left: 1em;
+  border-left: 1px solid #ccc;
+}
+
+li {
+  margin: 0.5em 0;
+}
+
+li span {
+  font-weight: bold;
+}

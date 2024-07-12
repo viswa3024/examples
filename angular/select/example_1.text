@@ -122,3 +122,66 @@ export class ParentComponent {
     console.log('Selected option:', option);
   }
 }
+
+==================================================
+
+
+import { Component, Input, Output, EventEmitter } from '@angular/core';
+
+interface SelectOption {
+  id: number;
+  content: string;
+  selected?: boolean;
+}
+
+@Component({
+  selector: 'app-custom-select',
+  templateUrl: './custom-select.component.html',
+  styleUrls: ['./custom-select.component.css']
+})
+export class CustomSelectComponent {
+  @Input() options: SelectOption[] = [];
+  @Output() selectedOption = new EventEmitter<SelectOption>();
+
+  selectedId: number | null = null;
+  dropdownOpen = false;
+
+  ngOnInit() {
+    const selected = this.options.find(option => option.selected);
+    if (selected) {
+      this.selectedId = selected.id;
+    }
+  }
+
+  toggleDropdown() {
+    this.dropdownOpen = !this.dropdownOpen;
+  }
+
+  onSelect(option: SelectOption) {
+    this.selectedId = option.id;
+    this.selectedOption.emit(option);
+    this.dropdownOpen = false; // Close the dropdown after selecting an option
+  }
+}
+
+
+
+<div class="custom-select">
+  <div class="select-box" (click)="toggleDropdown()">
+    <div *ngIf="selectedId !== null; else placeholder">
+      {{ options.find(option => option.id === selectedId)?.content }}
+    </div>
+    <ng-template #placeholder>
+      Select an option
+    </ng-template>
+  </div>
+  <div class="dropdown" *ngIf="dropdownOpen">
+    <div
+      *ngFor="let option of options"
+      (click)="onSelect(option)"
+      [class.selected]="option.id === selectedId"
+    >
+      {{ option.content }}
+    </div>
+  </div>
+</div>

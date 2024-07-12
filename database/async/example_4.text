@@ -1,0 +1,157 @@
+fastapi_sqlalchemy_async/
+│
+├── app/
+│   ├── __init__.py
+│   ├── main.py
+│   ├── models.py
+│   ├── crud.py
+│   └── schemas.py
+└── requirements.txt
+
+
+# app/main.py
+
+from fastapi import FastAPI, Depends, HTTPException
+from typing import List
+from fastapi_sqlalchemy import DBSessionMiddleware, db
+from pydantic import BaseSettings
+
+from app import crud, models, schemas
+
+class Settings(BaseSettings):
+    DATABASE_URL: str
+
+    class Config:
+        env_file = ".env"
+
+settings = Settings()
+
+app = FastAPI()
+
+app.add_middleware(DBSessionMiddleware, db_url=settings.DATABASE_URL)
+
+@app.post("/users/", response_model=schemas.User)
+async def create_user(user: schemas.UserCreate):
+    db_user = await crud.get_user_by_email(user.email)
+    if db_user:
+        raise HTTPException(status_code=400, detail="Email already registered")
+    return await crud.create_user(user=user)
+
+@app.get("/users/{user_id}", response_model=schemas.User)
+async def read_user(user_id: int):
+    db_user = await crud.get_user(user_id=user_id)
+    if db_user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+    return db_user
+
+@app.post("/users/{user_id}/items/", response_model=schemas.Item)
+async def create_item_for_user(user_id: int, item: schemas.ItemCreate):
+    return await crud.create_user_item(item=item, user_id=user_id)
+
+@app.get("/items/", response_model=List[schemas.Item])
+async def read_items(skip: int = 0, limit: int = 10):
+    items = await crud.get_items(skip=skip, limit=limit)
+    return items
+
+
+# app/models.py
+
+from sqlalchemy import Column, Integer, String, ForeignKey
+from sqlalchemy.orm import relationship
+from fastapi_sqlalchemy import db
+
+Base = db.Model
+
+class User(Base):
+    __tablename__ = "users"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, index=True)
+    email = Column(String, unique=True, index=True)
+    hashed_password = Column(String)
+
+    items = relationship("Item", back_populates="owner")
+
+class Item(Base):
+    __tablename__ = "items"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String, index=True)
+    description = Column(String, index=True)
+    owner_id = Column(Integer, ForeignKey("users.id"))
+
+    owner = relationship("User", back_populates="items")
+
+
+# app/schemas.py
+
+from pydantic import BaseModel
+from typing import List, Optional
+
+class ItemBase(BaseModel):
+    title: str
+    description: Optional[str] = None
+
+class ItemCreate(ItemBase):
+    pass
+
+class Item(ItemBase):
+    id: int
+    owner_id: int
+
+    class Config:
+        orm_mode = True
+
+class UserBase(BaseModel):
+    name: str
+    email: str
+
+class UserCreate(UserBase):
+    password: str
+
+class User(UserBase):
+    id: int
+    items: List[Item] = []
+
+    class Config:
+        orm_mode = True
+
+
+
+# app/crud.py
+
+from sqlalchemy.future import select
+from app.models import User, Item
+from app.schemas import UserCreate, ItemCreate
+from fastapi_sqlalchemy import db
+
+async def get_user(user_id: int):
+    async with db():
+        result = await db.session.execute(select(User).filter(User.id == user_id))
+        return result.scalars().first()
+
+async def get_user_by_email(email: str):
+    async with db():
+        result = await db.session.execute(select(User).filter(User.email == email))
+        return result.scalars().first()
+
+async def create_user(user: UserCreate):
+    async with db():
+        db_user = User(name=user.name, email=user.email, hashed_password=user.password)
+        db.session.add(db_user)
+        await db.session.commit()
+        await db.session.refresh(db_user)
+        return db_user
+
+async def get_items(skip: int = 0, limit: int = 10):
+    async with db():
+        result = await db.session.execute(select(Item).offset(skip).limit(limit))
+        return result.scalars().all()
+
+async def create_user_item(item: ItemCreate, user_id: int):
+    async with db():
+        db_item = Item(**item.dict(), owner_id=user_id)
+        db.session.add(db_item)
+        await db.session.commit()
+        await db.session.refresh(db_item)
+        return db_item

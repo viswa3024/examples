@@ -194,3 +194,76 @@ export class CustomSelectComponent {
   background-color: #007bff;
   color: white;
 }
+
+
+======================================================
+
+
+<div class="custom-select">
+  <div class="select-box" (click)="toggleDropdown()">
+    <div *ngIf="selectedContent !== null; else placeholder">
+      {{ selectedContent }}
+    </div>
+    <ng-template #placeholder>
+      Select an option
+    </ng-template>
+    <svg class="dropdown-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M7 10l5 5 5-5H7z" fill="currentColor" />
+    </svg>
+  </div>
+  <div class="dropdown" *ngIf="dropdownOpen">
+    <div
+      *ngFor="let option of options"
+      (click)="onSelect(option)"
+      [class.selected]="option.id === selectedId"
+    >
+      {{ option.content }}
+    </div>
+  </div>
+</div>
+
+
+.custom-select {
+  position: relative;
+  display: inline-block;
+  width: 200px;
+}
+
+.select-box {
+  padding: 10px;
+  border: 1px solid #ccc;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.dropdown-icon {
+  width: 16px;
+  height: 16px;
+  transition: transform 0.3s;
+}
+
+.dropdown-icon.open {
+  transform: rotate(180deg);
+}
+
+.dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  border: 1px solid #ccc;
+  background-color: white;
+  z-index: 1;
+}
+
+.dropdown div {
+  padding: 10px;
+  cursor: pointer;
+}
+
+.dropdown div.selected {
+  background-color: #007bff;
+  color: white;
+}

@@ -138,3 +138,46 @@ li {
 li span {
   font-weight: bold;
 }
+
+Helper Function to Get Keys
+Update the hierarchical-tree.component.ts to include a helper function to get the keys of the data object.
+
+import { Component, OnInit } from '@angular/core';
+
+interface DataNode {
+  name: string;
+  identifier: string;
+}
+
+interface HierarchicalData {
+  [key: string]: DataNode[];
+}
+
+const DATA: HierarchicalData = {
+  weekly: [
+    { name: "test-16", identifier: "model_token" },
+    { name: "test-35", identifier: "model_token" }
+  ],
+  monthly: [
+    { name: "test-16", identifier: "model_token" },
+    { name: "test-35", identifier: "model_token" }
+  ]
+};
+
+@Component({
+  selector: 'app-hierarchical-tree',
+  templateUrl: './hierarchical-tree.component.html',
+  styleUrls: ['./hierarchical-tree.component.css'],
+})
+export class HierarchicalTreeComponent implements OnInit {
+  data: HierarchicalData = DATA;
+
+  constructor() { }
+
+  ngOnInit(): void { }
+
+  getKeys(obj: any): string[] {
+    return Object.keys(obj);
+  }
+}
+

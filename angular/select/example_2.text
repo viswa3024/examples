@@ -86,3 +86,24 @@ export class CustomSelectComponent {
     this.dropdownOpen = false; // Close the dropdown after selecting an option
   }
 }
+
+
+<div class="custom-select">
+  <div class="select-box" (click)="toggleDropdown()">
+    <div *ngIf="selectedContent !== null; else placeholder">
+      {{ selectedContent }}
+    </div>
+    <ng-template #placeholder>
+      Select an option
+    </ng-template>
+  </div>
+  <div class="dropdown" *ngIf="dropdownOpen">
+    <div
+      *ngFor="let option of options"
+      (click)="onSelect(option)"
+      [class.selected]="option.id === selectedId"
+    >
+      {{ option.content }}
+    </div>
+  </div>
+</div>

@@ -1,0 +1,32 @@
+Yes, you can use the DBSessionMiddleware from fastapi_sqlalchemy to add a middleware to your FastAPI app that will provide a database session to your endpoints.
+
+Here's an example:
+
+from fastapi import FastAPI
+from fastapi_sqlalchemy import DBSessionMiddleware, db
+
+app = FastAPI()
+
+DATABASE_URL = "postgresql+psycopg2://user:password@localhost/dbname"
+
+app.add_middleware(DBSessionMiddleware, db_url=DATABASE_URL)
+
+@app.get("/users/")
+def read_users():
+    return db.session.query(User).all()
+
+This will add a middleware to your app that will provide a database session to your endpoints. The db object will be available in your endpoints, and you can use it to interact with the database.
+
+Note that you'll need to install fastapi_sqlalchemy and import it in your code.
+
+Also, you can use the db object to define your models, like this:
+
+class User(db.Model):
+    __tablename__ = 'users'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(50), nullable=False)
+    email = db.Column(db.String(100), unique=True, nullable=False)
+
+This way, you can define your models using the db object, and use them in your endpoints to interact with the database.
+
+I hope this helps! Let me know if you have any questions.

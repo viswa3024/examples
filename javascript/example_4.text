@@ -14,3 +14,23 @@ data.forEach((item) => {
         color: colors[item.model]
     });
 });
+
+
+
+const colorsarray = ["red", "green", "blue"];
+const colors = {};
+const output = [];
+
+// Single iteration to create colors object and transform data
+data.forEach((item, index) => {
+    if (!colors[item.model]) {
+        colors[item.model] = colorsarray[index % colorsarray.length];
+    }
+    output.push({
+        key: item.model,
+        group: item.model,
+        value: item.total_tokens,
+        date: item.timestamp,
+        color: colors[item.model]
+    });
+});

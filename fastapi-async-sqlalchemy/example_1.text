@@ -1,0 +1,39 @@
+pip install fastapi_sqlalchemy fastapi_async_sqlalchemy asyncpg
+
+# app/crud.py
+
+from sqlalchemy.future import select
+from app.models import User, Item
+from app.schemas import UserCreate, ItemCreate
+from fastapi_async_sqlalchemy import db
+
+async def get_user(user_id: int):
+    async with db():
+        result = await db.session.execute(select(User).filter(User.id == user_id))
+        return result.scalars().first()
+
+async def get_user_by_email(email: str):
+    async with db():
+        result = await db.session.execute(select(User).filter(User.email == email))
+        return result.scalars().first()
+
+async def create_user(user: UserCreate):
+    async with db():
+        db_user = User(name=user.name, email=user.email, hashed_password=user.password)
+        db.session.add(db_user)
+        await db.session.commit()
+        await db.session.refresh(db_user)
+        return db_user
+
+async def get_items(skip: int = 0, limit: int = 10):
+    async with db():
+        result = await db.session.execute(select(Item).offset(skip).limit(limit))
+        return result.scalars().all()
+
+async def create_user_item(item: ItemCreate, user_id: int):
+    async with db():
+        db_item = Item(**item.dict(), owner_id=user_id)
+        db.session.add(db_item)
+        await db.session.commit()
+        await db.session.refresh(db_item)
+        return db_item

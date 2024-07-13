@@ -1,0 +1,16 @@
+const colors = {};
+const output = [];
+
+// Single iteration to create colors object and transform data
+data.forEach((item) => {
+    if (!colors[item.model]) {
+        colors[item.model] = colorsarray[Object.keys(colors).length];
+    }
+    output.push({
+        key: item.model,
+        group: item.model,
+        value: item.total_tokens,
+        date: item.timestamp,
+        color: colors[item.model]
+    });
+});

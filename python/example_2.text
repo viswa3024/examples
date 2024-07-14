@@ -1,0 +1,7 @@
+grouped_data = {}
+
+for item in data:
+    app_name = item["app_name"]
+    if app_name not in grouped_data:
+        grouped_data[app_name] = []
+    grouped_data[app_name].append(item)

@@ -1,0 +1,15 @@
+<ul>
+  <li *ngFor="let category of getKeys(data)">
+    <span>{{ category | titlecase }}</span>
+    <ul>
+      <li *ngFor="let token of getKeys(data[category])">
+        <span>{{ token | titlecase }}</span>
+        <ul>
+          <li *ngFor="let item of data[category][token]">
+            {{ item.name }}
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>

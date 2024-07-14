@@ -1,0 +1,14 @@
+const colors = {};
+const result = [];
+
+data.forEach((item, index) => {
+    if (!colors[item.ts]) {
+        colors[item.ts] = colorsArray[index % colorsArray.length];
+    }
+    result.push({
+        group: item.ts,
+        domain: item.ts,
+        value: item.duration,
+        color: colors[item.ts]
+    });
+});

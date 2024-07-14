@@ -12,3 +12,27 @@ data.forEach((item, index) => {
         color: colors[item.ts]
     });
 });
+
+
+=========================
+
+
+// Create a mapping of timestamps to colors
+const uniqueTimestamps = [...new Set(data.map(item => item.ts))];
+const colors = uniqueTimestamps.reduce((acc, ts, index) => {
+    acc[ts] = colorsArray[index % colorsArray.length];
+    return acc;
+}, {});
+
+console.log(colors);
+// Expected colors: {"2024-06-21T16:22:45.640000": "red", "2024-06-21T16:21:11.101000": "green", "2024-06-21T16:24:27.413000": "blue"}
+
+const result = data.map(item => ({
+    group: item.ts,
+    domain: item.ts,
+    value: item.duration,
+    color: colors[item.ts]
+}));
+
+console.log(result);
+// Expected output with colors added

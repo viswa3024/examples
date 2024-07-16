@@ -4,3 +4,34 @@ function changeText(input) {
     .map(word => word.charAt(0).toUpperCase() + word.slice(1)) // Capitalize the first letter of each word
     .join(' ');           // Join the words back together with spaces
 }
+
+
+
+
+const colorsarray = ["red", "green", "blue"];
+
+function randomColor() {
+    const letters = '0123456789ABCDEF';
+    let color = '#';
+    for (let i = 0; i < 6; i++) {
+        color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+}
+
+const colors = {};
+const transformedData = data.map(entry => {
+    const ts = entry.ts;
+    if (!colors[ts]) {
+        const colorsLength = Object.keys(colors).length;
+        colors[ts] = colorsLength < colorsarray.length ? colorsarray[colorsLength] : randomColor();
+    }
+    return {
+        group: ts,
+        domain: ts,
+        value: entry.duration,
+        color: colors[ts]
+    };
+});
+
+console.log(transformedData);

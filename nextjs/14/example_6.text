@@ -1,0 +1,108 @@
+The useEffect hook in Next.js (and React in general) can run twice in development mode due to the behavior of React's Strict Mode. This is intended to help identify side effects in your code and ensure that it behaves correctly when certain operations are performed twice.
+
+To address this and ensure your useEffect hook runs as expected, you can either:
+
+Handle the double invocation properly in development mode: This approach ensures your code behaves correctly and avoids unintended side effects.
+Remove React's Strict Mode: This is generally not recommended as it disables other beneficial warnings and checks provided by Strict Mode.
+Option 1: Handle the Double Invocation
+Ensure that your fetchData call and other operations within useEffect are idempotent and handle potential double invocation appropriately.
+
+Option 2: Remove React's Strict Mode (Not Recommended)
+If you decide to remove Strict Mode, you can modify your pages/_app.js file:
+
+
+// pages/_app.js
+import '../styles/globals.css';
+
+function MyApp({ Component, pageProps }) {
+  return <Component {...pageProps} />;
+}
+
+export default MyApp;
+
+
+However, as mentioned, it's better to handle the double invocation in your code.
+
+Updated Code Example with Proper Handling
+Here's how you can handle the useEffect properly, making sure your data fetching logic is robust:
+
+
+
+// pages/index.js
+import React, { useState, useEffect } from 'react';
+import { fetchData } from '../utils/api';
+
+export default function HomePage() {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    async function loadData() {
+      try {
+        const jsonData = await fetchData();
+        if (isMounted) {
+          setData(jsonData);
+          setLoading(false);
+        }
+      } catch (error) {
+        if (isMounted) {
+          setError(error.message);
+          setLoading(false);
+        }
+      }
+    }
+
+    loadData();
+
+    return () => {
+      isMounted = false; // Cleanup function to prevent state update on unmounted component
+    };
+  }, []);
+
+  const handlePost = async () => {
+    try {
+      const res = await fetch('/api/data', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ message: 'Hello from Next.js!' }),
+      });
+      if (!res.ok) {
+        throw new Error('Failed to post data');
+      }
+      const jsonData = await res.json();
+      setData(jsonData);
+    } catch (error) {
+      setError(error.message);
+    }
+  };
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
+
+  return (
+    <div>
+      <h1>Welcome to Next.js with Python Backend!</h1>
+      <p>{data && data.message}</p>
+      <button onClick={handlePost}>Send Message to Backend</button>
+    </div>
+  );
+}
+
+
+Explanation
+Cleanup Function: The useEffect hook returns a cleanup function that sets isMounted to false. This ensures that state updates only occur if the component is still mounted, preventing memory leaks and errors when the component unmounts.
+
+Idempotent Fetching: The loadData function inside useEffect checks isMounted before updating state. This ensures the state is only updated if the component is still mounted.
+
+Summary
+By properly handling the double invocation of useEffect in development mode and ensuring your data fetching logic is robust, you can ensure a smooth user experience and maintain good coding practices. Removing React's Strict Mode is not recommended as it disables other beneficial warnings and checks.

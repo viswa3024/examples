@@ -35,3 +35,73 @@ export default async function HomePage() {
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
+=====================================================
+
+
+// utils/fetchData.js
+export async function fetchData() {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL}/api/data`, {
+    next: { revalidate: 60 }, // Optional: Revalidate every 60 seconds
+  });
+
+  if (!res.ok) {
+    throw new Error('Failed to fetch data');
+  }
+
+  return res.json();
+}
+
+
+
+// app/page.js
+'use client';
+
+import React, { useState, useEffect } from 'react';
+import { fetchData } from '../utils/fetchData';
+
+export default function HomePage() {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const result = await fetchData();
+        setData(result);
+        setLoading(false);
+      } catch (err) {
+        setError(err.message);
+        setLoading(false);
+      }
+    }
+
+    loadData();
+  }, []);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
+
+  return (
+    <div>
+      <h1>Welcome to Next.js 14!</h1>
+      <p>{data.message}</p>
+      <p>Timestamp: {data.timestamp}</p>
+    </div>
+  );
+}
+

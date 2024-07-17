@@ -1,0 +1,48 @@
+import { useState, useEffect } from 'react';
+import useSWR from 'swr';
+
+const fetcher = (url) => fetch(url).then((res) => res.json());
+
+export default function Layout({ children }) {
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [data, setData] = useState(null);
+
+  const { data: swrData, error: swrError, isValidating } = useSWR('/api/data', fetcher, {
+    revalidateOnFocus: false,  // Prevent revalidation on window focus
+    revalidateOnReconnect: false, // Prevent revalidation on reconnect
+    refreshInterval: 0,  // Disable periodic revalidation
+  });
+
+  useEffect(() => {
+    if (isValidating) {
+      setLoading(true);
+    } else {
+      setLoading(false);
+      if (swrError) {
+        setError(swrError);
+      } else {
+        setError(null);
+        setData(swrData);
+      }
+    }
+  }, [swrData, swrError, isValidating]);
+
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div>Error: {error.message}</div>;
+
+  return (
+    <div>
+      <header>
+        {/* Your header content */}
+      </header>
+      <main>
+        {children}
+        <div>Data: {JSON.stringify(data)}</div>
+      </main>
+      <footer>
+        {/* Your footer content */}
+      </footer>
+    </div>
+  );
+}

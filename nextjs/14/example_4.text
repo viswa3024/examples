@@ -1,0 +1,128 @@
+# app.py (Python Backend)
+from flask import Flask, request, jsonify
+from datetime import datetime
+
+app = Flask(__name__)
+
+@app.route('/api/data', methods=['GET'])
+def get_data():
+    data = {
+        "message": "Hello, this is your data from the Python backend!",
+        "timestamp": datetime.now().isoformat()
+    }
+    return jsonify(data), 200
+
+@app.route('/api/data', methods=['POST'])
+def post_data():
+    body = request.json
+    data = {
+        "message": f"You sent: {body['message']}",
+        "timestamp": datetime.now().isoformat()
+    }
+    return jsonify(data), 200
+
+if __name__ == '__main__':
+    app.run(debug=True)
+
+
+
+// utils/api.js
+export async function fetchData() {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_PYTHON_API_URL}/api/data`, {
+    next: { revalidate: 60 }, // Optional: Revalidate every 60 seconds
+  });
+
+  if (!res.ok) {
+    throw new Error('Failed to fetch data from Python backend');
+  }
+
+  return res.json();
+}
+
+export async function postData(message) {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_PYTHON_API_URL}/api/data`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ message }),
+  });
+
+  if (!res.ok) {
+    throw new Error('Failed to post data to Python backend');
+  }
+
+  return res.json();
+}
+
+
+
+// app/page.js
+'use client';
+
+import React, { useState, useEffect } from 'react';
+import { fetchData, postData } from '../utils/api';
+
+export default function HomePage() {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [postMessage, setPostMessage] = useState('');
+  const [postResponse, setPostResponse] = useState(null);
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const result = await fetchData();
+        setData(result);
+        setLoading(false);
+      } catch (err) {
+        setError(err.message);
+        setLoading(false);
+      }
+    }
+
+    loadData();
+  }, []);
+
+  const handlePost = async () => {
+    try {
+      const response = await postData(postMessage);
+      setPostResponse(response);
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
+
+  return (
+    <div>
+      <h1>Welcome to Next.js 14!</h1>
+      <p>{data.message}</p>
+      <p>Timestamp: {data.timestamp}</p>
+
+      <div>
+        <h2>Send a Message</h2>
+        <input
+          type="text"
+          value={postMessage}
+          onChange={(e) => setPostMessage(e.target.value)}
+        />
+        <button onClick={handlePost}>Send</button>
+        {postResponse && (
+          <div>
+            <p>Response: {postResponse.message}</p>
+            <p>Timestamp: {postResponse.timestamp}</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

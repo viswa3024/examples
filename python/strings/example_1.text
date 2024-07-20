@@ -68,3 +68,9 @@ name = "Alice"
 age = 30
 test = "Name: {}, Age: {}".format(name, age)
 print(test)
+
+
+name = "Alice"
+age = 30
+test = "Name: " + name + ", Age: " + str(age)
+print(test)

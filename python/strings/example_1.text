@@ -1,0 +1,70 @@
+name = "Alice"
+age = 30
+test = """Name: {}
+Age: {}
+This is a multi-line string.""".format(name, age)
+print(test)
+
+
+Name: Alice
+Age: 30
+This is a multi-line string.
+
+
+from string import Template
+
+name = "Alice"
+age = 30
+template = Template("""Name: $name
+Age: $age
+This is a multi-line string.""")
+test = template.substitute(name=name, age=age)
+print(test)
+
+
+Name: Alice
+Age: 30
+This is a multi-line string.
+
+
+!pip install jinja2
+!pip install chevron
+
+from jinja2 import Template
+
+name = "Alice"
+age = 30
+template_str = """Name: {{ name }} Age: {{ age }}
+This is a multi-line string."""
+template = Template(template_str)
+test = template.render(name=name, age=age)
+print(test)
+
+Name: Alice Age: 30
+This is a multi-line string.
+
+
+import chevron
+
+name = "Alice"
+age = 30
+template_str = """Name: {{name}}
+Age: {{age}}
+This is a multi-line string."""
+test = chevron.render(template_str, {'name': name, 'age': age})
+
+Name: Alice
+Age: 30
+This is a multi-line string.
+
+
+name = "Alice"
+age = 30
+test = f"Name: {name}, Age: {age}"
+print(test)
+
+
+name = "Alice"
+age = 30
+test = "Name: {}, Age: {}".format(name, age)
+print(test)

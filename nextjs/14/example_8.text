@@ -1,0 +1,95 @@
+npm install axios
+
+
+// utils/axiosWithRetry.js
+import axios from 'axios';
+
+export const axiosWithRetry = async (url, options = {}, retries = 3, delay = 1000) => {
+  let attempts = 0;
+
+  while (attempts < retries) {
+    try {
+      const response = await axios(url, options);
+      return response.data;
+    } catch (error) {
+      attempts++;
+      console.log(`Attempt ${attempts} failed. Retrying in ${delay}ms...`);
+      if (attempts >= retries) {
+        throw error; // Rethrow the error after exceeding retries
+      }
+      await new Promise(resolve => setTimeout(resolve, delay)); // Wait before retrying
+    }
+  }
+};
+
+
+// utils/api.js
+import { axiosWithRetry } from './axiosWithRetry';
+
+export async function fetchData() {
+  try {
+    const data = await axiosWithRetry('/api/data'); // Call the Next.js API route with retry logic
+    return data;
+  } catch (error) {
+    console.error('Error fetching data:', error);
+    throw new Error(error.message);
+  }
+}
+
+
+// pages/index.js
+import React, { useState, useEffect } from 'react';
+import { fetchData } from '../utils/api';
+import { axiosWithRetry } from '../utils/axiosWithRetry'; // Import axiosWithRetry
+
+export default function HomePage() {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const jsonData = await fetchData();
+        setData(jsonData);
+        setLoading(false);
+      } catch (error) {
+        setError(error.message);
+        setLoading(false);
+      }
+    }
+
+    loadData();
+  }, []);
+
+  const handlePost = async () => {
+    try {
+      const data = await axiosWithRetry('/api/data', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        data: { message: 'Hello from Next.js!' }, // Use `data` for POST body in axios
+      });
+      setData(data); // `data` already contains the response data
+    } catch (error) {
+      setError(error.message);
+    }
+  };
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
+
+  return (
+    <div>
+      <h1>Welcome to Next.js with Python Backend!</h1>
+      <p>{data && data.message}</p>
+      <button onClick={handlePost}>Send Message to Backend</button>
+    </div>
+  );
+}

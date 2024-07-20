@@ -74,3 +74,12 @@ name = "Alice"
 age = 30
 test = "Name: " + name + ", Age: " + str(age)
 print(test)
+
+
+
+name = "Alice"
+age = 30
+test = f"""Name: {name}
+Age: {age}
+This is a multi-line string."""
+print(test)

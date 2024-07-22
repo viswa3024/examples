@@ -93,3 +93,44 @@ export default function HomePage() {
     </div>
   );
 }
+
+
+
+==================================================================================
+
+
+import axios from 'axios';
+
+export const axiosWithRetry = async (url, options = { method: 'GET' }, retries = 3, delay = 1000) => {
+  let attempts = 0;
+
+  while (attempts < retries) {
+    try {
+      const response = await axios(url, options);
+      return response.data;
+    } catch (error) {
+      attempts++;
+      console.log(`Attempt ${attempts} failed. Retrying in ${delay}ms...`);
+      if (attempts >= retries) {
+        throw error; // Rethrow the error after exceeding retries
+      }
+      await new Promise(resolve => setTimeout(resolve, delay)); // Wait before retrying
+    }
+  }
+};
+
+
+
+const data = await axiosWithRetry('https://api.example.com/data');
+
+
+const postData = await axiosWithRetry('https://api.example.com/data', {
+  method: 'POST',
+  data: { key: 'value' }
+});
+
+
+const putData = await axiosWithRetry('https://api.example.com/data/1', {
+  method: 'PUT',
+  data: { key: 'newValue' }
+});

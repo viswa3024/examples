@@ -4,6 +4,9 @@ os.environ['REQUESTS_CA_BUNDLE'] = ''
 import requests
 from langfuse.callback import CallbackHandler
 
+
+requests.packages.urllib3.disable_warnings()
+
 # Create a session and disable SSL verification
 session = requests.Session()
 session.verify = False

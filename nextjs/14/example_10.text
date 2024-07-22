@@ -15,3 +15,38 @@ session.verify = False
 callback_handler = CallbackHandler(session=session)
 
 # Use the callback_handler as needed
+
+
+========================================
+
+
+import requests
+from langfuse.callback import CallbackHandler
+
+# Temporarily disable SSL verification
+requests.Session.verify = False
+
+# Initialize the CallbackHandler
+callback_handler = CallbackHandler()
+
+# Use the callback_handler as needed
+
+
+
+import requests
+from langfuse.callback import CallbackHandler
+
+class NoSSLRequestsSession(requests.Session):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.verify = False
+
+# Use a custom session with SSL verification disabled
+with NoSSLRequestsSession() as session:
+    # Monkey patch the session for the callback handler if possible
+    langfuse.callback.requests = session
+
+    # Initialize the CallbackHandler
+    callback_handler = CallbackHandler()
+
+    # Use the callback_handler as needed

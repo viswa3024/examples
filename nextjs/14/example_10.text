@@ -83,3 +83,24 @@ from langfuse.callback import CallbackHandler
 callback_handler = CallbackHandler()
 
 # Use the callback_handler as needed
+
+
+
+====================================
+
+import requests
+import urllib3
+
+# Disable SSL warnings (optional)
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+# Monkey patch requests to disable SSL verification
+def unverified_context(*args, **kwargs):
+    import ssl
+    return ssl._create_unverified_context()
+
+requests.packages.urllib3.util.ssl_.create_urllib3_context = unverified_context
+
+# Now use langfuse
+from langfuse.callback import CallbackHandler
+callback_handler = CallbackHandler()

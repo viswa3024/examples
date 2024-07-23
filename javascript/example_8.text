@@ -29,3 +29,39 @@ function convertUTCToLocal(utcTimestamp) {
 // Example usage
 const utcTimestamp = '2024-07-23T14:30:00Z';
 console.log(convertUTCToLocal(utcTimestamp));
+
+
+========================================================
+
+function convertUTCToLocal(utcDateStr) {
+    // Create a new Date object from the UTC date string
+    const date = new Date(utcDateStr);
+
+    // Get the local date and time components
+    const options = {
+        year: 'numeric',
+        month: 'short',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true
+    };
+    
+    // Convert to local date string
+    const localDateString = date.toLocaleString('en-US', options);
+
+    // Split the local date string into components
+    const [datePart, timePart, period] = localDateString.split(/,| /).filter(Boolean);
+
+    // Construct the final formatted date string
+    const [month, day, year] = datePart.split('/');
+    const formattedDate = `${day}/${month}/${year} ${timePart} ${period}`;
+
+    return formattedDate;
+}
+
+// Example usage
+const utcDateStr = '2024-07-23T14:30:00Z';
+console.log(convertUTCToLocal(utcDateStr));
+

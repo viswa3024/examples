@@ -1,0 +1,28 @@
+function convertUTCToLocal(utcDateStr) {
+    // Create a new Date object from the UTC date string
+    const date = new Date(utcDateStr);
+
+    // Extract individual date components
+    const day = String(date.getDate()).padStart(2, '0');
+    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const month = monthNames[date.getMonth()];
+    const year = date.getFullYear();
+
+    // Extract individual time components
+    let hours = date.getHours();
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12;
+    hours = hours ? hours : 12; // The hour '0' should be '12'
+    const strHours = String(hours).padStart(2, '0');
+
+    // Construct the final formatted date string
+    const formattedDate = `${day}/${month}/${year} ${strHours}:${minutes}:${seconds} ${ampm}`;
+
+    return formattedDate;
+}
+
+// Example usage
+const utcDateStr = '2024-07-23T14:30:00Z';
+console.log(convertUTCToLocal(utcDateStr));

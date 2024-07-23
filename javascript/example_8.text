@@ -65,3 +65,32 @@ function convertUTCToLocal(utcDateStr) {
 const utcDateStr = '2024-07-23T14:30:00Z';
 console.log(convertUTCToLocal(utcDateStr));
 
+
+
+================================================
+
+
+function convertUTCToLocalDateTime(utcDateString) {
+    // Create a Date object from the UTC date string
+    const utcDate = new Date(utcDateString);
+
+    // Extract date components
+    const day = utcDate.getDate().toString().padStart(2, '0');
+    const month = utcDate.toLocaleString('default', { month: 'short' });
+    const year = utcDate.getFullYear();
+    let hour = utcDate.getHours();
+    const minute = utcDate.getMinutes().toString().padStart(2, '0');
+    const second = utcDate.getSeconds().toString().padStart(2, '0');
+    const ampm = hour >= 12 ? 'PM' : 'AM';
+    hour = hour % 12;
+    hour = hour ? hour : 12; // Handle midnight (0 hours)
+
+    // Construct the formatted date string
+    const localDateString = `${day}/${month}/${year} ${hour}:${minute}:${second} ${ampm}`;
+    return localDateString;
+}
+
+// Example usage:
+const utcDateString = '2023-07-23T12:30:45Z'; // Replace with your UTC date string
+const localDateTime = convertUTCToLocalDateTime(utcDateString);
+console.log(localDateTime);

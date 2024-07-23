@@ -1,0 +1,52 @@
+function convertUTCToLocalDateTime(timestamp) {
+    // Convert UTC timestamp to milliseconds
+    const utcDate = new Date(timestamp * 1000);
+
+    // Get local date and time in 12-hour AM/PM format
+    const options = {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+        hour: 'numeric',
+        minute: 'numeric',
+        second: 'numeric',
+        hour12: true
+    };
+
+    const localDateString = utcDate.toLocaleString('en-US', options);
+    return localDateString;
+}
+
+// Example usage:
+const utcTimestamp = 1627034400; // Replace with your UTC timestamp
+const localDateTime = convertUTCToLocalDateTime(utcTimestamp);
+console.log(localDateTime);
+
+
+
+==============================================
+
+
+function convertUTCToLocalDateTime(utcDateString) {
+    // Create a Date object from the UTC date string
+    const utcDate = new Date(utcDateString);
+
+    // Get local date and time in 12-hour AM/PM format
+    const options = {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+        hour: 'numeric',
+        minute: 'numeric',
+        second: 'numeric',
+        hour12: true
+    };
+
+    const localDateString = utcDate.toLocaleString('en-US', options);
+    return localDateString;
+}
+
+// Example usage:
+const utcDateString = '2023-07-23T12:00:00Z'; // Replace with your UTC date string
+const localDateTime = convertUTCToLocalDateTime(utcDateString);
+console.log(localDateTime);

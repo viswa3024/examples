@@ -1,0 +1,22 @@
+def convert_days(input_days):
+    if input_days < 1:
+        # Convert days into minutes
+        total_minutes = int(input_days * 24 * 60)  # Convert to integer to remove decimal
+        if total_minutes == 1:
+            return f"{total_minutes} minute"
+        else:
+            return f"{total_minutes} minutes"
+    else:
+        # Return days as it is
+        if input_days == 1:
+            return f"{input_days} day"
+        else:
+            return f"{input_days} days"
+
+# Example usage:
+print(convert_days(0.5))   # Output: 720 minutes
+print(convert_days(0.25))  # Output: 360 minutes
+print(convert_days(2))     # Output: 2 days
+print(convert_days(1))     # Output: 1 day
+print(convert_days(0.75))  # Output: 1080 minutes
+print(convert_days(0.001)) #1 minute

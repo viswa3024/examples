@@ -1,0 +1,60 @@
+from enum import Enum
+from fastapi import FastAPI, Path, HTTPException
+
+app = FastAPI()
+
+class TimePeriod(str, Enum):
+    minutes_30 = "30 minutes"
+    hours_24 = "24 hours"
+    days_7 = "7 days"
+    months_3 = "3 months"
+    year_1 = "1 year"
+
+allowed_periods = {item.value for item in TimePeriod}
+
+@app.get("/time-period/{period}")
+async def get_time_period(period: str = Path(..., title="Time Period", description="The time period to accept.")):
+    if period not in allowed_periods:
+        raise HTTPException(status_code=400, detail=f"Invalid period '{period}'. Allowed values are: {', '.join(allowed_periods)}")
+    return {"period": period}
+
+# Run the app with: uvicorn script_name:app --reload
+# Replace `script_name` with the name of your Python script.
+
+
+
+=========================================================
+
+
+from enum import Enum
+
+class TimePeriod(str, Enum):
+    minutes_30 = "30 minutes"
+    hours_24 = "24 hours"
+    days_7 = "7 days"
+    months_3 = "3 months"
+    year_1 = "1 year"
+
+
+
+from fastapi import HTTPException, Path
+
+allowed_periods = {item.value for item in TimePeriod}
+
+def validate_period(period: str = Path(..., title="Time Period", description="The time period to accept.")) -> str:
+    if period not in allowed_periods:
+        raise HTTPException(status_code=400, detail=f"Invalid period '{period}'. Allowed values are: {', '.join(allowed_periods)}")
+    return period
+
+
+from fastapi import FastAPI, Depends
+
+app = FastAPI()
+
+@app.get("/time-period/{period}")
+async def get_time_period(period: str = Depends(validate_period)):
+    return {"period": period}
+
+# Run the app with: uvicorn script_name:app --reload
+# Replace `script_name` with the name of your Python script.
+

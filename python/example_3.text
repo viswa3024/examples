@@ -20,3 +20,5 @@ print(convert_days(2))     # Output: 2 days
 print(convert_days(1))     # Output: 1 day
 print(convert_days(0.75))  # Output: 1080 minutes
 print(convert_days(0.001)) #1 minute
+print(convert_days(0.021)) #30 minutes
+print(convert_days(0.042)) #60 minutes

@@ -1,0 +1,72 @@
+def get_allowed_periods():
+    return {
+        "30 minutes",
+        "24 hours",
+        "7 days",
+        "3 months",
+        "1 year"
+    }
+
+
+from fastapi import HTTPException, Path
+
+def validate_period(period: str = Path(..., title="Time Period", description="The time period to accept.")) -> str:
+    allowed_periods = get_allowed_periods()
+    if period not in allowed_periods:
+        raise HTTPException(status_code=400, detail=f"Invalid period '{period}'. Allowed values are: {', '.join(allowed_periods)}")
+    return period
+
+
+from fastapi import FastAPI, Depends
+
+app = FastAPI()
+
+@app.get("/time-period/{period}")
+async def get_time_period(period: str = Depends(validate_period)):
+    return {"period": period}
+
+# Run the app with: uvicorn script_name:app --reload
+# Replace `script_name` with the name of your Python script.
+
+
+
+================================================
+
+def get_allowed_periods():
+    return {
+        "30 minutes",
+        "24 hours",
+        "7 days",
+        "3 months",
+        "1 year"
+    }
+
+
+from fastapi import HTTPException, Path
+
+def validate_and_convert_period(period: str = Path(..., title="Time Period", description="The time period to accept.")) -> str:
+    allowed_periods = get_allowed_periods()
+    if period not in allowed_periods:
+        raise HTTPException(status_code=400, detail=f"Invalid period '{period}'. Allowed values are: {', '.join(allowed_periods)}")
+    
+    conversion_map = {
+        "30 minutes": "30 seconds",
+        "24 hours": "30 minutes",
+        "7 days": "1 hour",
+        "3 months": "12 hours",
+        "1 year": "1 day"
+    }
+    converted_period = conversion_map[period]
+    return converted_period
+
+
+from fastapi import FastAPI, Depends
+
+app = FastAPI()
+
+@app.get("/time-period/{period}")
+async def get_time_period(converted_period: str = Depends(validate_and_convert_period)):
+    return {"converted_period": converted_period}
+
+# Run the app with: uvicorn script_name:app --reload
+# Replace `script_name` with the name of your Python script.

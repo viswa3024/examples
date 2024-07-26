@@ -1,0 +1,12 @@
+from fastapi import FastAPI, HTTPException
+from typing import List
+
+app = FastAPI()
+
+@app.post("/filter/")
+async def filter_requests(requests: List[FilterRequest]):
+    # Convert list of FilterRequest objects to list of dictionaries
+    request_dicts = [request.dict() for request in requests]
+    
+    # Return the list of dictionaries
+    return request_dicts

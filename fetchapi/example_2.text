@@ -52,3 +52,26 @@ def read_items(order: Optional[SortOrder] = Query(SortOrder.desc)):
 
 # To run the application:
 # uvicorn myapp:app --reload
+
+
+
+from enum import Enum
+from typing import Optional
+from fastapi import FastAPI, Query
+
+app = FastAPI()
+
+class SortOrder(str, Enum):
+    asc = "asc"
+    desc = "desc"
+
+@app.get("/items/")
+def read_items(
+    order: Optional[SortOrder] = Query(SortOrder.desc),
+    sort_col: Optional[str] = Query("Timestamp")
+):
+    return {"order": order, "sort_col": sort_col}
+
+# To run the application:
+# uvicorn myapp:app --reload
+

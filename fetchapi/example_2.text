@@ -1,0 +1,54 @@
+from enum import Enum
+from fastapi import FastAPI, Query
+
+app = FastAPI()
+
+class SortOrder(str, Enum):
+    asc = "asc"
+    desc = "desc"
+
+@app.get("/items/")
+def read_items(order: SortOrder = Query(SortOrder.asc)):
+    return {"order": order}
+
+# To run the application:
+# uvicorn myapp:app --reload
+
+
+
+from enum import Enum
+from typing import Optional
+from fastapi import FastAPI, Query
+
+app = FastAPI()
+
+class SortOrder(str, Enum):
+    asc = "asc"
+    desc = "desc"
+
+@app.get("/items/")
+def read_items(order: Optional[SortOrder] = Query(None)):
+    return {"order": order}
+
+# To run the application:
+# uvicorn myapp:app --reload
+
+
+
+
+from enum import Enum
+from typing import Optional
+from fastapi import FastAPI, Query
+
+app = FastAPI()
+
+class SortOrder(str, Enum):
+    asc = "asc"
+    desc = "desc"
+
+@app.get("/items/")
+def read_items(order: Optional[SortOrder] = Query(SortOrder.desc)):
+    return {"order": order}
+
+# To run the application:
+# uvicorn myapp:app --reload

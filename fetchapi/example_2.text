@@ -75,3 +75,22 @@ def read_items(
 # To run the application:
 # uvicorn myapp:app --reload
 
+
+
+from typing import List, Union
+from pydantic import BaseModel
+from fastapi import FastAPI, Body
+
+app = FastAPI()
+
+
+we can use embed=True in the Body function to ensure that the request body is embedded directly under a key instead of being a raw list. Here's how you can update the endpoint to include embed=True:
+
+@app.post("/filter")
+def filter(testRequest: List[TestRequest] = Body([], embed=True)):
+    return {"testRequest": testRequest}
+
+# To run the application:
+# uvicorn myapp:app --reload
+
+

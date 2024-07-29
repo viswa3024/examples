@@ -1,0 +1,84 @@
+@Injectable({
+  providedIn: 'root'
+})
+export class CryptoService {
+
+  constructor(@Inject(DOCUMENT) private document: Document) { }
+
+  generateSecretKey(): string {
+    return `sk-lf-${uuidv4()}`;
+  }
+
+  generatePublicKey(): string {
+    return `pk-lf-${uuidv4()}`;
+  }
+
+  getDisplaySecretKey(secretKey: string): string {
+    return secretKey.slice(0, 6) + '...' + secretKey.slice(-4);
+  }
+
+  async hashSecretKey(key: string): Promise<string> {
+    const hashedKey = await hash(key, 11);
+    return hashedKey;
+  }
+
+  async generateKeySet(): Promise<any> {
+    const pk = this.generatePublicKey();
+    const sk = this.generateSecretKey();
+    const hashedSk = await this.hashSecretKey(sk);
+    const displaySk = this.getDisplaySecretKey(sk);
+
+    return {
+      pk,
+      sk,
+      hashedSk,
+      displaySk
+    };
+  }
+
+  async verifySecretKey(key: string, hashedKey: string): Promise<boolean> {
+    const isValid = await compare(key, hashedKey);
+    return isValid;
+  }
+
+  createShaHash(privateKey: string, salt: string): string {
+    const hash = CryptoJS.SHA256(privateKey).toString(CryptoJS.enc.Hex);
+    const saltHash = CryptoJS.SHA256(salt).toString(CryptoJS.enc.Hex);
+    const finalHash = CryptoJS.SHA256(hash + saltHash).toString(CryptoJS.enc.Hex);
+
+    return finalHash;
+  }
+
+  getHostName(): string {
+    return this.document.location.hostname;
+  }
+}
+
+
+
+import { Component, OnInit } from '@angular/core';
+import { CryptoService } from './crypto.service';
+
+@Component({
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.css']
+})
+export class AppComponent implements OnInit {
+
+  constructor(private cryptoService: CryptoService) { }
+
+  async ngOnInit() {
+    const keySet = await this.cryptoService.generateKeySet();
+    console.log(keySet);
+
+    const isValid = await this.cryptoService.verifySecretKey(keySet.sk, keySet.hashedSk);
+    console.log('Is valid:', isValid);
+
+    const shaHash = this.cryptoService.createShaHash('privateKeyExample', 'saltExample');
+    console.log('SHA Hash:', shaHash);
+
+    const hostName = this.cryptoService.getHostName();
+    console.log('Host Name:', hostName);
+  }
+}

@@ -1,0 +1,26 @@
+// app.component.ts
+import { Component, OnInit } from '@angular/core';
+
+@Component({
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.css']
+})
+export class AppComponent implements OnInit {
+  allItems: string[] = [
+    'Long text that should be truncated with ellipses when it exceeds 90% of the parent\'s width.',
+    'Another item with potentially long text that needs truncation.',
+    'Short text.',
+    'test one text.',
+    'test two text.',
+    'tet three text.'
+  ];
+  visibleItems: string[] = [];
+  hiddenItems: string[] = [];
+
+  ngOnInit() {
+    const maxVisibleItems = 2; // Number of items to display before ellipsis
+    this.visibleItems = this.allItems.slice(0, maxVisibleItems);
+    this.hiddenItems = this.allItems.slice(maxVisibleItems);
+  }
+}

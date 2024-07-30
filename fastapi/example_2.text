@@ -45,3 +45,45 @@ async def read_root():
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
+
+
+
+
+
+
+
+
+
+
+from fastapi import FastAPI
+from starlette.staticfiles import StaticFiles
+import os
+
+app = FastAPI()
+
+# Get the directory of the current script
+script_dir = os.path.dirname(os.path.abspath(__file__))
+
+# Construct the paths to the static directories
+static1_dir = os.path.join(script_dir, "static1")
+static2_dir = os.path.join(script_dir, "static2")
+
+# Ensure the static directories exist
+if not os.path.isdir(static1_dir):
+    os.makedirs(static1_dir)
+if not os.path.isdir(static2_dir):
+    os.makedirs(static2_dir)
+
+# Mount the static files directories
+app.mount("/static1", StaticFiles(directory=static1_dir), name="static1")
+app.mount("/static2", StaticFiles(directory=static2_dir), name="static2")
+
+# Define a sample endpoint to test the server
+@app.get("/")
+async def read_root():
+    return {"message": "FastAPI server is running"}
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
+

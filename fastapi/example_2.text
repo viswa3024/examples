@@ -181,3 +181,35 @@ if 'application/json' in response.headers.get('Content-Type', ''):
 
 
  MY_JSON_SETTING: Optional[Dict[str, Any]]  # Use a dictionary to hold JSON data
+
+
+
+
+
+
+
+
+ from fastapi import FastAPI, HTTPException
+import os
+import json
+from typing import Dict, Any
+
+app = FastAPI()
+
+def get_json_from_env() -> Dict[str, Any]:
+    json_string = os.getenv('MY_JSON_ENV_VARIABLE')
+    if json_string:
+        try:
+            return json.loads(json_string)
+        except json.JSONDecodeError as e:
+            print(f"Error decoding JSON: {e}")
+            return {}
+    return {}
+
+@app.get("/json-data", response_model=Dict[str, Any])
+async def read_json_data():
+    json_data = get_json_from_env()
+    if not json_data:
+        raise HTTPException(status_code=404, detail="No JSON data available")
+    return json_data
+

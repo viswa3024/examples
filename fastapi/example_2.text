@@ -1,0 +1,16 @@
+from fastapi import FastAPI
+from starlette.staticfiles import StaticFiles
+
+app = FastAPI()
+
+# Mount the static files directory
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
+# Define a sample endpoint to test the server
+@app.get("/")
+async def read_root():
+    return {"message": "FastAPI server is running"}
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)

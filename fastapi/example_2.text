@@ -87,3 +87,41 @@ if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
 
+
+
+
+
+from fastapi import FastAPI, HTTPException
+from fastapi.responses import FileResponse
+import os
+
+app = FastAPI()
+
+# Get the directory of the current script
+script_dir = os.path.dirname(os.path.abspath(__file__))
+
+# Construct the paths to the static directories
+static1_dir = os.path.join(script_dir, "static1")
+static2_dir = os.path.join(script_dir, "static2")
+
+@app.get("/static/{file_path:path}")
+async def serve_static(file_path: str):
+    file_path1 = os.path.join(static1_dir, file_path)
+    file_path2 = os.path.join(static2_dir, file_path)
+
+    if os.path.exists(file_path1):
+        return FileResponse(file_path1)
+    elif os.path.exists(file_path2):
+        return FileResponse(file_path2)
+    else:
+        raise HTTPException(status_code=404, detail="File not found")
+
+# Define a sample endpoint to test the server
+@app.get("/")
+async def read_root():
+    return {"message": "FastAPI server is running"}
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
+

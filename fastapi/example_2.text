@@ -166,3 +166,14 @@ if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
 
+
+
+if 'application/json' in response.headers.get('Content-Type', ''):
+        try:
+            data = response.json()  # Attempt to parse JSON
+            print('Success:', data)
+        except ValueError as json_err:
+            print('JSON parsing error:', json_err)
+    else:
+        print('Response is not JSON:', response.text)
+

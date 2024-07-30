@@ -177,3 +177,7 @@ if 'application/json' in response.headers.get('Content-Type', ''):
     else:
         print('Response is not JSON:', response.text)
 
+
+
+
+ MY_JSON_SETTING: Optional[Dict[str, Any]]  # Use a dictionary to hold JSON data

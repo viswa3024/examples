@@ -1,0 +1,794 @@
+import pandas as pd
+import langchain
+
+# Define the RAG structure
+likelihood_levels = ['Low', 'Medium', 'High']
+impact_levels = ['Low', 'Medium', 'High']
+
+# Create a pandas DataFrame to store the RAG
+rag_df = pd.DataFrame(index=likelihood_levels, columns=impact_levels)
+
+# Define the LangChain components
+retriever = langchain.Retriever()
+format_docs = langchain.FormatDocs()
+prompt = langchain.PromptTemplate(
+    template="Generate a detailed risk description and mitigation strategy for a risk classified as {likelihood} Likelihood and {impact} Impact.",
+    input_variables=["likelihood", "impact"]
+)
+llm = langchain.LLM(
+    model_name="llama-3.1",
+    max_length=512,
+    num_beams=4,
+    no_repeat_ngram_size=2,
+    early_stopping=True
+)
+str_output_parser = langchain.StrOutputParser()
+
+# Define the LangChain
+rag_chain = (
+    {"context": retriever | format_docs, "question": langchain.RunnablePassthrough()}
+    | prompt
+    | llm
+    | str_output_parser
+)
+
+# Populate the RAG with generated descriptions
+for likelihood in likelihood_levels:
+    for impact in impact_levels:
+        output = rag_chain({"likelihood": likelihood, "impact": impact})
+        description = output["text"]
+        rag_df.loc[likelihood, impact] = description
+
+# Print the populated RAG
+print(rag_df)
+
+
+Please read data from pdf  and use elasticsearch for vector store
+
+pip install pandas langchain PyMuPDF elasticsearch
+
+
+
+import pandas as pd
+import fitz  # PyMuPDF
+from elasticsearch import Elasticsearch
+from langchain import Retriever, FormatDocs, PromptTemplate, LLM, StrOutputParser, RunnablePassthrough
+from langchain.vectorstores import ElasticsearchVectorStore
+
+# Define the RAG structure
+likelihood_levels = ['Low', 'Medium', 'High']
+impact_levels = ['Low', 'Medium', 'High']
+
+# Create a pandas DataFrame to store the RAG
+rag_df = pd.DataFrame(index=likelihood_levels, columns=impact_levels)
+
+# Read data from PDF
+def read_pdf(file_path):
+    doc = fitz.open(file_path)
+    text = ""
+    for page_num in range(doc.page_count):
+        page = doc.load_page(page_num)
+        text += page.get_text()
+    return text
+
+# Example PDF file path
+pdf_text = read_pdf("path/to/your/file.pdf")
+
+# Elasticsearch setup
+es = Elasticsearch([{'host': 'localhost', 'port': 9200}])
+vector_store = ElasticsearchVectorStore(es, index_name='langchain_docs')
+
+# Index the PDF text into Elasticsearch
+vector_store.index_document({"content": pdf_text})
+
+# Define the LangChain components
+retriever = Retriever(vector_store=vector_store)
+format_docs = FormatDocs()
+prompt = PromptTemplate(
+    template="Generate a detailed risk description and mitigation strategy for a risk classified as {likelihood} Likelihood and {impact} Impact.",
+    input_variables=["likelihood", "impact"]
+)
+llm = LLM(
+    model_name="llama-3.1",
+    max_length=512,
+    num_beams=4,
+    no_repeat_ngram_size=2,
+    early_stopping=True
+)
+str_output_parser = StrOutputParser()
+
+# Define the LangChain
+rag_chain = (
+    {"context": retriever | format_docs, "question": RunnablePassthrough()}
+    | prompt
+    | llm
+    | str_output_parser
+)
+
+# Populate the RAG with generated descriptions
+for likelihood in likelihood_levels:
+    for impact in impact_levels:
+        output = rag_chain({"likelihood": likelihood, "impact": impact})
+        description = output["text"]
+        rag_df.loc[likelihood, impact] = description
+
+# Print the populated RAG
+print(rag_df)
+
+read pdf files from github
+
+pip install pandas langchain PyMuPDF elasticsearch requests
+
+
+
+import pandas as pd
+import fitz  # PyMuPDF
+import requests
+from elasticsearch import Elasticsearch
+from langchain import Retriever, FormatDocs, PromptTemplate, LLM, StrOutputParser, RunnablePassthrough
+from langchain.vectorstores import ElasticsearchVectorStore
+
+# Define the RAG structure
+likelihood_levels = ['Low', 'Medium', 'High']
+impact_levels = ['Low', 'Medium', 'High']
+
+# Create a pandas DataFrame to store the RAG
+rag_df = pd.DataFrame(index=likelihood_levels, columns=impact_levels)
+
+# Function to download PDF from GitHub
+def download_pdf_from_github(url, local_path):
+    response = requests.get(url)
+    with open(local_path, 'wb') as f:
+        f.write(response.content)
+
+# Example GitHub PDF URL and local file path
+pdf_url = "https://github.com/your/repo/path/to/file.pdf"
+local_pdf_path = "file.pdf"
+
+# Download the PDF file
+download_pdf_from_github(pdf_url, local_pdf_path)
+
+# Read data from PDF
+def read_pdf(file_path):
+    doc = fitz.open(file_path)
+    text = ""
+    for page_num in range(doc.page_count):
+        page = doc.load_page(page_num)
+        text += page.get_text()
+    return text
+
+pdf_text = read_pdf(local_pdf_path)
+
+# Elasticsearch setup
+es = Elasticsearch([{'host': 'localhost', 'port': 9200}])
+vector_store = ElasticsearchVectorStore(es, index_name='langchain_docs')
+
+# Index the PDF text into Elasticsearch
+vector_store.index_document({"content": pdf_text})
+
+# Define the LangChain components
+retriever = Retriever(vector_store=vector_store)
+format_docs = FormatDocs()
+prompt = PromptTemplate(
+    template="Generate a detailed risk description and mitigation strategy for a risk classified as {likelihood} Likelihood and {impact} Impact.",
+    input_variables=["likelihood", "impact"]
+)
+llm = LLM(
+    model_name="llama-3.1",
+    max_length=512,
+    num_beams=4,
+    no_repeat_ngram_size=2,
+    early_stopping=True
+)
+str_output_parser = StrOutputParser()
+
+# Define the LangChain
+rag_chain = (
+    {"context": retriever | format_docs, "question": RunnablePassthrough()}
+    | prompt
+    | llm
+    | str_output_parser
+)
+
+# Populate the RAG with generated descriptions
+for likelihood in likelihood_levels:
+    for impact in impact_levels:
+        output = rag_chain({"likelihood": likelihood, "impact": impact})
+        description = output["text"]
+        rag_df.loc[likelihood, impact] = description
+
+# Print the populated RAG
+print(rag_df)
+
+can you read pdf files from s3
+
+pip install pandas langchain PyMuPDF elasticsearch boto3
+
+
+import pandas as pd
+import fitz  # PyMuPDF
+import boto3
+from elasticsearch import Elasticsearch
+from langchain import Retriever, FormatDocs, PromptTemplate, LLM, StrOutputParser, RunnablePassthrough
+from langchain.vectorstores import ElasticsearchVectorStore
+
+# Define the RAG structure
+likelihood_levels = ['Low', 'Medium', 'High']
+impact_levels = ['Low', 'Medium', 'High']
+
+# Create a pandas DataFrame to store the RAG
+rag_df = pd.DataFrame(index=likelihood_levels, columns=impact_levels)
+
+# Function to download PDF from S3
+def download_pdf_from_s3(bucket_name, object_key, local_path):
+    s3 = boto3.client('s3')
+    s3.download_file(bucket_name, object_key, local_path)
+
+# Example S3 bucket and object key
+bucket_name = "your-bucket-name"
+object_key = "path/to/your/file.pdf"
+local_pdf_path = "file.pdf"
+
+# Download the PDF file
+download_pdf_from_s3(bucket_name, object_key, local_pdf_path)
+
+# Read data from PDF
+def read_pdf(file_path):
+    doc = fitz.open(file_path)
+    text = ""
+    for page_num in range(doc.page_count):
+        page = doc.load_page(page_num)
+        text += page.get_text()
+    return text
+
+pdf_text = read_pdf(local_pdf_path)
+
+# Elasticsearch setup
+es = Elasticsearch([{'host': 'localhost', 'port': 9200}])
+vector_store = ElasticsearchVectorStore(es, index_name='langchain_docs')
+
+# Index the PDF text into Elasticsearch
+vector_store.index_document({"content": pdf_text})
+
+# Define the LangChain components
+retriever = Retriever(vector_store=vector_store)
+format_docs = FormatDocs()
+prompt = PromptTemplate(
+    template="Generate a detailed risk description and mitigation strategy for a risk classified as {likelihood} Likelihood and {impact} Impact.",
+    input_variables=["likelihood", "impact"]
+)
+llm = LLM(
+    model_name="llama-3.1",
+    max_length=512,
+    num_beams=4,
+    no_repeat_ngram_size=2,
+    early_stopping=True
+)
+str_output_parser = StrOutputParser()
+
+# Define the LangChain
+rag_chain = (
+    {"context": retriever | format_docs, "question": RunnablePassthrough()}
+    | prompt
+    | llm
+    | str_output_parser
+)
+
+# Populate the RAG with generated descriptions
+for likelihood in likelihood_levels:
+    for impact in impact_levels:
+        output = rag_chain({"likelihood": likelihood, "impact": impact})
+        description = output["text"]
+        rag_df.loc[likelihood, impact] = description
+
+# Print the populated RAG
+print(rag_df)
+
+give code like read pdf files from github and s3 and gdrive and elasticsearch
+
+pip install pandas langchain PyMuPDF elasticsearch boto3 google-auth google-auth-oauthlib google-auth-httplib2 google-api-python-client requests
+
+
+
+import pandas as pd
+import fitz  # PyMuPDF
+import requests
+import boto3
+from elasticsearch import Elasticsearch
+from google.oauth2 import service_account
+from googleapiclient.discovery import build
+from googleapiclient.http import MediaIoBaseDownload
+import io
+from langchain import Retriever, FormatDocs, PromptTemplate, LLM, StrOutputParser, RunnablePassthrough
+from langchain.vectorstores import ElasticsearchVectorStore
+
+# Define the RAG structure
+likelihood_levels = ['Low', 'Medium', 'High']
+impact_levels = ['Low', 'Medium', 'High']
+
+# Create a pandas DataFrame to store the RAG
+rag_df = pd.DataFrame(index=likelihood_levels, columns=impact_levels)
+
+# Function to read PDF from local file
+def read_pdf(file_path):
+    doc = fitz.open(file_path)
+    text = ""
+    for page_num in range(doc.page_count):
+        page = doc.load_page(page_num)
+        text += page.get_text()
+    return text
+
+# Function to download PDF from GitHub
+def download_pdf_from_github(url, local_path):
+    response = requests.get(url)
+    with open(local_path, 'wb') as f:
+        f.write(response.content)
+    return read_pdf(local_path)
+
+# Function to download PDF from S3
+def download_pdf_from_s3(bucket_name, object_key, local_path):
+    s3 = boto3.client('s3')
+    s3.download_file(bucket_name, object_key, local_path)
+    return read_pdf(local_path)
+
+# Function to download PDF from Google Drive
+def download_pdf_from_gdrive(file_id, local_path, credentials_path):
+    credentials = service_account.Credentials.from_service_account_file(credentials_path)
+    service = build('drive', 'v3', credentials=credentials)
+    request = service.files().get_media(fileId=file_id)
+    fh = io.FileIO(local_path, 'wb')
+    downloader = MediaIoBaseDownload(fh, request)
+    done = False
+    while done is False:
+        status, done = downloader.next_chunk()
+    return read_pdf(local_path)
+
+# Example file paths and URLs
+github_pdf_url = "https://github.com/your/repo/path/to/file.pdf"
+s3_bucket_name = "your-bucket-name"
+s3_object_key = "path/to/your/file.pdf"
+gdrive_file_id = "your-google-drive-file-id"
+gdrive_credentials_path = "path/to/your/credentials.json"
+
+# Download and read PDF files
+pdf_text_github = download_pdf_from_github(github_pdf_url, "file_github.pdf")
+pdf_text_s3 = download_pdf_from_s3(s3_bucket_name, s3_object_key, "file_s3.pdf")
+pdf_text_gdrive = download_pdf_from_gdrive(gdrive_file_id, "file_gdrive.pdf", gdrive_credentials_path)
+
+# Combine all PDF texts
+all_pdf_texts = pdf_text_github + pdf_text_s3 + pdf_text_gdrive
+
+# Elasticsearch setup
+es = Elasticsearch([{'host': 'localhost', 'port': 9200}])
+vector_store = ElasticsearchVectorStore(es, index_name='langchain_docs')
+
+# Index the PDF texts into Elasticsearch
+vector_store.index_document({"content": all_pdf_texts})
+
+# Define the LangChain components
+retriever = Retriever(vector_store=vector_store)
+format_docs = FormatDocs()
+prompt = PromptTemplate(
+    template="Generate a detailed risk description and mitigation strategy for a risk classified as {likelihood} Likelihood and {impact} Impact.",
+    input_variables=["likelihood", "impact"]
+)
+llm = LLM(
+    model_name="llama-3.1",
+    max_length=512,
+    num_beams=4,
+    no_repeat_ngram_size=2,
+    early_stopping=True
+)
+str_output_parser = StrOutputParser()
+
+# Define the LangChain
+rag_chain = (
+    {"context": retriever | format_docs, "question": RunnablePassthrough()}
+    | prompt
+    | llm
+    | str_output_parser
+)
+
+# Populate the RAG with generated descriptions
+for likelihood in likelihood_levels:
+    for impact in impact_levels:
+        output = rag_chain({"likelihood": likelihood, "impact": impact})
+        description = output["text"]
+        rag_df.loc[likelihood, impact] = description
+
+# Print the populated RAG
+print(rag_df)
+
+
+i have multiple pdf files need to read all files and create embeddings
+
+pip install pandas langchain PyMuPDF elasticsearch boto3 google-auth google-auth-oauthlib google-auth-httplib2 google-api-python-client requests
+
+
+
+import pandas as pd
+import fitz  # PyMuPDF
+import requests
+import boto3
+from elasticsearch import Elasticsearch
+from google.oauth2 import service_account
+from googleapiclient.discovery import build
+from googleapiclient.http import MediaIoBaseDownload
+import io
+from langchain import Retriever, FormatDocs, PromptTemplate, LLM, StrOutputParser, RunnablePassthrough
+from langchain.vectorstores import ElasticsearchVectorStore
+
+# Define the RAG structure
+likelihood_levels = ['Low', 'Medium', 'High']
+impact_levels = ['Low', 'Medium', 'High']
+
+# Create a pandas DataFrame to store the RAG
+rag_df = pd.DataFrame(index=likelihood_levels, columns=impact_levels)
+
+# Function to read PDF from local file
+def read_pdf(file_path):
+    doc = fitz.open(file_path)
+    text = ""
+    for page_num in range(doc.page_count):
+        page = doc.load_page(page_num)
+        text += page.get_text()
+    return text
+
+# Function to download PDF from GitHub
+def download_pdf_from_github(url, local_path):
+    response = requests.get(url)
+    with open(local_path, 'wb') as f:
+        f.write(response.content)
+    return read_pdf(local_path)
+
+# Function to download PDF from S3
+def download_pdf_from_s3(bucket_name, object_key, local_path):
+    s3 = boto3.client('s3')
+    s3.download_file(bucket_name, object_key, local_path)
+    return read_pdf(local_path)
+
+# Function to download PDF from Google Drive
+def download_pdf_from_gdrive(file_id, local_path, credentials_path):
+    credentials = service_account.Credentials.from_service_account_file(credentials_path)
+    service = build('drive', 'v3', credentials=credentials)
+    request = service.files().get_media(fileId=file_id)
+    fh = io.FileIO(local_path, 'wb')
+    downloader = MediaIoBaseDownload(fh, request)
+    done = False
+    while done is False:
+        status, done = downloader.next_chunk()
+    return read_pdf(local_path)
+
+# List of PDF sources
+github_pdfs = [
+    "https://github.com/your/repo/path/to/file1.pdf",
+    "https://github.com/your/repo/path/to/file2.pdf"
+]
+s3_pdfs = [
+    ("your-bucket-name", "path/to/your/file1.pdf"),
+    ("your-bucket-name", "path/to/your/file2.pdf")
+]
+gdrive_pdfs = [
+    ("your-google-drive-file-id1", "path/to/your/credentials.json"),
+    ("your-google-drive-file-id2", "path/to/your/credentials.json")
+]
+
+# Download and read all PDF files
+all_pdf_texts = []
+for url in github_pdfs:
+    pdf_text = download_pdf_from_github(url, "file_github.pdf")
+    all_pdf_texts.append(pdf_text)
+
+for bucket_name, object_key in s3_pdfs:
+    pdf_text = download_pdf_from_s3(bucket_name, object_key, "file_s3.pdf")
+    all_pdf_texts.append(pdf_text)
+
+for file_id, credentials_path in gdrive_pdfs:
+    pdf_text = download_pdf_from_gdrive(file_id, "file_gdrive.pdf", credentials_path)
+    all_pdf_texts.append(pdf_text)
+
+# Combine all PDF texts
+combined_text = "\n".join(all_pdf_texts)
+
+# Elasticsearch setup
+es = Elasticsearch([{'host': 'localhost', 'port': 9200}])
+vector_store = ElasticsearchVectorStore(es, index_name='langchain_docs')
+
+# Index the PDF texts into Elasticsearch
+vector_store.index_document({"content": combined_text})
+
+# Define the LangChain components
+retriever = Retriever(vector_store=vector_store)
+format_docs = FormatDocs()
+prompt = PromptTemplate(
+    template="Generate a detailed risk description and mitigation strategy for a risk classified as {likelihood} Likelihood and {impact} Impact.",
+    input_variables=["likelihood", "impact"]
+)
+llm = LLM(
+    model_name="llama-3.1",
+    max_length=512,
+    num_beams=4,
+    no_repeat_ngram_size=2,
+    early_stopping=True
+)
+str_output_parser = StrOutputParser()
+
+# Define the LangChain
+rag_chain = (
+    {"context": retriever | format_docs, "question": RunnablePassthrough()}
+    | prompt
+    | llm
+    | str_output_parser
+)
+
+# Populate the RAG with generated descriptions
+for likelihood in likelihood_levels:
+    for impact in impact_levels:
+        output = rag_chain({"likelihood": likelihood, "impact": impact})
+        description = output["text"]
+        rag_df.loc[likelihood, impact] = description
+
+# Print the populated RAG
+print(rag_df)
+
+an you langchan WebBaseLoader and Directory loader and pypdfloader
+
+
+pip install pandas langchain PyMuPDF elasticsearch boto3 google-auth google-auth-oauthlib google-auth-httplib2 google-api-python-client requests pypdf
+
+
+import pandas as pd
+import requests
+import boto3
+from elasticsearch import Elasticsearch
+from google.oauth2 import service_account
+from googleapiclient.discovery import build
+from googleapiclient.http import MediaIoBaseDownload
+import io
+from langchain.document_loaders import WebBaseLoader, DirectoryLoader, PyPDFLoader
+from langchain import Retriever, FormatDocs, PromptTemplate, LLM, StrOutputParser, RunnablePassthrough
+from langchain.vectorstores import ElasticsearchVectorStore
+
+# Define the RAG structure
+likelihood_levels = ['Low', 'Medium', 'High']
+impact_levels = ['Low', 'Medium', 'High']
+
+# Create a pandas DataFrame to store the RAG
+rag_df = pd.DataFrame(index=likelihood_levels, columns=impact_levels)
+
+# Function to download PDF from S3
+def download_pdf_from_s3(bucket_name, object_key, local_path):
+    s3 = boto3.client('s3')
+    s3.download_file(bucket_name, object_key, local_path)
+
+# Function to download PDF from Google Drive
+def download_pdf_from_gdrive(file_id, local_path, credentials_path):
+    credentials = service_account.Credentials.from_service_account_file(credentials_path)
+    service = build('drive', 'v3', credentials=credentials)
+    request = service.files().get_media(fileId=file_id)
+    fh = io.FileIO(local_path, 'wb')
+    downloader = MediaIoBaseDownload(fh, request)
+    done = False
+    while done is False:
+        status, done = downloader.next_chunk()
+
+# List of PDF sources
+github_pdfs = [
+    "https://github.com/your/repo/path/to/file1.pdf",
+    "https://github.com/your/repo/path/to/file2.pdf"
+]
+s3_pdfs = [
+    ("your-bucket-name", "path/to/your/file1.pdf"),
+    ("your-bucket-name", "path/to/your/file2.pdf")
+]
+gdrive_pdfs = [
+    ("your-google-drive-file-id1", "path/to/your/credentials.json"),
+    ("your-google-drive-file-id2", "path/to/your/credentials.json")
+]
+
+# Directory to save downloaded PDFs
+local_dir = "pdfs/"
+
+# Download PDFs from GitHub
+web_loader = WebBaseLoader(urls=github_pdfs, directory=local_dir)
+web_loader.load()
+
+# Download PDFs from S3
+for bucket_name, object_key in s3_pdfs:
+    local_path = f"{local_dir}/{object_key.split('/')[-1]}"
+    download_pdf_from_s3(bucket_name, object_key, local_path)
+
+# Download PDFs from Google Drive
+for file_id, credentials_path in gdrive_pdfs:
+    local_path = f"{local_dir}/{file_id}.pdf"
+    download_pdf_from_gdrive(file_id, local_path, credentials_path)
+
+# Load all PDFs from the local directory
+directory_loader = DirectoryLoader(directory=local_dir, loader=PyPDFLoader())
+documents = directory_loader.load()
+
+# Combine all PDF texts
+combined_texts = "\n".join([doc.page_content for doc in documents])
+
+# Elasticsearch setup
+es = Elasticsearch([{'host': 'localhost', 'port': 9200}])
+vector_store = ElasticsearchVectorStore(es, index_name='langchain_docs')
+
+# Index the PDF texts into Elasticsearch
+vector_store.index_document({"content": combined_texts})
+
+# Define the LangChain components
+retriever = Retriever(vector_store=vector_store)
+format_docs = FormatDocs()
+prompt = PromptTemplate(
+    template="Generate a detailed risk description and mitigation strategy for a risk classified as {likelihood} Likelihood and {impact} Impact.",
+    input_variables=["likelihood", "impact"]
+)
+llm = LLM(
+    model_name="llama-3.1",
+    max_length=512,
+    num_beams=4,
+    no_repeat_ngram_size=2,
+    early_stopping=True
+)
+str_output_parser = StrOutputParser()
+
+# Define the LangChain
+rag_chain = (
+    {"context": retriever | format_docs, "question": RunnablePassthrough()}
+    | prompt
+    | llm
+    | str_output_parser
+)
+
+# Populate the RAG with generated descriptions
+for likelihood in likelihood_levels:
+    for impact in impact_levels:
+        output = rag_chain({"likelihood": likelihood, "impact": impact})
+        description = output["text"]
+        rag_df.loc[likelihood, impact] = description
+
+# Print the populated RAG
+print(rag_df)
+
+
+can you langchan WebBaseLoader and Directory loader and pypdfloader
+my pdf contains images also
+
+pip install pandas langchain PyMuPDF elasticsearch boto3 google-auth google-auth-oauthlib google-auth-httplib2 google-api-python-client requests pypdf pytesseract
+
+
+
+import pandas as pd
+import fitz  # PyMuPDF
+import pytesseract
+import requests
+import boto3
+from elasticsearch import Elasticsearch
+from google.oauth2 import service_account
+from googleapiclient.discovery import build
+from googleapiclient.http import MediaIoBaseDownload
+import io
+from langchain.document_loaders import WebBaseLoader, DirectoryLoader, PyPDFLoader
+from langchain import Retriever, FormatDocs, PromptTemplate, LLM, StrOutputParser, RunnablePassthrough
+from langchain.vectorstores import ElasticsearchVectorStore
+from PIL import Image
+
+# Define the RAG structure
+likelihood_levels = ['Low', 'Medium', 'High']
+impact_levels = ['Low', 'Medium', 'High']
+
+# Create a pandas DataFrame to store the RAG
+rag_df = pd.DataFrame(index=likelihood_levels, columns=impact_levels)
+
+# Function to extract text from a PDF file
+def extract_text_from_pdf(file_path):
+    doc = fitz.open(file_path)
+    text = ""
+    for page_num in range(doc.page_count):
+        page = doc.load_page(page_num)
+        text += page.get_text()
+        # Extract images and perform OCR
+        for img_index, img in enumerate(page.get_images(full=True)):
+            xref = img[0]
+            base_image = doc.extract_image(xref)
+            image_bytes = base_image["image"]
+            image = Image.open(io.BytesIO(image_bytes))
+            text += pytesseract.image_to_string(image)
+    return text
+
+# Function to download PDF from GitHub
+def download_pdf_from_github(url, local_path):
+    response = requests.get(url)
+    with open(local_path, 'wb') as f:
+        f.write(response.content)
+    return extract_text_from_pdf(local_path)
+
+# Function to download PDF from S3
+def download_pdf_from_s3(bucket_name, object_key, local_path):
+    s3 = boto3.client('s3')
+    s3.download_file(bucket_name, object_key, local_path)
+    return extract_text_from_pdf(local_path)
+
+# Function to download PDF from Google Drive
+def download_pdf_from_gdrive(file_id, local_path, credentials_path):
+    credentials = service_account.Credentials.from_service_account_file(credentials_path)
+    service = build('drive', 'v3', credentials=credentials)
+    request = service.files().get_media(fileId=file_id)
+    fh = io.FileIO(local_path, 'wb')
+    downloader = MediaIoBaseDownload(fh, request)
+    done = False
+    while done is False:
+        status, done = downloader.next_chunk()
+    return extract_text_from_pdf(local_path)
+
+# List of PDF sources
+github_pdfs = [
+    "https://github.com/your/repo/path/to/file1.pdf",
+    "https://github.com/your/repo/path/to/file2.pdf"
+]
+s3_pdfs = [
+    ("your-bucket-name", "path/to/your/file1.pdf"),
+    ("your-bucket-name", "path/to/your/file2.pdf")
+]
+gdrive_pdfs = [
+    ("your-google-drive-file-id1", "path/to/your/credentials.json"),
+    ("your-google-drive-file-id2", "path/to/your/credentials.json")
+]
+
+# Directory to save downloaded PDFs
+local_dir = "pdfs/"
+
+# Download PDFs from GitHub
+github_texts = [download_pdf_from_github(url, f"{local_dir}/github_{i}.pdf") for i, url in enumerate(github_pdfs)]
+
+# Download PDFs from S3
+s3_texts = [download_pdf_from_s3(bucket_name, object_key, f"{local_dir}/s3_{i}.pdf") for i, (bucket_name, object_key) in enumerate(s3_pdfs)]
+
+# Download PDFs from Google Drive
+gdrive_texts = [download_pdf_from_gdrive(file_id, f"{local_dir}/gdrive_{i}.pdf", credentials_path) for i, (file_id, credentials_path) in enumerate(gdrive_pdfs)]
+
+# Combine all PDF texts
+all_pdf_texts = github_texts + s3_texts + gdrive_texts
+combined_text = "\n".join(all_pdf_texts)
+
+# Elasticsearch setup
+es = Elasticsearch([{'host': 'localhost', 'port': 9200}])
+vector_store = ElasticsearchVectorStore(es, index_name='langchain_docs')
+
+# Index the PDF texts into Elasticsearch
+vector_store.index_document({"content": combined_text})
+
+# Define the LangChain components
+retriever = Retriever(vector_store=vector_store)
+format_docs = FormatDocs()
+prompt = PromptTemplate(
+    template="Generate a detailed risk description and mitigation strategy for a risk classified as {likelihood} Likelihood and {impact} Impact.",
+    input_variables=["likelihood", "impact"]
+)
+llm = LLM(
+    model_name="llama-3.1",
+    max_length=512,
+    num_beams=4,
+    no_repeat_ngram_size=2,
+    early_stopping=True
+)
+str_output_parser = StrOutputParser()
+
+# Define the LangChain
+rag_chain = (
+    {"context": retriever | format_docs, "question": RunnablePassthrough()}
+    | prompt
+    | llm
+    | str_output_parser
+)
+
+# Populate the RAG with generated descriptions
+for likelihood in likelihood_levels:
+    for impact in impact_levels:
+        output = rag_chain({"likelihood": likelihood, "impact": impact})
+        description = output["text"]
+        rag_df.loc[likelihood, impact] = description
+
+# Print the populated RAG
+print(rag_df)

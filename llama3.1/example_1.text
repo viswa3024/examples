@@ -1,0 +1,326 @@
+pip install fastapi uvicorn sqlalchemy bcrypt jwt
+
+pip install fastapi uvicorn elasticsearch python-jose bcrypt
+
+pip install fastapi uvicorn elasticsearch[async] passlib bcrypt python-jose
+
+pip install fastapi uvicorn elasticsearch elasticsearch-dsl passlib bcrypt python-jose
+
+
+
+import langchain
+import pdf2image
+from PIL import Image
+import pytesseract
+
+# Define the PDF file
+pdf_file = "example.pdf"
+
+# Convert the PDF to images
+images = pdf2image.convert_from_path(pdf_file)
+
+# Extract the text from the images using OCR
+text = ""
+for image in images:
+    text += pytesseract.image_to_string(image)
+
+# Create a LangChain that indexes the text in Elasticsearch
+es = Elasticsearch()
+vector_db = langchain.ElasticsearchVectorDB(es, index_name="pdf_vectors")
+
+# Create a LangChain that reads the text and indexes the vectors in Elasticsearch
+text_chain = (
+    langchain.TextVectorizer()
+    | vector_db
+)
+
+# Run the text chain to index the vectors
+text_chain.run(text)
+
+# Define the RAG chain
+rag_chain = (
+    {"context": retriever | format_docs, "question": langchain.RunnablePassthrough()}
+    | prompt
+    | llm
+    | str_output_parser
+    | vector_db
+)
+
+# Populate the RAG with generated descriptions
+for likelihood in likelihood_levels:
+    for impact in impact_levels:
+        output = rag_chain({"likelihood": likelihood, "impact": impact})
+        description = output["text"]
+        rag_df.loc[likelihood, impact] = description
+
+# Print the populated RAG
+print(rag_df)
+
+
+pip install pdf2image pytesseract
+
+
+sudo apt-get install tesseract-ocr
+
+
+pip install transformers
+python -m transformers download facebook/llama-3.1
+
+
+import pandas as pd
+import langchain
+
+# Initialize the LLaMA 3.1 model using LangChain
+llama = langchain.llama.LLaMA(
+    model_name="facebook/llama-3.1",
+    max_length=512,
+    num_beams=4,
+    no_repeat_ngram_size=2,
+    early_stopping=True
+)
+
+# Define the RAG structure
+likelihood_levels = ['Low', 'Medium', 'High']
+impact_levels = ['Low', 'Medium', 'High']
+
+# Create a pandas DataFrame to store the RAG
+rag_df = pd.DataFrame(index=likelihood_levels, columns=impact_levels)
+
+# Define a function to generate descriptions for each RAG cell
+def generate_description(likelihood, impact):
+    prompt = f"Generate a detailed risk description and mitigation strategy for a risk classified as {likelihood} Likelihood and {impact} Impact."
+    output = llama(prompt)
+    description = output["text"]
+    return description
+
+# Populate the RAG with generated descriptions
+for likelihood in likelihood_levels:
+    for impact in impact_levels:
+        description = generate_description(likelihood, impact)
+        rag_df.loc[likelihood, impact] = description
+
+# Print the populated RAG
+print(rag_df)
+
+
+pip install langchain
+
+
+
+import langchain
+
+# Define the RAG structure
+likelihood_levels = ['Low', 'Medium', 'High']
+impact_levels = ['Low', 'Medium', 'High']
+
+# Create a pandas DataFrame to store the RAG
+rag_df = pd.DataFrame(index=likelihood_levels, columns=impact_levels)
+
+# Define the LangChain components
+retriever = langchain.Retriever()
+format_docs = langchain.FormatDocs()
+prompt = langchain.PromptTemplate(
+    template="Generate a detailed risk description and mitigation strategy for a risk classified as {likelihood} Likelihood and {impact} Impact.",
+    input_variables=["likelihood", "impact"]
+)
+llm = langchain.LLM(
+    model_name="llama-3.1",
+    max_length=512,
+    num_beams=4,
+    no_repeat_ngram_size=2,
+    early_stopping=True
+)
+str_output_parser = langchain.StrOutputParser()
+
+# Define the LangChain
+rag_chain = (
+    {"context": retriever | format_docs, "question": langchain.RunnablePassthrough()}
+    | prompt
+    | llm
+    | str_output_parser
+)
+
+# Populate the RAG with generated descriptions
+for likelihood in likelihood_levels:
+    for impact in impact_levels:
+        output = rag_chain({"likelihood": likelihood, "impact": impact})
+        description = output["text"]
+        rag_df.loc[likelihood, impact] = description
+
+# Print the populated RAG
+print(rag_df)
+
+
+
+import PyPDF2
+from elasticsearch import Elasticsearch
+from langchain import ElasticsearchVectorDB
+
+# Read the PDF file
+pdf_file = open("example.pdf", "rb")
+pdf_reader = PyPDF2.PdfFileReader(pdf_file)
+text = ""
+for page in range(pdf_reader.numPages):
+    page_obj = pdf_reader.getPage(page)
+    text += page_obj.extractText()
+
+# Create an Elasticsearch client
+es = Elasticsearch()
+
+# Create a LangChain ElasticsearchVectorDB object
+vector_db = ElasticsearchVectorDB(es, index_name="pdf_vectors")
+
+# Split the text into chunks and create vectors
+chunk_size = 128
+chunks = [text[i:i+chunk_size] for i in range(0, len(text), chunk_size)]
+vectors = []
+for chunk in chunks:
+    vector = vector_db.create_vector(chunk)
+    vectors.append(vector)
+
+# Index the vectors in Elasticsearch
+for vector in vectors:
+    vector_db.add_vector(vector)
+
+# Search for similar vectors
+query_vector = vector_db.create_vector("example query")
+similar_vectors = vector_db.search(query_vector, k=5)
+print(similar_vectors)
+
+
+
+import langchain
+
+chain = langchain.Chain(
+    langchain.PDFReader("example.pdf"),
+    langchain.TextVectorizer(),
+    langchain.ElasticsearchVectorDB(es, index_name="pdf_vectors")
+)
+
+chain.run()
+
+
+
+import langchain
+import PyPDF2
+from elasticsearch import Elasticsearch
+
+# Define the RAG structure
+likelihood_levels = ['Low', 'Medium', 'High']
+impact_levels = ['Low', 'Medium', 'High']
+
+# Create a pandas DataFrame to store the RAG
+rag_df = pd.DataFrame(index=likelihood_levels, columns=impact_levels)
+
+# Define the LangChain components
+retriever = langchain.Retriever()
+format_docs = langchain.FormatDocs()
+prompt = langchain.PromptTemplate(
+    template="Generate a detailed risk description and mitigation strategy for a risk classified as {likelihood} Likelihood and {impact} Impact.",
+    input_variables=["likelihood", "impact"]
+)
+llm = langchain.LLM(
+    model_name="llama-3.1",
+    max_length=512,
+    num_beams=4,
+    no_repeat_ngram_size=2,
+    early_stopping=True
+)
+str_output_parser = langchain.StrOutputParser()
+
+# Define the Elasticsearch vector store
+es = Elasticsearch()
+vector_db = langchain.ElasticsearchVectorDB(es, index_name="pdf_vectors")
+
+# Define the PDF reader
+pdf_file = open("example.pdf", "rb")
+pdf_reader = PyPDF2.PdfFileReader(pdf_file)
+text = ""
+for page in range(pdf_reader.numPages):
+    page_obj = pdf_reader.getPage(page)
+    text += page_obj.extractText()
+
+# Create a LangChain that reads the PDF and indexes the vectors in Elasticsearch
+pdf_chain = (
+    langchain.PDFReader("example.pdf")
+    | langchain.TextVectorizer()
+    | vector_db
+)
+
+# Run the PDF chain to index the vectors
+pdf_chain.run()
+
+# Define the RAG chain
+rag_chain = (
+    {"context": retriever | format_docs, "question": langchain.RunnablePassthrough()}
+    | prompt
+    | llm
+    | str_output_parser
+    | vector_db
+)
+
+# Populate the RAG with generated descriptions
+for likelihood in likelihood_levels:
+    for impact in impact_levels:
+        output = rag_chain({"likelihood": likelihood, "impact": impact})
+        description = output["text"]
+        rag_df.loc[likelihood, impact] = description
+
+# Print the populated RAG
+print(rag_df)
+
+
+
+import langchain
+import pdf2image
+from PIL import Image
+import pytesseract
+
+# Define the PDF file
+pdf_file = "example.pdf"
+
+# Convert the PDF to images
+images = pdf2image.convert_from_path(pdf_file)
+
+# Extract the text from the images using OCR
+text = ""
+for image in images:
+    text += pytesseract.image_to_string(image)
+
+# Create a LangChain that indexes the text in Elasticsearch
+es = Elasticsearch()
+vector_db = langchain.ElasticsearchVectorDB(es, index_name="pdf_vectors")
+
+# Create a LangChain that reads the text and indexes the vectors in Elasticsearch
+text_chain = (
+    langchain.TextVectorizer()
+    | vector_db
+)
+
+# Run the text chain to index the vectors
+text_chain.run(text)
+
+# Define the RAG chain
+rag_chain = (
+    {"context": retriever | format_docs, "question": langchain.RunnablePassthrough()}
+    | prompt
+    | llm
+    | str_output_parser
+    | vector_db
+)
+
+# Populate the RAG with generated descriptions
+for likelihood in likelihood_levels:
+    for impact in impact_levels:
+        output = rag_chain({"likelihood": likelihood, "impact": impact})
+        description = output["text"]
+        rag_df.loc[likelihood, impact] = description
+
+# Print the populated RAG
+print(rag_df)
+
+
+pip install pdf2image pytesseract
+
+
+sudo apt-get install tesseract-ocr

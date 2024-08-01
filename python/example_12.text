@@ -1,0 +1,123 @@
+import json
+from collections import defaultdict
+
+
+# Identifier mapping
+identifier_mapping = {
+    "model_token": "Model information Token",
+    "model_cost": "Model User Cost",
+    "app_token": "App User token info"
+}
+
+# Transform data
+result = defaultdict(lambda: defaultdict(list))
+
+for item in data:
+    timerange = item['timerange']
+    identifier = identifier_mapping[item['identifier']]
+    result[timerange][identifier].append({
+        'name': item['name'],
+        'output': item['output']
+    })
+
+# Convert defaultdict to regular dict
+result = {k: dict(v) for k, v in result.items()}
+
+# Print or save the result
+print(json.dumps(result, indent=4))
+
+
+
+==================================================
+
+
+
+# Identifier mapping
+identifier_mapping = {
+    "model_token": "Model information Token",
+    "model_cost": "Model User Cost",
+    "app_token": "App User token info"
+}
+
+# Transform data
+result = defaultdict(lambda: defaultdict(list))
+
+for item in data:
+    timerange = item['timerange']
+    identifier = identifier_mapping[item['identifier']]
+    # Add only the first occurrence for each identifier and timerange combination
+    if not result[timerange][identifier]:
+        result[timerange][identifier].append({
+            'name': item['name'],
+            'output': item['output']
+        })
+
+# Convert defaultdict to regular dict
+result = {k: dict(v) for k, v in result.items()}
+
+# Print or save the result
+print(json.dumps(result, indent=4))
+
+
+====================================
+
+
+# Identifier mapping
+identifier_mapping = {
+    "model_token": "Model information Token",
+    "model_cost": "Model User Cost",
+    "app_token": "App User token info"
+}
+
+# Transform data
+result = defaultdict(lambda: defaultdict(list))
+
+for item in data:
+    timerange = item['timerange']
+    identifier = identifier_mapping[item['identifier']]
+    # Add only the first two occurrences for each identifier and timerange combination
+    if len(result[timerange][identifier]) < 2:
+        result[timerange][identifier].append({
+            'name': item['name'],
+            'output': item['output']
+        })
+
+# Convert defaultdict to regular dict
+result = {k: dict(v) for k, v in result.items()}
+
+# Print or save the result
+print(json.dumps(result, indent=4))
+
+
+
+======================================
+
+
+# Identifier mapping
+identifier_mapping = {
+    "model_token": "Model information Token",
+    "model_cost": "Model User Cost",
+    "app_token": "App User token info"
+}
+
+# Transform data
+result = defaultdict(lambda: defaultdict(list))
+
+for item in data:
+    timerange = item['timerange']
+    identifier = identifier_mapping[item['identifier']]
+    result[timerange][identifier].append({
+        'name': item['name'],
+        'output': item['output']
+    })
+
+# Sort and keep the top two highest output values for each identifier
+for timerange in result:
+    for identifier in result[timerange]:
+        result[timerange][identifier] = sorted(result[timerange][identifier], key=lambda x: x['output'], reverse=True)[:2]
+
+# Convert defaultdict to regular dict
+result = {k: dict(v) for k, v in result.items()}
+
+# Print or save the result
+print(json.dumps(result, indent=4))

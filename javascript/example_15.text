@@ -1,0 +1,26 @@
+// deepClone.ts
+export function deepCloneArray<T>(arr: T[]): T[] {
+  return arr.map(item => {
+    if (Array.isArray(item)) {
+      return deepCloneArray(item);
+    } else if (item && typeof item === 'object') {
+      return deepCloneObject(item as Record<string, unknown>);
+    }
+    return item;
+  });
+}
+
+function deepCloneObject<T>(obj: T): T {
+  const clone: Record<string, unknown> = {};
+  for (const key in obj) {
+    if (Object.prototype.hasOwnProperty.call(obj, key)) {
+      const value = obj[key];
+      if (value && typeof value === 'object') {
+        clone[key] = Array.isArray(value) ? deepCloneArray(value) : deepCloneObject(value);
+      } else {
+        clone[key] = value;
+      }
+    }
+  }
+  return clone as T;
+}

@@ -24,3 +24,38 @@ function deepCloneObject<T>(obj: T): T {
   }
   return clone as T;
 }
+
+
+
+
+
+
+
+
+function deepCloneArray(arr) {
+  return arr.map(item => {
+    if (Array.isArray(item)) {
+      return deepCloneArray(item);
+    } else if (item && typeof item === 'object') {
+      return deepCloneObject(item);
+    }
+    return item;
+  });
+}
+
+function deepCloneObject(obj) {
+  const clone = {};
+  for (let key in obj) {
+    if (obj[key] && typeof obj[key] === 'object') {
+      clone[key] = Array.isArray(obj[key]) ? deepCloneArray(obj[key]) : deepCloneObject(obj[key]);
+    } else {
+      clone[key] = obj[key];
+    }
+  }
+  return clone;
+}
+
+const originalArray = [1, 2, { a: 1, b: { c: 3 } }];
+const deepClonedArray = deepCloneArray(originalArray);
+console.log(deepClonedArray); // [1, 2, { a: 1, b: { c: 3 } }]
+

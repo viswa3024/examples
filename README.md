@@ -38,3 +38,53 @@
            |  |    API    |                             |
            |  +-----------+                             |
            +---------------+                           +---------------+
+
+
+
+
+
+
+                           +-------------------+
+                           |   Document Source |
+                           | (PDFs, Text Files)|
+                           +-------------------+
+                                    |
+                                    v
+                   +----------------------------+
+                   |        LlamaIndex           |
+                   |                            |
+                   |  - Extract Text             |
+                   |  - Index Text               |
+                   |  - Build Searchable Index   |
+                   +----------------------------+
+                                    |
+                                    v
+                       +--------------------------+
+                       |     ChromaDB Vector Store |
+                       |  - Store Indexed Text     |
+                       |  - Handle Vector Searches |
+                       +--------------------------+
+                                    |
+                                    v
+                      +----------------------------+
+                      |        Langchain           |
+                      |                            |
+                      |  - Context Retrieval       |
+                      |  - Define Prompt           |
+                      |  - Chain Creation          |
+                      |  - Manage LLM Interactions |
+                      +----------------------------+
+                                    |
+                                    v
+                        +-------------------------+
+                        |      Language Model     |
+                        |        (LLM)            |
+                        |  - Generate Responses   |
+                        +-------------------------+
+                                    |
+                                    v
+                   +----------------------------+
+                   |     Output Processing      |
+                   |  - Parse Results           |
+                   |  - Format Output           |
+                   +----------------------------+

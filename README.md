@@ -8,3 +8,33 @@
 | **Use cases** | Best for applications that require quick data lookup and retrieval | Suitable for applications that require complex interactions like chatbots, GQA, summarization |
 | **Integration** | Functions as a smart storage mechanism | Designed to bring multiple tools together and chain operations |
 | **Programming language** | Python-based library | Python-based library |
+
+
+
+
+```plaintext
+                                 +-----------------+
+                                 |      User       |
+                                 +-----------------+
+                                        | query
+                                        v
+                                   +---------+
+                   +-------------->|  Index  |<---------------+
+                   |               +---------+                |
+                   |                  |                       |
+                   |                  v                       |
+                   |    prompt + query + relevant data        |
+                   |                                           |
+                   |                                           |
+           +---------------+                         +---------------+
+           |    Your data   |                        |      LLM      |
+           |  +-----------+ | response              |   Large Language  |
+           |  | Database  | +<----------------------+   Model        |
+           |  +-----------+                          +---------------+
+           |  +-----------+                             |
+           |  | Document |                             |
+           |  +-----------+                             |
+           |  +-----------+                             |
+           |  |    API    |                             |
+           |  +-----------+                             |
+           +---------------+                           +---------------+

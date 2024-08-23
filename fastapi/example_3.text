@@ -48,3 +48,81 @@ response_data = [
         }
         for model, config_count in results
     ]
+
+
+
+    from typing import Dict, Any, List
+from fastapi import FastAPI, Depends
+from sqlalchemy import create_engine, func
+from sqlalchemy.orm import sessionmaker, Session
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import Column, String, UUID, ARRAY
+import uuid
+
+
+
+class ModelProviderWithCount:
+    def __init__(self, model: ModelProvider, config_count: int):
+        self.model = model
+        self.config_count = config_count
+
+    def as_dict(self) -> Dict[str, Any]:
+        """
+        Convert the instance to a dictionary suitable for JSON serialization.
+        """
+        # Directly access model's __dict__
+        model_dict = self.model.__dict__.copy()
+        # Exclude SQLAlchemy internal state
+        model_dict.pop('_sa_instance_state', None)
+        
+        # Combine model attributes and additional field in one dictionary
+        model_resp = {
+            "model": model_dict,
+            "count": self.config_count
+        }
+        
+        return model_resp
+
+# Database setup
+DATABASE_URL = "sqlite:///./test.db"  # Change to your database URL
+engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+# Create FastAPI app
+app = FastAPI()
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+@app.get("/model-providers")
+def get_model_providers(db: Session = Depends(get_db)) -> List[Dict[str, Any]]:
+    query = (
+        db.query(
+            ModelProvider,
+            func.count(func.distinct("config_id")).label('config_count')  # Adjust as needed
+        )
+        .outerjoin(ModelConfiguration, ModelProvider.model_id == ModelConfiguration.model_id)
+        .group_by(ModelProvider.model_id)
+        .order_by(ModelProvider.model_name)  # Sorting by model_name
+    )
+
+    results = query.all()
+
+    # Create and sort the response data in a single step
+    sorted_response_data = sorted(
+        [
+            ModelProviderWithCount(model, config_count).as_dict()
+            for model, config_count in results
+        ],
+        key=lambda x: x["model"]["model_name"]  # Sort by model_name
+    )
+
+    return sorted_response_data
+
+# Ensure the database and tables are created
+Base.metadata.create_all(bind=engine)
+

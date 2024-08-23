@@ -9,3 +9,16 @@ query = (
 
 # Executing the query
 result = query.all()
+
+
+query = (
+    session.query(
+        ModelProvider,  # Select all columns from ModelProvider
+        func.count(func.distinct(ModelConfiguration.config_id)).label('config_count')  # Count distinct config_id
+    )
+    .outerjoin(ModelConfiguration, ModelProvider.model_id == ModelConfiguration.model_id)  # Perform left join
+    .group_by(ModelProvider.model_id)  # Group by the primary key column to avoid errors
+)
+
+# Executing the query
+result = query.all()

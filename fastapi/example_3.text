@@ -155,3 +155,23 @@ Base.metadata.create_all(bind=engine)
         model_dict["count"] = self.config_count
         
         return model_dict
+
+
+
+from pydantic import BaseModel
+from typing import List, Optional
+from uuid import UUID
+
+
+class Test(BaseModel):
+    model_id: UUID
+   
+
+
+
+ response_data = [
+        Test(
+            model_id=model.model_id
+        )
+        for model, config_count in results
+    ]

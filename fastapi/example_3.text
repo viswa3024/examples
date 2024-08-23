@@ -175,3 +175,27 @@ class Test(BaseModel):
         )
         for model, config_count in results
     ]
+
+
+
+ response_data = [
+        ModelProviderWithCount(model, config_count).as_dict()
+        for model, config_count in results
+    ]
+
+
+    from typing import Any
+
+class ModelProviderWithCount:
+    def __init__(self, model: ModelProvider, config_count: int):
+        self.model = model
+        self.config_count = config_count
+
+    def as_dict(self) -> dict:
+        """
+        Convert the instance to a dictionary suitable for JSON serialization.
+        """
+        return {
+            "model_id": self.model.model_id,
+           
+        }

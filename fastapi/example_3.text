@@ -126,3 +126,32 @@ def get_model_providers(db: Session = Depends(get_db)) -> List[Dict[str, Any]]:
 # Ensure the database and tables are created
 Base.metadata.create_all(bind=engine)
 
+
+
+
+ def as_dict(self) -> Dict[str, Any]:
+        """
+        Convert the instance to a dictionary suitable for JSON serialization.
+        """
+        # Get all model attributes except internal state
+        model_dict = {column: getattr(self.model, column)
+                      for column in self.model.__table__.columns.keys()}
+        
+        # Add the additional field
+        model_dict["count"] = self.config_count
+        
+        return model_dict
+
+
+ def as_dict(self) -> Dict[str, Any]:
+        """
+        Convert the instance to a dictionary suitable for JSON serialization.
+        """
+        # Get all column names from the model
+        model_dict = {column.name: getattr(self.model, column.name)
+                      for column in inspect(self.model.__class__).mapper.columns}
+
+        # Add the additional field
+        model_dict["count"] = self.config_count
+        
+        return model_dict

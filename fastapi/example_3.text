@@ -1,0 +1,11 @@
+query = (
+    session.query(
+        ModelProvider,  # This selects all columns from ModelProvider
+        func.count(func.distinct(ModelConfiguration.config_id)).label('config_count')
+    )
+    .outerjoin(ModelConfiguration, ModelProvider.model_id == ModelConfiguration.model_id)
+    .group_by(ModelProvider)  # Group by the ModelProvider object itself
+)
+
+# Executing the query
+result = query.all()

@@ -39,3 +39,12 @@ result = query.all()
         ],
         key=lambda x: x["model_name"]  # Sort by model_name
     )
+
+
+response_data = [
+        {
+            **{column.name: getattr(model, column.name) for column in model.__table__.columns},  # Convert to dict
+            "config_count": config_count
+        }
+        for model, config_count in results
+    ]

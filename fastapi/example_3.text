@@ -22,3 +22,20 @@ query = (
 
 # Executing the query
 result = query.all()
+
+
+
+ response_data = sorted(
+        [
+            {
+                "model_id": model.model_id,
+                "model_name": model.model_name,
+                "model_vendor": model.model_vendor,
+                "vendor_url": model.vendor_url,
+                "model_type": model.model_type,
+                "config_count": config_count
+            }
+            for model, config_count in results
+        ],
+        key=lambda x: x["model_name"]  # Sort by model_name
+    )

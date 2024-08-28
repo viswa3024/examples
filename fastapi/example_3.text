@@ -1,0 +1,17 @@
+curl -X GET "http://<your-server-ip>:9200/_opendistro/_security/api/cluster"
+
+
+curl -X PUT "http://<your-server-ip>:9200/_opendistro/_security/api/roles" -H 'Content-Type: application/json' -d'
+{
+  "your_role": {
+    "cluster": ["all"],
+    "index": [
+      {
+        "names": [ "*" ],
+        "privileges": ["all"]
+      }
+    ]
+  }
+}'
+
+

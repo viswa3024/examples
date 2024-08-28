@@ -1,0 +1,70 @@
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.orm import Session
+from pydantic import BaseModel
+from typing import Optional
+from models import ApiKey, AuditLog  # Assume these are defined SQLAlchemy models
+from database import get_db  # Dependency to get a database session
+from utils import audit_log  # Utility function for audit logging
+
+router = APIRouter()
+
+# Pydantic models for request and response
+class ApiKeyCreateInput(BaseModel):
+    project_id: str
+    note: Optional[str] = None
+    pk: str
+    sk: str
+    hashedSk: str
+    displaySk: str
+
+class ApiKeyResponse(BaseModel):
+    id: str
+    created_at: str
+    note: Optional[str]
+    public_key: str
+    secret_key: str
+    display_secret_key: str
+
+@router.post("/apikeys/", response_model=ApiKeyResponse)
+async def create_api_key(input: ApiKeyCreateInput, db: Session = Depends(get_db), current_user=Depends(get_current_user)):
+    try:
+        # Extract pk, sk, hashedSk, displaySk from the request input
+        pk = input.pk
+        sk = input.sk
+        hashed_sk = input.hashedSk
+        display_sk = input.displaySk
+
+        # Create API key in the database
+        api_key = ApiKey(
+            project_id=input.project_id,
+            public_key=pk,
+            hashed_secret_key=hashed_sk,
+            display_secret_key=display_sk,
+            note=input.note
+        )
+        db.add(api_key)
+        db.commit()
+        db.refresh(api_key)
+
+        # Log the action in the audit log
+        await audit_log(
+            session=current_user.session,
+            resource_type="apiKey",
+            resource_id=api_key.id,
+            action="create"
+        )
+
+        # Prepare the response
+        response_data = ApiKeyResponse(
+            id=api_key.id,
+            created_at=api_key.created_at.isoformat(),
+            note=input.note,
+            public_key=api_key.public_key,
+            secret_key=sk,
+            display_secret_key=display_sk
+        )
+        return response_data
+
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Internal Server Error") from e

@@ -90,3 +90,46 @@ class AuditLog(Base):
         Index("ix_audit_logs_project_id", "project_id"),
         Index("ix_audit_logs_created_at", "created_at"),
     )
+
+
+
+    from sqlalchemy import (
+    Column,
+    String,
+    DateTime,
+    Boolean,
+    ForeignKey,
+    Table,
+    UniqueConstraint,
+    Index,
+    ARRAY,
+    func,
+)
+from sqlalchemy.orm import relationship
+import uuid
+
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    name = Column(String, nullable=True)
+    email = Column(String, unique=True, nullable=True)
+    email_verified = Column(DateTime, nullable=True)
+    password = Column(String, nullable=True)
+    image = Column(String, nullable=True)
+    admin = Column(Boolean, default=False)
+    created_at = Column(DateTime, default=func.now())
+    updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
+    feature_flags = Column(ARRAY(String), default=[])
+
+    accounts = relationship("Account", back_populates="user")
+    sessions = relationship("Session", back_populates="user")
+    project_memberships = relationship("ProjectMembership", back_populates="user")
+    invitations = relationship("MembershipInvitation", back_populates="user")
+    audit_logs = relationship("AuditLog", back_populates="user")
+
+    __table_args__ = (
+        UniqueConstraint("email"),
+        Index("ix_users_email_verified", "email_verified"),
+    )
+

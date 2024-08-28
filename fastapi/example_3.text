@@ -15,3 +15,12 @@ curl -X PUT "http://<your-server-ip>:9200/_opendistro/_security/api/roles" -H 'C
 }'
 
 
+
+curl -X GET "http://<your-server-ip>:9200/_plugins/_security/_nodes"
+
+
+curl -X GET "http://<your-server-ip>:9200/_plugins/_security/api/cluster"
+
+
+curl -X GET "http://<your-server-ip>:9200/_plugins/_security/api/roles"
+

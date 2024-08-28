@@ -133,3 +133,39 @@ class User(Base):
         Index("ix_users_email_verified", "email_verified"),
     )
 
+
+
+
+from enum import Enum as PyEnum
+from sqlalchemy import Enum
+
+class ProjectRole(PyEnum):
+    OWNER = "OWNER"
+    ADMIN = "ADMIN"
+    MEMBER = "MEMBER"
+    VIEWER = "VIEWER"
+
+
+class AuditLog(Base):
+    __tablename__ = "audit_logs"
+
+    id = Column(String, primary_key=True, default=lambda: str(uuid.uuid4()))
+    created_at = Column(DateTime, default=func.now())
+    updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
+    user_id = Column(String, ForeignKey("users.id"))
+    project_id = Column(String, ForeignKey("projects.id"))
+    user_project_role = Column(Enum(ProjectRole))  # Using the Enum type for ProjectRole
+    resource_type = Column(String)
+    resource_id = Column(String)
+    action = Column(String)
+    before = Column(String)  # stringified JSON
+    after = Column(String)  # stringified JSON
+
+    project = relationship("Project", back_populates="audit_logs")
+    user = relationship("User", back_populates="audit_logs")
+
+    __table_args__ = (
+        Index("ix_audit_logs_project_id", "project_id"),
+        Index("ix_audit_logs_created_at", "created_at"),
+    )
+

@@ -1,0 +1,173 @@
+/project_root
+    /app
+        /controllers
+            apikey_controller.py
+        /services
+            apikey_service.py
+        /repositories
+            apikey_repository.py
+        /models
+            api_key.py  # SQLAlchemy models
+        /schemas
+            api_key_schema.py  # Pydantic models
+        /main.py  # FastAPI app entry point
+
+
+from sqlalchemy import Column, String, DateTime, Boolean
+from sqlalchemy.orm import relationship
+from sqlalchemy.dialects.postgresql import UUID
+from datetime import datetime
+from app.database import Base
+
+class ApiKey(Base):
+    __tablename__ = 'api_keys'
+
+    id = Column(UUID(as_uuid=True), primary_key=True, index=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+    note = Column(String, nullable=True)
+    public_key = Column(String, unique=True, index=True)
+    hashed_secret_key = Column(String, unique=True)
+    display_secret_key = Column(String)
+    last_used_at = Column(DateTime, nullable=True)
+    expires_at = Column(DateTime, nullable=True)
+    project_id = Column(UUID(as_uuid=True))
+
+
+from pydantic import BaseModel
+from datetime import datetime
+from typing import Optional
+from uuid import UUID
+
+class ApiKeyBase(BaseModel):
+    note: Optional[str]
+    public_key: str
+    display_secret_key: str
+
+class ApiKeyCreate(ApiKeyBase):
+    pass
+
+class ApiKeyResponse(ApiKeyBase):
+    id: UUID
+    created_at: datetime
+
+class ApiKeyDeleteResponse(BaseModel):
+    message: str
+
+
+from typing import List, Optional
+from sqlalchemy.orm import Session
+from sqlalchemy import or_
+from app.models.api_key import ApiKey
+from uuid import UUID
+
+class ApiKeyRepository:
+
+    @staticmethod
+    def create_api_key(db: Session, public_key: str, hashed_secret_key: str, display_secret_key: str, note: Optional[str], project_id: UUID) -> ApiKey:
+        api_key = ApiKey(
+            public_key=public_key,
+            hashed_secret_key=hashed_secret_key,
+            display_secret_key=display_secret_key,
+            note=note,
+            project_id=project_id
+        )
+        db.add(api_key)
+        db.commit()
+        db.refresh(api_key)
+        return api_key
+
+    @staticmethod
+    def get_api_keys(db: Session, page: int, page_size: int, public_key: Optional[str], display_secret_key: Optional[str], created_from: Optional[datetime], created_to: Optional[datetime]) -> List[ApiKey]:
+        query = db.query(ApiKey)
+
+        if public_key:
+            query = query.filter(ApiKey.public_key.contains(public_key))
+        
+        if display_secret_key:
+            query = query.filter(ApiKey.display_secret_key.contains(display_secret_key))
+        
+        if created_from:
+            query = query.filter(ApiKey.created_at >= created_from)
+        
+        if created_to:
+            query = query.filter(ApiKey.created_at <= created_to)
+        
+        offset = (page - 1) * page_size
+        return query.offset(offset).limit(page_size).all()
+
+    @staticmethod
+    def delete_api_key(db: Session, api_key_id: UUID) -> Optional[ApiKey]:
+        api_key = db.query(ApiKey).filter(ApiKey.id == api_key_id).first()
+        if api_key:
+            db.delete(api_key)
+            db.commit()
+        return api_key
+
+
+from typing import List, Optional
+from sqlalchemy.orm import Session
+from uuid import UUID
+from app.repositories.apikey_repository import ApiKeyRepository
+from app.schemas.api_key_schema import ApiKeyResponse
+
+class ApiKeyService:
+
+    @staticmethod
+    def create_api_key(db: Session, public_key: str, hashed_secret_key: str, display_secret_key: str, note: Optional[str], project_id: UUID) -> ApiKeyResponse:
+        api_key = ApiKeyRepository.create_api_key(db, public_key, hashed_secret_key, display_secret_key, note, project_id)
+        return ApiKeyResponse.from_orm(api_key)
+
+    @staticmethod
+    def get_api_keys(db: Session, page: int, page_size: int, public_key: Optional[str], display_secret_key: Optional[str], created_from: Optional[datetime], created_to: Optional[datetime]) -> List[ApiKeyResponse]:
+        api_keys = ApiKeyRepository.get_api_keys(db, page, page_size, public_key, display_secret_key, created_from, created_to)
+        return [ApiKeyResponse.from_orm(api_key) for api_key in api_keys]
+
+    @staticmethod
+    def delete_api_key(db: Session, api_key_id: UUID) -> Optional[ApiKeyResponse]:
+        api_key = ApiKeyRepository.delete_api_key(db, api_key_id)
+        if api_key:
+            return ApiKeyResponse.from_orm(api_key)
+        return None
+
+
+from fastapi import APIRouter, Depends, HTTPException, Query
+from sqlalchemy.orm import Session
+from typing import List, Optional
+from uuid import UUID
+from app.services.apikey_service import ApiKeyService
+from app.schemas.api_key_schema import ApiKeyResponse, ApiKeyCreate, ApiKeyDeleteResponse
+from app.database import get_db
+
+router = APIRouter()
+
+@router.post("/apikeys/", response_model=ApiKeyResponse)
+async def create_api_key(api_key_data: ApiKeyCreate, db: Session = Depends(get_db)):
+    # Example placeholders for pk, sk, hashedSk, displaySk
+    pk = api_key_data.public_key
+    sk = "generated_secret_key"
+    hashedSk = "hashed_secret_key"
+    displaySk = api_key_data.display_secret_key
+    project_id = UUID("project_id_placeholder")  # Placeholder
+
+    api_key = ApiKeyService.create_api_key(db, pk, hashedSk, displaySk, api_key_data.note, project_id)
+    return api_key
+
+@router.get("/apikeys/", response_model=List[ApiKeyResponse])
+async def get_all_api_keys(
+    page: int = Query(default=1, ge=1),
+    page_size: int = Query(default=10, ge=1, le=100),
+    public_key: Optional[str] = Query(None),
+    display_secret_key: Optional[str] = Query(None),
+    created_from: Optional[datetime] = Query(None),
+    created_to: Optional[datetime] = Query(None),
+    db: Session = Depends(get_db)
+):
+    api_keys = ApiKeyService.get_api_keys(db, page, page_size, public_key, display_secret_key, created_from, created_to)
+    return api_keys
+
+@router.delete("/apikeys/{api_key_id}", response_model=ApiKeyDeleteResponse)
+async def delete_api_key(api_key_id: UUID, db: Session = Depends(get_db)):
+    api_key = ApiKeyService.delete_api_key(db, api_key_id)
+    if not api_key:
+        raise HTTPException(status_code=404, detail="API Key not found")
+    return ApiKeyDeleteResponse(message="API Key deleted successfully")

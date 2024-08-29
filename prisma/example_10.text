@@ -124,3 +124,71 @@ async def authenticate_and_get_scope(auth_header: str, salt: str):
                 "accessLevel": "all",
             }
         }
+
+
+=================================================
+
+from fastapi import FastAPI, Depends, Header, HTTPException
+from fastapi_sqlalchemy import db
+from sqlalchemy.exc import NoResultFound
+from typing import Optional
+
+# Assuming these utility functions and models are defined elsewhere
+from your_project.utils import extract_basic_auth_credentials, create_sha_hash, verify_secret_key
+from your_project.models import ApiKey
+
+app = FastAPI()
+
+async def find_db_key_or_throw(public_key: str) -> ApiKey:
+    try:
+        db_key = db.session.query(ApiKey).filter_by(public_key=public_key).one()
+    except NoResultFound:
+        print("No API key found for public key:", public_key)
+        raise HTTPException(status_code=404, detail="Invalid public key")
+    return db_key
+
+async def authenticate_and_get_scope(auth_header: str, salt: str) -> dict:
+    if auth_header.startswith("Basic "):
+        public_key, secret_key = extract_basic_auth_credentials(auth_header)
+
+        hash_from_provided_key = create_sha_hash(secret_key, salt)
+        api_key = db.session.query(ApiKey).filter_by(fast_hashed_secret_key=hash_from_provided_key).first()
+
+        project_id = api_key.project_id if api_key else None
+
+        if not api_key or not api_key.fast_hashed_secret_key:
+            db_key = await find_db_key_or_throw(public_key)
+            is_valid = await verify_secret_key(secret_key, db_key.hashed_secret_key)
+
+            if not is_valid:
+                print("Old key is invalid", public_key)
+                raise HTTPException(status_code=401, detail="Invalid credentials")
+
+            sha_key = create_sha_hash(secret_key, salt)
+
+            # Update the api_key record with the new hashed key
+            api_key = db.session.query(ApiKey).filter_by(public_key=public_key).first()
+            
+            if api_key:
+                api_key.fast_hashed_secret_key = sha_key
+                db.session.commit()
+
+            project_id = db_key.project_id
+
+        if not project_id:
+            print("No project ID found for key", public_key)
+            raise HTTPException(status_code=401, detail="Invalid credentials")
+
+        return {
+            "validKey": True,
+            "scope": {
+                "projectId": project_id,
+                "accessLevel": "all",
+            }
+        }
+
+@app.get("/auth")
+async def auth(auth_header: str = Header(...), salt: str = "your_salt_value"):
+    scope = await authenticate_and_get_scope(auth_header, salt)
+    return scope
+

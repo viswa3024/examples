@@ -40,3 +40,48 @@ async def get_all_api_keys(current_user=Depends(get_current_user)):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail="Internal Server Error") from e
+
+
+
+from fastapi import APIRouter, Depends, HTTPException
+from pydantic import BaseModel
+from fastapi_sqlalchemy import db
+from models import ApiKey  # Assume this is a defined SQLAlchemy model
+from utils import audit_log  # Utility function for audit logging
+from dependencies import get_current_user  # Assuming there's a dependency to get the current user
+
+router = APIRouter()
+
+# Pydantic model for the response
+class DeleteApiKeyResponse(BaseModel):
+    detail: str
+
+@router.delete("/apikeys/{api_key_id}", response_model=DeleteApiKeyResponse)
+async def delete_api_key(api_key_id: str, current_user=Depends(get_current_user)):
+    try:
+        with db():
+            # Query to find the API key by its ID
+            api_key = db.session.query(ApiKey).filter(ApiKey.id == api_key_id).first()
+            
+            if not api_key:
+                # If the API key does not exist, raise a 404 error
+                raise HTTPException(status_code=404, detail="API key not found")
+
+            # Log the action in the audit log
+            await audit_log(
+                session=current_user.session,
+                resource_type="apiKey",
+                resource_id=api_key.id,
+                action="delete"
+            )
+
+            # Delete the API key
+            db.session.delete(api_key)
+            db.session.commit()
+
+            return {"detail": "API key deleted successfully"}
+
+    except Exception as e:
+        db.session.rollback()
+        raise HTTPException(status_code=500, detail="Internal Server Error") from e
+

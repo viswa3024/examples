@@ -261,3 +261,25 @@ async def auth(auth_request: AuthRequest, salt: str = "your_salt_value"):
     scope = await authenticate_and_get_scope(public_key, secret_key, salt)
     return scope
 
+
+
+=====================
+
+from sqlalchemy.orm import Session
+from your_project.utils import create_sha_hash
+from your_project.models import ApiKey
+
+async def update_fast_hashed_secret_key(session: Session, public_key: str, secret_key: str, salt: str):
+    sha_key = create_sha_hash(secret_key, salt)
+
+    # Update the api_key record with the new hashed key
+    api_key = session.query(ApiKey).filter_by(public_key=public_key).first()
+    
+    if api_key:
+        api_key.fast_hashed_secret_key = sha_key
+        session.commit()
+    else:
+        raise ValueError(f"No API key found for public key: {public_key}")
+
+    return sha_key
+

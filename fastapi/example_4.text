@@ -1,0 +1,42 @@
+from fastapi import APIRouter, Depends, HTTPException
+from pydantic import BaseModel
+from typing import List, Optional
+from datetime import datetime
+from fastapi_sqlalchemy import db
+from models import ApiKey  # Assume this is a defined SQLAlchemy model
+from dependencies import get_current_user  # Assuming there's a dependency to get the current user
+
+router = APIRouter()
+
+# Pydantic model for the response
+class ApiKeyResponse(BaseModel):
+    id: str
+    created_at: datetime
+    note: Optional[str]
+    public_key: str
+    display_secret_key: str
+
+@router.get("/apikeys/", response_model=List[ApiKeyResponse])
+async def get_all_api_keys(current_user=Depends(get_current_user)):
+    try:
+        # Use the with statement to handle db.session lifecycle
+        with db():
+            # Query all API keys from the database
+            api_keys = db.session.query(ApiKey).all()
+            
+            # Map the SQLAlchemy objects to the Pydantic response model
+            response_data = [
+                ApiKeyResponse(
+                    id=api_key.id,
+                    created_at=api_key.created_at,
+                    note=api_key.note,
+                    public_key=api_key.public_key,
+                    display_secret_key=api_key.display_secret_key
+                )
+                for api_key in api_keys
+            ]
+            
+            return response_data
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Internal Server Error") from e

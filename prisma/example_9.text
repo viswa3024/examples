@@ -1,0 +1,41 @@
+import bcrypt
+import uuid
+import hashlib
+
+def generate_secret_key():
+    return f"sk-lf-{uuid.uuid4()}"
+
+def generate_public_key():
+    return f"pk-lf-{uuid.uuid4()}"
+
+def get_display_secret_key(secret_key: str) -> str:
+    return secret_key[:6] + "..." + secret_key[-4:]
+
+async def hash_secret_key(key: str) -> str:
+    # bcrypt hashing
+    hashed_key = await bcrypt.hashpw(key.encode(), bcrypt.gensalt(rounds=11)).decode()
+    return hashed_key
+
+async def generate_key_set():
+    pk = generate_public_key()
+    sk = generate_secret_key()
+    hashed_sk = await hash_secret_key(sk)
+    display_sk = get_display_secret_key(sk)
+    
+    return {
+        "pk": pk,
+        "sk": sk,
+        "hashed_sk": hashed_sk,
+        "display_sk": display_sk,
+    }
+
+async def verify_secret_key(key: str, hashed_key: str) -> bool:
+    return bcrypt.checkpw(key.encode(), hashed_key.encode())
+
+def create_sha_hash(private_key: str, salt: str) -> str:
+    private_key_hash = hashlib.sha256(private_key.encode()).hexdigest()
+    salt_hash = hashlib.sha256(salt.encode()).hexdigest()
+    
+    combined_hash = hashlib.sha256((private_key_hash + salt_hash).encode()).hexdigest()
+    
+    return combined_hash

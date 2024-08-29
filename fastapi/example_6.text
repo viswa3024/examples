@@ -1,0 +1,283 @@
+from fastapi import APIRouter, Depends, HTTPException, Query
+from pydantic import BaseModel
+from typing import List, Optional
+from datetime import datetime
+from fastapi_sqlalchemy import db
+from models import ApiKey  # Assume this is a defined SQLAlchemy model
+from dependencies import get_current_user  # Assuming there's a dependency to get the current user
+
+router = APIRouter()
+
+# Pydantic model for the response
+class ApiKeyResponse(BaseModel):
+    id: str
+    created_at: datetime
+    note: Optional[str]
+    public_key: str
+    display_secret_key: str
+
+@router.get("/apikeys/", response_model=List[ApiKeyResponse])
+async def get_all_api_keys(
+    page: int = Query(1, ge=1),  # Page number, starting from 1
+    page_size: int = Query(10, ge=1, le=100),  # Page size, between 1 and 100
+    public_key: Optional[str] = Query(None),  # Optional search parameter
+    current_user=Depends(get_current_user)
+):
+    try:
+        with db():
+            # Base query
+            query = db.session.query(ApiKey)
+
+            # Apply search filter if public_key is provided
+            if public_key:
+                query = query.filter(ApiKey.public_key.contains(public_key))
+            
+            # Calculate offset for pagination
+            offset = (page - 1) * page_size
+            
+            # Fetch paginated results
+            api_keys = query.offset(offset).limit(page_size).all()
+            
+            # If no api_keys found, raise 404 not found exception
+            if not api_keys:
+                raise HTTPException(status_code=404, detail="No API keys found")
+
+            # Map the SQLAlchemy objects to the Pydantic response model
+            response_data = [
+                ApiKeyResponse(
+                    id=api_key.id,
+                    created_at=api_key.created_at,
+                    note=api_key.note,
+                    public_key=api_key.public_key,
+                    display_secret_key=api_key.display_secret_key
+                )
+                for api_key in api_keys
+            ]
+            
+            return response_data
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Internal Server Error") from e
+
+
+
+======================================
+
+
+from fastapi import APIRouter, Depends, HTTPException, Query
+from pydantic import BaseModel
+from typing import List, Optional
+from datetime import datetime
+from fastapi_sqlalchemy import db
+from models import ApiKey  # Assume this is a defined SQLAlchemy model
+from dependencies import get_current_user  # Assuming there's a dependency to get the current user
+
+router = APIRouter()
+
+# Pydantic model for the response
+class ApiKeyResponse(BaseModel):
+    id: str
+    created_at: datetime
+    note: Optional[str]
+    public_key: str
+    display_secret_key: str
+
+@router.get("/apikeys/", response_model=List[ApiKeyResponse])
+async def get_all_api_keys(
+    page: int = Query(1, ge=1),  # Page number, starting from 1
+    page_size: int = Query(10, ge=1, le=100),  # Page size, between 1 and 100
+    public_key: Optional[str] = Query(None),  # Optional search parameter for public_key
+    display_secret_key: Optional[str] = Query(None),  # Optional search for display_secret_key
+    created_from: Optional[datetime] = Query(None),  # Optional start date for created_at
+    created_to: Optional[datetime] = Query(None),  # Optional end date for created_at
+    current_user=Depends(get_current_user)
+):
+    try:
+        with db():
+            # Base query
+            query = db.session.query(ApiKey)
+
+            # Apply search filter if public_key is provided
+            if public_key:
+                query = query.filter(ApiKey.public_key.contains(public_key))
+            
+            # Apply search filter if display_secret_key is provided
+            if display_secret_key:
+                query = query.filter(ApiKey.display_secret_key.contains(display_secret_key))
+            
+            # Apply date range filter for created_at
+            if created_from and created_to:
+                query = query.filter(ApiKey.created_at.between(created_from, created_to))
+            elif created_from:
+                query = query.filter(ApiKey.created_at >= created_from)
+            elif created_to:
+                query = query.filter(ApiKey.created_at <= created_to)
+            
+            # Calculate offset for pagination
+            offset = (page - 1) * page_size
+            
+            # Fetch paginated results
+            api_keys = query.offset(offset).limit(page_size).all()
+            
+            # If no api_keys found, raise 404 not found exception
+            if not api_keys:
+                raise HTTPException(status_code=404, detail="No API keys found")
+
+            # Map the SQLAlchemy objects to the Pydantic response model
+            response_data = [
+                ApiKeyResponse(
+                    id=api_key.id,
+                    created_at=api_key.created_at,
+                    note=api_key.note,
+                    public_key=api_key.public_key,
+                    display_secret_key=api_key.display_secret_key
+                )
+                for api_key in api_keys
+            ]
+            
+            return response_data
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Internal Server Error") from e
+
+
+===========================================
+
+
+from fastapi import APIRouter, Depends, HTTPException, Query
+from pydantic import BaseModel
+from typing import List, Optional
+from datetime import datetime
+from fastapi_sqlalchemy import db
+from models import ApiKey  # Assume this is a defined SQLAlchemy model
+from dependencies import get_current_user  # Assuming there's a dependency to get the current user
+
+router = APIRouter()
+
+# Pydantic model for the response
+class ApiKeyResponse(BaseModel):
+    id: str
+    created_at: datetime
+    note: Optional[str]
+    public_key: str
+    display_secret_key: str
+
+@router.get("/apikeys/", response_model=List[ApiKeyResponse])
+async def get_all_api_keys(
+    page: int = Query(1, ge=1),  # Page number, starting from 1
+    page_size: int = Query(10, ge=1, le=100),  # Page size, between 1 and 100
+    public_key: Optional[str] = Query(None),  # Optional search parameter for public_key
+    display_secret_key: Optional[str] = Query(None),  # Optional search for display_secret_key
+    created_from: Optional[datetime] = Query(None),  # Optional start date for created_at
+    created_to: Optional[datetime] = Query(None),  # Optional end date for created_at
+    current_user=Depends(get_current_user)
+):
+    try:
+        with db():
+            # Base query
+            query = db.session.query(ApiKey)
+
+            # Apply filters based on provided query parameters
+            if public_key:
+                query = query.filter(ApiKey.public_key.contains(public_key))
+            
+            if display_secret_key:
+                query = query.filter(ApiKey.display_secret_key.contains(display_secret_key))
+
+            if created_from:
+                query = query.filter(ApiKey.created_at >= created_from)
+            
+            if created_to:
+                query = query.filter(ApiKey.created_at <= created_to)
+
+            # Calculate offset for pagination
+            offset = (page - 1) * page_size
+            
+            # Fetch paginated results
+            api_keys = query.offset(offset).limit(page_size).all()
+            
+            # If no api_keys found, raise 404 not found exception
+            if not api_keys:
+                raise HTTPException(status_code=404, detail="No API keys found")
+
+            # Map the SQLAlchemy objects to the Pydantic response model
+            response_data = [
+                ApiKeyResponse(
+                    id=api_key.id,
+                    created_at=api_key.created_at,
+                    note=api_key.note,
+                    public_key=api_key.public_key,
+                    display_secret_key=api_key.display_secret_key
+                )
+                for api_key in api_keys
+            ]
+            
+            return response_data
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Internal Server Error") from e
+
+
+=====================================
+
+
+from fastapi import APIRouter, Depends, HTTPException, Query
+from pydantic import BaseModel
+from typing import List, Optional
+from datetime import datetime
+from fastapi_sqlalchemy import db
+from models import ApiKey  # Assume this is a defined SQLAlchemy model
+from dependencies import get_current_user  # Assuming there's a dependency to get the current user
+
+router = APIRouter()
+
+# Pydantic model for the response
+class ApiKeyResponse(BaseModel):
+    id: str
+    created_at: datetime
+    note: Optional[str]
+    public_key: str
+    display_secret_key: str
+
+@router.get("/apikeys/", response_model=List[ApiKeyResponse])
+async def get_all_api_keys(
+    page: int = Query(1, ge=1),  # Page number, starting from 1
+    page_size: int = Query(10, ge=1, le=100),  # Page size, between 1 and 100
+    public_key: Optional[str] = Query(None),  # Optional search parameter for public_key
+    display_secret_key: Optional[str] = Query(None),  # Optional search for display_secret_key
+    created_from: Optional[datetime] = Query(None),  # Optional start date for created_at
+    created_to: Optional[datetime] = Query(None),  # Optional end date for created_at
+    current_user=Depends(get_current_user)
+):
+    with db():
+        # Base query with optional filters applied
+        query = db.session.query(ApiKey)
+        
+        # Chain filters based on provided query parameters
+        if public_key:
+            query = query.filter(ApiKey.public_key.contains(public_key))
+        
+        if display_secret_key:
+            query = query.filter(ApiKey.display_secret_key.contains(display_secret_key))
+        
+        if created_from:
+            query = query.filter(ApiKey.created_at >= created_from)
+        
+        if created_to:
+            query = query.filter(ApiKey.created_at <= created_to)
+
+        # Pagination
+        offset = (page - 1) * page_size
+        api_keys = query.offset(offset).limit(page_size).all()
+
+        # Response mapping
+        return [
+            ApiKeyResponse(
+                id=api_key.id,
+                created_at=api_key.created_at,
+                note=api_key.note,
+                public_key=api_key.public_key,
+                display_secret_key=api_key.display_secret_key
+            )
+            for api_key in api_keys
+        ]

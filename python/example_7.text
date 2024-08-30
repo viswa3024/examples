@@ -1,0 +1,3 @@
+variable = False  # or None
+
+print("The variable is True." if variable is True else "The variable is None." if variable is None else "The variable is neither True nor None.")

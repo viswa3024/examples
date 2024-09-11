@@ -1,0 +1,41 @@
+http://<keycloak-server>/auth/realms/<realm-name>/protocol/openid-connect/certs
+
+pip install pyjwt
+
+
+
+from fastapi import Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer
+import jwt
+import requests
+from typing import Optional
+
+# Keycloak configuration
+KEYCLOAK_SERVER_URL = 'http://localhost:8080/auth/'
+KEYCLOAK_REALM_NAME = 'your_realm'
+JWKS_URL = f'{KEYCLOAK_SERVER_URL}/realms/{KEYCLOAK_REALM_NAME}/protocol/openid-connect/certs'
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
+def get_public_key() -> str:
+    response = requests.get(JWKS_URL)
+    jwks = response.json()
+    # Get the public key from the JWKS
+    # Assuming there's only one key, you might need to handle multiple keys
+    public_key = jwks['keys'][0]
+    return jwt.algorithms.RSAAlgorithm.from_jwk(public_key)
+
+def verify_token(token: str = Depends(oauth2_scheme)) -> dict:
+    try:
+        public_key = get_public_key()
+        # Decode and verify the JWT token
+        decoded_token = jwt.decode(token, public_key, algorithms=['RS256'], audience='your_client_id')
+        return decoded_token
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token has expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
+
+@app.get("/secure-data")
+def get_secure_data(decoded_token: dict = Depends(verify_token)):
+    return {"message": "This is secured data", "token_data": decoded_token}

@@ -1,0 +1,51 @@
+pip install fastapi uvicorn python-keycloak
+
+
+from fastapi import Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer
+from keycloak import KeycloakOpenID
+from pydantic import BaseModel
+
+# Keycloak configuration
+KEYCLOAK_SERVER_URL = 'http://localhost:8080/auth/'
+KEYCLOAK_REALM_NAME = 'your_realm'
+KEYCLOAK_CLIENT_ID = 'your_client_id'
+KEYCLOAK_CLIENT_SECRET = 'your_client_secret'
+
+keycloak_openid = KeycloakOpenID(server_url=KEYCLOAK_SERVER_URL,
+                                 client_id=KEYCLOAK_CLIENT_ID,
+                                 realm_name=KEYCLOAK_REALM_NAME,
+                                 client_secret_key=KEYCLOAK_CLIENT_SECRET)
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
+class User(BaseModel):
+    sub: str
+    name: str
+    roles: list
+
+def verify_token(token: str = Depends(oauth2_scheme)) -> User:
+    try:
+        # Decode the token and verify it with Keycloak
+        token_info = keycloak_openid.introspect(token)
+        if not token_info.get('active'):
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
+        
+        # Extract user info from token
+        user = User(
+            sub=token_info['sub'],
+            name=token_info.get('preferred_username', ''),
+            roles=token_info.get('realm_access', {}).get('roles', [])
+        )
+        return user
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail=str(e))
+
+
+from fastapi import FastAPI, Depends
+
+app = FastAPI()
+
+@app.get("/secure-data")
+def get_secure_data(user: User = Depends(verify_token)):
+    return {"message": "This is secured data", "user": user}

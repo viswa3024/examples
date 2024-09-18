@@ -1,0 +1,102 @@
+from fastapi import FastAPI, Request, HTTPException, Depends, status
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from pydantic import BaseModel
+import jwt
+import requests
+from typing import List, Dict, Optional
+
+app = FastAPI()
+
+# Keycloak configuration
+KEYCLOAK_SERVER_URL = 'http://localhost:8080/auth/'
+KEYCLOAK_REALM_NAME = 'your_realm'
+CLIENT_ID = 'your_client_id'
+JWKS_URL = f'{KEYCLOAK_SERVER_URL}/realms/{KEYCLOAK_REALM_NAME}/protocol/openid-connect/certs'
+
+# Define the User model
+class User(BaseModel):
+    sub: str
+    name: str
+    roles: List[str]
+    resource_access: Dict[str, List[str]]  # Stores roles per resource (client_id)
+
+# Security scheme for Bearer token
+security = HTTPBearer()
+
+def get_public_key(jwk_key_id: str) -> Optional[str]:
+    response = requests.get(JWKS_URL)
+    jwks = response.json()
+    for key in jwks.get('keys', []):
+        if key.get('kid') == jwk_key_id:
+            return jwt.algorithms.RSAAlgorithm.from_jwk(key)
+    raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Public key not found")
+
+def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)) -> None:
+    token = credentials.credentials
+    try:
+        # Decode the JWT header to get the key ID (kid)
+        unverified_header = jwt.get_unverified_header(token)
+        key_id = unverified_header.get('kid')
+        
+        if not key_id:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Missing key ID in token header")
+        
+        # Fetch the public key corresponding to the key ID
+        public_key = get_public_key(key_id)
+        
+        # Decode and verify the JWT token using the public key
+        decoded_token = jwt.decode(token, public_key, algorithms=['RS256'], audience=CLIENT_ID)
+        
+        # Extract roles from realm_access and resource_access
+        realm_roles = decoded_token.get('realm_access', {}).get('roles', [])
+        resource_access = decoded_token.get('resource_access', {})
+        resource_roles = {
+            client: access.get('roles', []) for client, access in resource_access.items()
+        }
+        
+        # No return, just validation of token and roles
+        return
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token has expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
+
+def role_required(required_roles: List[str], client_id: Optional[str] = None):
+    def role_checker(credentials: HTTPAuthorizationCredentials = Depends(security)):
+        token = credentials.credentials
+        decoded_token = jwt.decode(token, options={"verify_signature": False})  # Get token without verification for checks
+        
+        # Extract roles from realm_access and resource_access
+        realm_roles = decoded_token.get('realm_access', {}).get('roles', [])
+        resource_access = decoded_token.get('resource_access', {})
+        resource_roles = {
+            client: access.get('roles', []) for client, access in resource_access.items()
+        }
+        
+        # Check roles in realm_access
+        if any(role in realm_roles for role in required_roles):
+            return
+        
+        # Check roles in resource_access for a specific client
+        if client_id and client_id in resource_roles:
+            if any(role in resource_roles[client_id] for role in required_roles):
+                return
+        
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Insufficient permissions")
+    return role_checker
+
+@app.get("/secure-data")
+def get_secure_data(_: None = Depends(role_required(['user_role']))):
+    return {"message": "This is secured data"}
+
+@app.get("/admin-data")
+def get_admin_data(_: None = Depends(role_required(['admin_role'], client_id='your_client_id'))):
+    return {"message": "This is admin data"}
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000, reload=True)
+
+
+
+#The _ (underscore) in Python is often used as a throwaway variable, or to indicate that the variable isn't important and won't be used in the code.

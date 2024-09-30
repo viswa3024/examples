@@ -8,27 +8,27 @@
     <div class="info-box">Breaches: 250</div>
   </div>
 
-  <!-- Application Billing Box -->
-  <div class="chart">
-    <h3>Application Billing</h3>
-    <div class="chart-placeholder">Pie Chart Placeholder</div>
-  </div>
-
-  <!-- Applications Used by Users Box -->
-  <div class="chart">
-    <h3>Applications Used by Users</h3>
-    <div class="chart-placeholder">Bar Chart Placeholder</div>
+  <!-- Application Billing and Application Used by Users Section -->
+  <div class="charts">
+    <div class="chart">
+      <h3>Application Billing</h3>
+      <div class="chart-placeholder">Pie Chart Placeholder</div>
+    </div>
+    <div class="chart">
+      <h3>Applications Used by Users</h3>
+      <div class="chart-placeholder">Bar Chart Placeholder</div>
+    </div>
   </div>
 
   <!-- Risk Scores Section -->
-  <div class="risk-scores">
-    <div class="score">
+  <div class="charts">
+    <div class="chart">
       <h3>Input Risk Score</h3>
       <div class="progress-bar">
         <div class="progress" style="width: 85%;">85%</div>
       </div>
     </div>
-    <div class="score">
+    <div class="chart">
       <h3>Output Risk Score</h3>
       <div class="progress-bar">
         <div class="progress" style="width: 70%;">70%</div>
@@ -62,6 +62,7 @@
 .info-boxes {
   display: flex;
   justify-content: space-between;
+  flex-wrap: wrap;
   margin-bottom: 20px;
 }
 
@@ -72,6 +73,7 @@
   border-radius: 8px;
   width: 23%;
   font-size: 18px;
+  margin-bottom: 10px;
 }
 
 /* Placeholder for Charts */
@@ -89,24 +91,16 @@
 .charts {
   display: flex;
   justify-content: space-between;
+  flex-wrap: wrap;
   margin-bottom: 20px;
 }
 
 .chart {
   width: 48%;
+  margin-bottom: 10px;
 }
 
 /* Risk Scores Section Layout */
-.risk-scores {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 20px;
-}
-
-.score {
-  width: 48%;
-}
-
 .progress-bar {
   width: 100%;
   background-color: #e0e0e0;
@@ -138,4 +132,11 @@
 .alerts ul li {
   padding: 10px;
   border-bottom: 1px solid #e0e0e0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .info-box, .chart {
+    width: 100%;  /* Stack boxes on small screens */
+  }
 }

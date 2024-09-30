@@ -1,37 +1,40 @@
 <div class="dashboard">
 
-  <!-- Info Boxes Section -->
-  <div class="info-boxes">
-    <div class="info-box">Total Runs: 20k</div>
-    <div class="info-box">Total Cost: $12k</div>
-    <div class="info-box">App Risk Score: 60%</div>
-    <div class="info-box">Breaches: 250</div>
-  </div>
-
-  <!-- Application Billing and Application Used by Users Section -->
-  <div class="charts">
-    <div class="chart">
-      <h3>Application Billing</h3>
-      <div class="chart-placeholder">Pie Chart Placeholder</div>
+  <!-- Main Content Section (Info Boxes, Charts, Risk Scores) -->
+  <div class="main-content">
+    <!-- Info Boxes Section -->
+    <div class="info-boxes">
+      <div class="info-box">Total Runs: 20k</div>
+      <div class="info-box">Total Cost: $12k</div>
+      <div class="info-box">App Risk Score: 60%</div>
+      <div class="info-box">Breaches: 250</div>
     </div>
-    <div class="chart">
-      <h3>Applications Used by Users</h3>
-      <div class="chart-placeholder">Bar Chart Placeholder</div>
-    </div>
-  </div>
 
-  <!-- Risk Scores Section -->
-  <div class="charts">
-    <div class="chart">
-      <h3>Input Risk Score</h3>
-      <div class="progress-bar">
-        <div class="progress" style="width: 85%;">85%</div>
+    <!-- Application Billing and Applications Used by Users Section -->
+    <div class="charts">
+      <div class="chart">
+        <h3>Application Billing</h3>
+        <div class="chart-placeholder">Pie Chart Placeholder</div>
+      </div>
+      <div class="chart">
+        <h3>Applications Used by Users</h3>
+        <div class="chart-placeholder">Bar Chart Placeholder</div>
       </div>
     </div>
-    <div class="chart">
-      <h3>Output Risk Score</h3>
-      <div class="progress-bar">
-        <div class="progress" style="width: 70%;">70%</div>
+
+    <!-- Risk Scores Section -->
+    <div class="charts">
+      <div class="chart">
+        <h3>Input Risk Score</h3>
+        <div class="progress-bar">
+          <div class="progress" style="width: 85%;">85%</div>
+        </div>
+      </div>
+      <div class="chart">
+        <h3>Output Risk Score</h3>
+        <div class="progress-bar">
+          <div class="progress" style="width: 70%;">70%</div>
+        </div>
       </div>
     </div>
   </div>
@@ -52,10 +55,17 @@
 
 /* General Layout */
 .dashboard {
+  display: flex;
+  justify-content: space-between;
   max-width: 1200px;
   margin: 0 auto;
   padding: 20px;
   font-family: Arial, sans-serif;
+}
+
+/* Main Content Section (Info Boxes, Charts, Risk Scores) */
+.main-content {
+  width: 75%; /* Takes up most of the space */
 }
 
 /* Info Boxes Layout */
@@ -117,8 +127,9 @@
   color: white;
 }
 
-/* Alerts Section Layout */
+/* Alerts Section */
 .alerts {
+  width: 22%; /* Takes up the remaining space on the right */
   background-color: #f5f5f5;
   padding: 20px;
   border-radius: 8px;
@@ -136,7 +147,15 @@
 
 /* Responsive Design */
 @media (max-width: 768px) {
+  .dashboard {
+    flex-direction: column;
+  }
+
+  .main-content, .alerts {
+    width: 100%;  /* Stack content and alerts */
+  }
+  
   .info-box, .chart {
-    width: 100%;  /* Stack boxes on small screens */
+    width: 100%;  /* Stack boxes and charts on small screens */
   }
 }

@@ -8,29 +8,16 @@
     <div class="info-box">Breaches: 250</div>
   </div>
 
-  <!-- Charts Section -->
-  <div class="charts">
-    <!-- Pie Chart (Application Billing) -->
-    <div class="chart">
-      <h3>Application Billing</h3>
-      <canvas baseChart
-              [data]="billingData"
-              [labels]="billingLabels"
-              [chartType]="'pie'">
-      </canvas>
-    </div>
+  <!-- Application Billing Box -->
+  <div class="chart">
+    <h3>Application Billing</h3>
+    <div class="chart-placeholder">Pie Chart Placeholder</div>
+  </div>
 
-    <!-- Bar Chart (Applications Used by Users) -->
-    <div class="chart">
-      <h3>Applications Used by Users</h3>
-      <canvas baseChart
-              [datasets]="barChartData"
-              [labels]="barChartLabels"
-              [options]="barChartOptions"
-              [legend]="true"
-              [chartType]="'bar'">
-      </canvas>
-    </div>
+  <!-- Applications Used by Users Box -->
+  <div class="chart">
+    <h3>Applications Used by Users</h3>
+    <div class="chart-placeholder">Bar Chart Placeholder</div>
   </div>
 
   <!-- Risk Scores Section -->
@@ -38,13 +25,13 @@
     <div class="score">
       <h3>Input Risk Score</h3>
       <div class="progress-bar">
-        <div class="progress" [style.width]="85 + '%'"></div>
+        <div class="progress" style="width: 85%;">85%</div>
       </div>
     </div>
     <div class="score">
       <h3>Output Risk Score</h3>
       <div class="progress-bar">
-        <div class="progress" [style.width]="70 + '%'"></div>
+        <div class="progress" style="width: 70%;">70%</div>
       </div>
     </div>
   </div>
@@ -53,44 +40,14 @@
   <div class="alerts">
     <h3>Alerts</h3>
     <ul>
-      <li *ngFor="let alert of alerts">{{ alert }}</li>
+      <li>Critical Breach Alert - App 1</li>
+      <li>High Risk Activity - App 2</li>
+      <li>Suspicious Login - App 3</li>
+      <li>Data Leak - App 4</li>
     </ul>
   </div>
 
 </div>
-
-
-
-import { Component } from '@angular/core';
-
-@Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
-})
-export class AppComponent {
-  // Pie chart for application billing
-  billingLabels: string[] = ['AWS', 'Azure', 'Google', 'IBM', 'Others'];
-  billingData: number[] = [40, 30, 20, 5, 5];
-
-  // Bar chart for applications used by users
-  barChartOptions = {
-    responsive: true,
-  };
-  barChartLabels: string[] = ['Chrome', 'Slack', 'Outlook', 'Github', 'Confluence'];
-  barChartData = [
-    { data: [50, 30, 40, 20, 10], label: 'Users' }
-  ];
-
-  // Alerts list
-  alerts: string[] = [
-    'Critical Breach Alert - App 1',
-    'High Risk Activity - App 2',
-    'Suspicious Login - App 3',
-    'Data Leak - App 4',
-  ];
-}
-
 
 
 /* General Layout */
@@ -117,6 +74,17 @@ export class AppComponent {
   font-size: 18px;
 }
 
+/* Placeholder for Charts */
+.chart-placeholder {
+  height: 200px;
+  background-color: #e0e0e0;
+  text-align: center;
+  line-height: 200px;
+  color: #888;
+  border-radius: 8px;
+  margin-top: 10px;
+}
+
 /* Charts Section Layout */
 .charts {
   display: flex;
@@ -126,11 +94,6 @@ export class AppComponent {
 
 .chart {
   width: 48%;
-}
-
-canvas {
-  width: 100% !important;
-  height: auto !important;
 }
 
 /* Risk Scores Section Layout */
@@ -155,6 +118,9 @@ canvas {
 .progress {
   height: 20px;
   background-color: #76c7c0;
+  text-align: center;
+  line-height: 20px;
+  color: white;
 }
 
 /* Alerts Section Layout */

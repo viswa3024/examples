@@ -1,0 +1,175 @@
+<div class="dashboard">
+
+  <!-- Info Boxes Section -->
+  <div class="info-boxes">
+    <div class="info-box">Total Runs: 20k</div>
+    <div class="info-box">Total Cost: $12k</div>
+    <div class="info-box">App Risk Score: 60%</div>
+    <div class="info-box">Breaches: 250</div>
+  </div>
+
+  <!-- Charts Section -->
+  <div class="charts">
+    <!-- Pie Chart (Application Billing) -->
+    <div class="chart">
+      <h3>Application Billing</h3>
+      <canvas baseChart
+              [data]="billingData"
+              [labels]="billingLabels"
+              [chartType]="'pie'">
+      </canvas>
+    </div>
+
+    <!-- Bar Chart (Applications Used by Users) -->
+    <div class="chart">
+      <h3>Applications Used by Users</h3>
+      <canvas baseChart
+              [datasets]="barChartData"
+              [labels]="barChartLabels"
+              [options]="barChartOptions"
+              [legend]="true"
+              [chartType]="'bar'">
+      </canvas>
+    </div>
+  </div>
+
+  <!-- Risk Scores Section -->
+  <div class="risk-scores">
+    <div class="score">
+      <h3>Input Risk Score</h3>
+      <div class="progress-bar">
+        <div class="progress" [style.width]="85 + '%'"></div>
+      </div>
+    </div>
+    <div class="score">
+      <h3>Output Risk Score</h3>
+      <div class="progress-bar">
+        <div class="progress" [style.width]="70 + '%'"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Alerts Section -->
+  <div class="alerts">
+    <h3>Alerts</h3>
+    <ul>
+      <li *ngFor="let alert of alerts">{{ alert }}</li>
+    </ul>
+  </div>
+
+</div>
+
+
+
+import { Component } from '@angular/core';
+
+@Component({
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.css']
+})
+export class AppComponent {
+  // Pie chart for application billing
+  billingLabels: string[] = ['AWS', 'Azure', 'Google', 'IBM', 'Others'];
+  billingData: number[] = [40, 30, 20, 5, 5];
+
+  // Bar chart for applications used by users
+  barChartOptions = {
+    responsive: true,
+  };
+  barChartLabels: string[] = ['Chrome', 'Slack', 'Outlook', 'Github', 'Confluence'];
+  barChartData = [
+    { data: [50, 30, 40, 20, 10], label: 'Users' }
+  ];
+
+  // Alerts list
+  alerts: string[] = [
+    'Critical Breach Alert - App 1',
+    'High Risk Activity - App 2',
+    'Suspicious Login - App 3',
+    'Data Leak - App 4',
+  ];
+}
+
+
+
+/* General Layout */
+.dashboard {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+/* Info Boxes Layout */
+.info-boxes {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.info-box {
+  background-color: #f5f5f5;
+  padding: 20px;
+  text-align: center;
+  border-radius: 8px;
+  width: 23%;
+  font-size: 18px;
+}
+
+/* Charts Section Layout */
+.charts {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.chart {
+  width: 48%;
+}
+
+canvas {
+  width: 100% !important;
+  height: auto !important;
+}
+
+/* Risk Scores Section Layout */
+.risk-scores {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.score {
+  width: 48%;
+}
+
+.progress-bar {
+  width: 100%;
+  background-color: #e0e0e0;
+  border-radius: 20px;
+  overflow: hidden;
+  margin-top: 10px;
+}
+
+.progress {
+  height: 20px;
+  background-color: #76c7c0;
+}
+
+/* Alerts Section Layout */
+.alerts {
+  background-color: #f5f5f5;
+  padding: 20px;
+  border-radius: 8px;
+}
+
+.alerts ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+.alerts ul li {
+  padding: 10px;
+  border-bottom: 1px solid #e0e0e0;
+}

@@ -18,10 +18,11 @@ export class PaginationComponent implements OnChanges {
   endIndex: number = 0;
 
   ngOnChanges() {
-    // Recalculate total pages and start/end indices whenever totalItems or pageSize changes
+    // Recalculate total pages whenever totalItems or pageSize changes
     this.totalPages = Math.ceil(this.totalItems / this.pageSize);
     this.generatePages();
-    this.updateRange();
+    this.updateSelection(); // Ensure selection is updated after generating pages
+    this.updateRange(); // Update the range for displaying items
   }
 
   // Generate the totalPagesArray
@@ -46,8 +47,8 @@ export class PaginationComponent implements OnChanges {
   nextPage() {
     if (this.currentPage < this.totalPages) {
       this.currentPage++;
-      this.updateSelection();
-      this.updateRange();
+      this.updateSelection(); // Update selection before emitting
+      this.updateRange(); // Update the range after changing the current page
       this.pageChange.emit(this.getCurrentPageObject().content); // Emit current page content
     }
   }
@@ -56,8 +57,8 @@ export class PaginationComponent implements OnChanges {
   previousPage() {
     if (this.currentPage > 1) {
       this.currentPage--;
-      this.updateSelection();
-      this.updateRange();
+      this.updateSelection(); // Update selection before emitting
+      this.updateRange(); // Update the range after changing the current page
       this.pageChange.emit(this.getCurrentPageObject().content); // Emit current page content
     }
   }
@@ -65,9 +66,9 @@ export class PaginationComponent implements OnChanges {
   // Select a specific page with the custom item object
   selectPage(item: { content: string; id: number; selected: boolean }) {
     this.currentPage = item.id; // Set the current page to the id from the item
-    this.updateSelection();
+    this.updateSelection(); // Update selection before emitting
     this.pageChange.emit(item.content); // Emit the `content` of the selected page
-    this.updateRange();
+    this.updateRange(); // Update the range after selecting a new page
   }
 
   // Get the current page object based on the current page number

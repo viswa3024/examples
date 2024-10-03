@@ -1,97 +1,19 @@
-<div class="pagination-container">
-  <!-- Select Page Dropdown on the left -->
-  <label for="pageSelect">Page:</label>
-  <select id="pageSelect" (change)="selectPage($event)">
-    <option *ngFor="let page of totalPagesArray" [value]="page" [selected]="page === currentPage">{{ page }}</option>
-  </select>
-
-  <!-- Page Information -->
-  <span class="page-info">{{ startIndex + 1 }} - {{ endIndex }} of {{ totalItems }}</span>
-
-  <!-- Pagination Controls -->
-  <button (click)="previousPage()" [disabled]="currentPage === 1">Previous</button>
-  <button (click)="nextPage()" [disabled]="currentPage === totalPages">Next</button>
-</div>
-
-
-import { Component, EventEmitter, Input, Output, OnChanges } from '@angular/core';
-
-@Component({
-  selector: 'app-pagination',
-  templateUrl: './pagination.component.html',
-  styleUrls: ['./pagination.component.css']
-})
-export class PaginationComponent implements OnChanges {
-  @Input() totalItems: number = 0;  // Total number of items (e.g., 28 records)
-  @Input() pageSize: number = 3;    // Number of records per page
-  @Input() currentPage: number = 1; // Current page number
-
-  @Output() pageChange = new EventEmitter<number>();
-
-  totalPages: number = 0;
-  totalPagesArray: number[] = [];
-  startIndex: number = 0;
-  endIndex: number = 0;
-
-  ngOnChanges() {
-    // Recalculate total pages and start/end indices whenever totalItems or pageSize changes
-    this.totalPages = Math.ceil(this.totalItems / this.pageSize);
-    this.totalPagesArray = Array.from({ length: this.totalPages }, (_, i) => i + 1);
-    this.updateRange();
-  }
-
-  // Calculate the range of records displayed on the current page
-  updateRange() {
-    this.startIndex = (this.currentPage - 1) * this.pageSize;
-    this.endIndex = Math.min(this.startIndex + this.pageSize, this.totalItems);  // Ensure end index does not exceed total items
-  }
-
-  // Go to the next page
-  nextPage() {
-    if (this.currentPage < this.totalPages) {
-      this.currentPage++;
-      this.pageChange.emit(this.currentPage);
-      this.updateRange();
-    }
-  }
-
-  // Go to the previous page
-  previousPage() {
-    if (this.currentPage > 1) {
-      this.currentPage--;
-      this.pageChange.emit(this.currentPage);
-      this.updateRange();
-    }
-  }
-
-  // Select a specific page
-  selectPage(event: Event) {
-    const selectedPage = +(event.target as HTMLSelectElement).value;
-    this.currentPage = selectedPage;
-    this.pageChange.emit(this.currentPage);
-    this.updateRange();
-  }
-}
-
-
-
 <div class="container">
-  <table>
-    <thead>
-      <tr>
-        <th>Models</th>
-        <th>Connected Models</th>
-        <th>Action</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let model of pagedModels">
-        <td>{{ model.name }}</td>
-        <td>{{ model.connected }}</td>
-        <td><button (click)="addModel(model)">Add</button></td>
-      </tr>
-    </tbody>
-  </table>
+  <div class="header">
+    <div class="header-item">Models</div>
+    <div class="header-item">Connected Models</div>
+    <div class="header-item">Action</div>
+  </div>
+
+  <div class="rows">
+    <div class="row" *ngFor="let model of pagedModels">
+      <div class="row-item">{{ model.name }}</div>
+      <div class="row-item">{{ model.connected }}</div>
+      <div class="row-item">
+        <button (click)="addModel(model)">Add</button>
+      </div>
+    </div>
+  </div>
 
   <!-- Include the pagination component -->
   <app-pagination 
@@ -103,51 +25,67 @@ export class PaginationComponent implements OnChanges {
 </div>
 
 
-import { Component, OnInit } from '@angular/core';
+.container {
+  width: 100%;
+  margin-top: 20px;
+}
 
-@Component({
-  selector: 'app-models-table',
-  templateUrl: './models-table.component.html',
-  styleUrls: ['./models-table.component.css']
-})
-export class ModelsTableComponent implements OnInit {
-  models = [
-    { name: 'Azure OpenAI Service Model', connected: 10 },
-    { name: 'Hugging Face', connected: 7 },
-    { name: 'Anthropic', connected: 2 },
-    { name: 'GCP Vertex AI', connected: 1 },
-    { name: 'Cohere', connected: 0 },
-    { name: 'Model X', connected: 3 },
-    { name: 'Model Y', connected: 5 },
-    { name: 'Model Z', connected: 8 },
-    { name: 'Model A', connected: 2 },
-    { name: 'Model B', connected: 9 }
-    // Add more models if needed
-  ];
+/* Styling for the header */
+.header {
+  display: flex;
+  font-weight: bold;
+  padding: 10px;
+  border-bottom: 2px solid #ddd;
+  background-color: #f4f4f4;
+}
 
-  pagedModels: any[] = [];
-  currentPage: number = 1;
-  pageSize: number = 3; // Display 3 records per page
+.header-item {
+  flex: 1;
+  padding: 10px;
+  text-align: left;
+}
 
-  ngOnInit() {
-    this.updatePagedModels();
-  }
+/* Styling for the rows */
+.rows {
+  display: flex;
+  flex-direction: column;
+}
 
-  // Update the models displayed on the current page
-  updatePagedModels() {
-    const startIndex = (this.currentPage - 1) * this.pageSize;
-    const endIndex = startIndex + this.pageSize;
-    this.pagedModels = this.models.slice(startIndex, endIndex);
-  }
+.row {
+  display: flex;
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+  align-items: center;
+}
 
-  // Handle page change event from pagination component
-  onPageChange(newPage: number) {
-    this.currentPage = newPage;
-    this.updatePagedModels();
-  }
+.row-item {
+  flex: 1;
+  padding: 10px;
+}
 
-  addModel(model: any) {
-    console.log(`${model.name} model added`);
-    // Implement add model logic here
-  }
+/* Add button styling */
+button {
+  background-color: #c4e2a8;
+  border: none;
+  padding: 8px 16px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #a0ca78;
+}
+
+button:active {
+  background-color: #8bb963;
+}
+
+
+.row:hover {
+  background-color: #f9f9f9;
+}
+
+
+.row-item {
+  text-align: center;
+  align-items: center;
 }

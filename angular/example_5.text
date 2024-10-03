@@ -1,42 +1,49 @@
+[
+  { "label": "Anonymity", "score": 70 },
+  { "label": "GeoGuarding", "score": 15 },
+  { "label": "RareTopics", "score": 85 },
+  { "label": "Code", "score": 50 },
+  { "label": "Language", "score": 60 }
+]
+
+
+import { Component } from '@angular/core';
+
+@Component({
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.css']
+})
+export class AppComponent {
+  // Example JSON data
+  scores = [
+    { label: 'Anonymity', score: 70 },
+    { label: 'GeoGuarding', score: 15 },
+    { label: 'RareTopics', score: 85 },
+    { label: 'Code', score: 50 },
+    { label: 'Language', score: 60 }
+  ];
+
+  // Method to determine the color based on the score
+  getColor(score: number): string {
+    if (score < 30) {
+      return 'red';
+    } else if (score < 70) {
+      return 'orange';
+    } else {
+      return 'green';
+    }
+  }
+}
+
+
 <div class="risk-score">
-  <div class="score-item">
-    <span>Anonymity</span>
+  <div class="score-item" *ngFor="let item of scores">
+    <span>{{ item.label }}</span>
     <div class="bar">
-      <div class="fill red" [style.width.%]="70"></div>
+      <div class="fill" [ngStyle]="{ 'width.%': item.score, 'background-color': getColor(item.score) }"></div>
     </div>
-    <span>70%</span>
-  </div>
-
-  <div class="score-item">
-    <span>GeoGuarding</span>
-    <div class="bar">
-      <div class="fill green" [style.width.%]="15"></div>
-    </div>
-    <span>15%</span>
-  </div>
-
-  <div class="score-item">
-    <span>RareTopics</span>
-    <div class="bar">
-      <div class="fill red" [style.width.%]="85"></div>
-    </div>
-    <span>85%</span>
-  </div>
-
-  <div class="score-item">
-    <span>Code</span>
-    <div class="bar">
-      <div class="fill green" [style.width.%]="50"></div>
-    </div>
-    <span>50%</span>
-  </div>
-
-  <div class="score-item">
-    <span>Language</span>
-    <div class="bar">
-      <div class="fill red" [style.width.%]="60"></div>
-    </div>
-    <span>60%</span>
+    <span>{{ item.score }}%</span>
   </div>
 </div>
 
@@ -66,12 +73,3 @@
   height: 100%;
   border-radius: 5px;
 }
-
-.red {
-  background-color: #f44336;
-}
-
-.green {
-  background-color: #4caf50;
-}
-

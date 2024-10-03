@@ -1,69 +1,75 @@
-<div class="risk-score">
-  <div class="score-item" *ngFor="let item of scores">
-    <!-- Label with ellipsis for overflow -->
-    <span class="label">{{ item.label }}</span>
-    
-    <!-- Progress bar container -->
-    <div class="bar-container">
-      <div class="bar">
-        <!-- Progress bar fill -->
-        <div class="fill" 
-             [ngStyle]="{ 'width.%': item.score, 'background-color': getColor(item.score) }">
-        </div>
-        <!-- Percentage value in the middle of the bar -->
-        <span class="percentage">{{ item.score }}%</span>
-      </div>
-    </div>
-  </div>
+<div class="container">
+  <table>
+    <thead>
+      <tr>
+        <th>Models</th>
+        <th>Connected Models</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let model of models">
+        <td>{{ model.name }}</td>
+        <td>{{ model.connected }}</td>
+        <td><button (click)="addModel(model)">Add</button></td>
+      </tr>
+    </tbody>
+  </table>
 </div>
 
 
-.risk-score {
-  font-family: Arial, sans-serif;
+import { Component } from '@angular/core';
+
+@Component({
+  selector: 'app-models-table',
+  templateUrl: './models-table.component.html',
+  styleUrls: ['./models-table.component.css']
+})
+export class ModelsTableComponent {
+  models = [
+    { name: 'Azure OpenAI Service Model', connected: 10 },
+    { name: 'Hugging Face', connected: 7 },
+    { name: 'Anthropic', connected: 2 },
+    { name: 'GCP Vertex AI', connected: 1 },
+    { name: 'Cohere', connected: 0 },
+  ];
+
+  addModel(model: any) {
+    console.log(`${model.name} model added`);
+    // Handle the add model logic here
+  }
+}
+
+
+.container {
   width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  text-align: left;
 }
 
-.score-item {
-  display: flex;
-  align-items: center;
-  margin-bottom: 10px;
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
 }
 
-.label {
-  width: 100px; /* Fixed width */
-  white-space: nowrap; /* Prevent text from wrapping */
-  overflow: hidden; /* Hide overflow */
-  text-overflow: ellipsis; /* Add ellipsis (...) for overflow text */
+th, td {
+  padding: 10px;
+  border: 1px solid #ddd;
 }
 
-.bar-container {
-  flex-grow: 1;
-  display: flex;
-  align-items: center;
-  margin-left: 10px;
+th {
+  background-color: #f4f4f4;
 }
 
-.bar {
-  position: relative; /* Positioning for percentage text in the middle */
-  width: 100%; /* Full width for the bar */
-  height: 10px;
-  background-color: #e0e0e0;
-  border-radius: 5px;
-  overflow: hidden;
+button {
+  background-color: #c4e2a8;
+  border: none;
+  padding: 8px 16px;
+  cursor: pointer;
 }
 
-.fill {
-  height: 100%;
-  border-radius: 5px;
-}
-
-.percentage {
-  position: absolute;
-  top: -15px; /* Adjust based on the placement you need */
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 12px;
-  width: 25px; /* Fixed width for percentage text */
-  text-align: center;
-  color: black;
+button:hover {
+  background-color: #a6d091;
 }

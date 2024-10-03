@@ -1,70 +1,53 @@
-[
-  { "label": "Anonymity", "score": 70 },
-  { "label": "GeoGuarding", "score": 15 },
-  { "label": "RareTopics", "score": 85 },
-  { "label": "Code", "score": 50 },
-  { "label": "Language", "score": 60 }
-]
-
-
-import { Component } from '@angular/core';
-
-@Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
-})
-export class AppComponent {
-  // Example JSON data
-  scores = [
-    { label: 'Anonymity', score: 70 },
-    { label: 'GeoGuarding', score: 15 },
-    { label: 'RareTopics', score: 85 },
-    { label: 'Code', score: 50 },
-    { label: 'Language', score: 60 }
-  ];
-
-  // Method to determine the color based on the score
-  getColor(score: number): string {
-    if (score < 30) {
-      return 'red';
-    } else if (score < 70) {
-      return 'orange';
-    } else {
-      return 'green';
-    }
-  }
-}
-
-
 <div class="risk-score">
   <div class="score-item" *ngFor="let item of scores">
-    <span>{{ item.label }}</span>
-    <div class="bar">
-      <div class="fill" [ngStyle]="{ 'width.%': item.score, 'background-color': getColor(item.score) }"></div>
+    <!-- Label with ellipsis for overflow -->
+    <span class="label">{{ item.label }}</span>
+    
+    <!-- Progress bar container -->
+    <div class="bar-container">
+      <div class="bar">
+        <!-- Progress bar fill -->
+        <div class="fill" 
+             [ngStyle]="{ 'width.%': item.score, 'background-color': getColor(item.score) }">
+        </div>
+        <!-- Percentage value in the middle of the bar -->
+        <span class="percentage">{{ item.score }}%</span>
+      </div>
     </div>
-    <span>{{ item.score }}%</span>
   </div>
 </div>
 
 
 .risk-score {
   font-family: Arial, sans-serif;
-  width: 300px;
+  width: 100%;
 }
 
 .score-item {
   display: flex;
-  justify-content: space-between;
   align-items: center;
   margin-bottom: 10px;
 }
 
-.bar {
+.label {
+  width: 100px; /* Fixed width */
+  white-space: nowrap; /* Prevent text from wrapping */
+  overflow: hidden; /* Hide overflow */
+  text-overflow: ellipsis; /* Add ellipsis (...) for overflow text */
+}
+
+.bar-container {
   flex-grow: 1;
+  display: flex;
+  align-items: center;
+  margin-left: 10px;
+}
+
+.bar {
+  position: relative; /* Positioning for percentage text in the middle */
+  width: 100%; /* Full width for the bar */
   height: 10px;
   background-color: #e0e0e0;
-  margin: 0 10px;
   border-radius: 5px;
   overflow: hidden;
 }
@@ -72,4 +55,15 @@ export class AppComponent {
 .fill {
   height: 100%;
   border-radius: 5px;
+}
+
+.percentage {
+  position: absolute;
+  top: -15px; /* Adjust based on the placement you need */
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 12px;
+  width: 25px; /* Fixed width for percentage text */
+  text-align: center;
+  color: black;
 }

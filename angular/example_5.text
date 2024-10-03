@@ -19,7 +19,13 @@
   <!-- Pagination controls -->
   <div class="pagination">
     <button (click)="previousPage()" [disabled]="currentPage === 1">Previous</button>
-    <span>Page {{ currentPage }} of {{ totalPages }}</span>
+    
+    <!-- Select Page Dropdown -->
+    <label for="pageSelect">Page:</label>
+    <select id="pageSelect" (change)="selectPage($event.target.value)">
+      <option *ngFor="let page of totalPagesArray" [value]="page" [selected]="page === currentPage">{{ page }}</option>
+    </select>
+    
     <button (click)="nextPage()" [disabled]="currentPage === totalPages">Next</button>
   </div>
 </div>
@@ -34,6 +40,7 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./models-table.component.css']
 })
 export class ModelsTableComponent implements OnInit {
+  // Mock data for the table
   models = [
     { name: 'Azure OpenAI Service Model', connected: 10 },
     { name: 'Hugging Face', connected: 7 },
@@ -42,26 +49,38 @@ export class ModelsTableComponent implements OnInit {
     { name: 'Cohere', connected: 0 },
     { name: 'Model X', connected: 3 },
     { name: 'Model Y', connected: 5 },
-    { name: 'Model Z', connected: 8 }
-    // Add more rows if needed
+    { name: 'Model Z', connected: 8 },
+    { name: 'Model A', connected: 2 },
+    { name: 'Model B', connected: 9 }
+    // Add more rows for testing pagination if needed
   ];
 
-  pagedModels: any[] = [];
-  currentPage: number = 1;
+  // Pagination properties
+  pagedModels: any[] = []; // Models to display on the current page
+  currentPage: number = 1; // Current page
   pageSize: number = 3;  // Number of rows per page
-  totalPages: number = 0;
+  totalPages: number = 0; // Total number of pages
+  totalPagesArray: number[] = []; // Array of total page numbers for select dropdown
 
   ngOnInit() {
+    // Calculate total pages based on the number of models and the page size
     this.totalPages = Math.ceil(this.models.length / this.pageSize);
+
+    // Create an array of total page numbers (e.g., [1, 2, 3, 4])
+    this.totalPagesArray = Array.from({ length: this.totalPages }, (_, i) => i + 1);
+
+    // Load the initial set of models for the first page
     this.updatePagedModels();
   }
 
+  // Update the models to display on the current page
   updatePagedModels() {
     const startIndex = (this.currentPage - 1) * this.pageSize;
     const endIndex = startIndex + this.pageSize;
     this.pagedModels = this.models.slice(startIndex, endIndex);
   }
 
+  // Move to the next page
   nextPage() {
     if (this.currentPage < this.totalPages) {
       this.currentPage++;
@@ -69,6 +88,7 @@ export class ModelsTableComponent implements OnInit {
     }
   }
 
+  // Move to the previous page
   previousPage() {
     if (this.currentPage > 1) {
       this.currentPage--;
@@ -76,9 +96,16 @@ export class ModelsTableComponent implements OnInit {
     }
   }
 
+  // Select a specific page
+  selectPage(page: number) {
+    this.currentPage = +page;  // Convert string to number
+    this.updatePagedModels();
+  }
+
+  // Placeholder function to handle model addition
   addModel(model: any) {
     console.log(`${model.name} model added`);
-    // Implement add model logic here
+    // Implement logic to add the model here
   }
 }
 
@@ -130,4 +157,9 @@ button[disabled] {
 .pagination button {
   margin: 0 10px;
   padding: 5px 10px;
+}
+
+.pagination select {
+  padding: 5px;
+  margin-left: 10px;
 }

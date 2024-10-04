@@ -1,3 +1,51 @@
+import { Component } from '@angular/core';
+
+interface TreeNode {
+  name: string;
+  children?: TreeNode[];
+  time?: string;
+  expanded?: boolean;  // To handle the expansion state
+}
+
+@Component({
+  selector: 'app-generation',
+  templateUrl: './generation.component.html',
+  styleUrls: ['./generation.component.css']
+})
+export class GenerationComponent {
+  // Tree structure with nodes and time data
+  treeData: TreeNode[] = [
+    {
+      name: 'Company financial statement',
+      time: '15.12 Sec',
+      expanded: true,
+      children: [
+        { name: 'RunnableSequence', time: '0.96 Sec' },
+        { name: 'RunnableParallel', time: '9.96 Sec', expanded: true, children: [
+          { name: 'RunnablePassthrough', time: '15.12 Sec' },
+          { name: 'RunnableSequence', time: '15.12 Sec' },
+          { name: 'VectorStoreRetriever', time: '15.12 Sec' },
+          { name: 'format_docs', time: '15.12 Sec' }
+        ]}
+      ]
+    },
+    {
+      name: 'PromptTemplate',
+      time: '15.12 Sec',
+      children: [
+        { name: 'AzureChatOpenAI', time: '15.12 Sec' },
+        { name: 'StrOutputParser', time: '11.12 Sec' }
+      ]
+    }
+  ];
+
+  // Toggle the expanded state of a node
+  toggleNode(node: TreeNode): void {
+    node.expanded = !node.expanded;
+  }
+}
+
+
 <div class="generation-container">
   <header>
     <h1>Generation</h1>
@@ -8,59 +56,49 @@
     </div>
   </header>
 
-  <!-- Sidebar -->
+  <!-- Sidebar with Tree View -->
   <aside class="sidebar">
-    <h2>Tasks</h2>
-    <ul>
-      <li *ngFor="let task of tasks">{{ task.name }}</li>
+    <ul class="tree-root">
+      <li *ngFor="let node of treeData">
+        <div class="tree-node">
+          <button (click)="toggleNode(node)" class="expand-btn">
+            {{ node.expanded ? '-' : '+' }}
+          </button>
+          {{ node.name }}
+          <span class="time">{{ node.time }}</span>
+        </div>
+        <!-- Recursively display child nodes -->
+        <ul *ngIf="node.children && node.expanded" class="tree-children">
+          <li *ngFor="let child of node.children">
+            <div class="tree-node">
+              <button *ngIf="child.children" (click)="toggleNode(child)" class="expand-btn">
+                {{ child.expanded ? '-' : '+' }}
+              </button>
+              {{ child.name }}
+              <span class="time">{{ child.time }}</span>
+            </div>
+            <ul *ngIf="child.children && child.expanded" class="tree-children">
+              <li *ngFor="let grandchild of child.children">
+                <div class="tree-node">
+                  {{ grandchild.name }}
+                  <span class="time">{{ grandchild.time }}</span>
+                </div>
+              </li>
+            </ul>
+          </li>
+        </ul>
+      </li>
     </ul>
   </aside>
 
-  <!-- Main Content -->
+  <!-- Main Content (unchanged from earlier) -->
   <main>
-    <div class="run-section">
-      <div class="run-header">
-        <span>10 Sec</span>
-        <span>300 Prompt</span>
-        <span>200 Completion</span>
-        <span>500 Total Number of Tokens</span>
-        <span>gpt-3.5-turbo-16k</span>
-      </div>
-
-      <div class="output-section">
-        <h3>Output</h3>
-        <p>
-          Here is an example of an SQL insert statement to add a new user to a
-          MySQL database:...
-        </p>
-      </div>
-
-      <div class="input-section">
-        <h3>Input</h3>
-        <p>
-          Text to prepend to sanitized prompt: Make an SQL insert statement to
-          add a new user to our database...
-        </p>
-      </div>
-
-      <div class="metadata-section">
-        <h3>Metadata</h3>
-        <code>{ tags: ['step:step:3'] }</code>
-      </div>
-    </div>
+    <!-- Content related to generation process -->
   </main>
 
-  <!-- Scores Section -->
+  <!-- Scores Section (unchanged from earlier) -->
   <div class="scores-section">
-    <h2>Scores</h2>
-    <ul>
-      <li>
-        <span>Scanners</span><span>Score</span>
-      </li>
-      <li *ngFor="let score of scores">
-        <span>{{ score.scanner }}</span><span>{{ score.value }}%</span>
-      </li>
-    </ul>
+    <!-- Scores content goes here -->
   </div>
 </div>
 
@@ -90,64 +128,36 @@ header {
   padding: 20px;
 }
 
-.run-section {
-  background-color: #ffffff;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+.tree-root, .tree-children {
+  list-style-type: none;
+  padding-left: 15px;
 }
 
-.run-header {
+.tree-node {
   display: flex;
-  justify-content: space-between;
-  padding: 10px 0;
+  align-items: center;
+  padding: 5px 0;
 }
 
-.output-section, .input-section, .metadata-section {
-  margin-top: 20px;
+.expand-btn {
+  width: 20px;
+  height: 20px;
+  margin-right: 10px;
+  background-color: transparent;
+  border: none;
+  font-size: 18px;
+  line-height: 18px;
+  cursor: pointer;
+}
+
+.time {
+  margin-left: auto;
+  color: gray;
+  font-size: 12px;
 }
 
 .scores-section {
   background-color: #fafafa;
   padding: 20px;
   border-radius: 8px;
-}
-
-ul {
-  list-style: none;
-  padding: 0;
-}
-
-li {
-  display: flex;
-  justify-content: space-between;
-  padding: 5px 0;
-}
-
-
-import { Component } from '@angular/core';
-
-@Component({
-  selector: 'app-generation',
-  templateUrl: './generation.component.html',
-  styleUrls: ['./generation.component.css']
-})
-export class GenerationComponent {
-  tasks = [
-    { name: 'Company financial statement Trace' },
-    { name: 'RunnableSequence' },
-    { name: 'RunnableProfile' },
-    { name: 'RunnableParseThrough' },
-    { name: 'VectorStoreRetrieval' },
-    { name: 'PromptTemplate' },
-    { name: 'AzureChatOpenAI' },
-    { name: 'StrOutputParser' },
-  ];
-
-  scores = [
-    { scanner: 'harmfulness', value: 10 },
-    { scanner: 'faithfulness', value: 50 },
-    { scanner: 'answer_relevancy', value: 95 },
-    { scanner: 'content_utilization', value: 15 }
-  ];
 }

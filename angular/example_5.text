@@ -1,163 +1,55 @@
-import { Component } from '@angular/core';
+<div class="sql-container">
+  <!-- Output Box -->
+  <div class="output-box">
+    <h3>Output</h3>
+    <p>
+      Here is an example of an SQL insert statement to add a new user to a MySQL
+      database:
+    </p>
+    <pre>
+sql INSERT INTO users (name, email, phone_number, ip_address, credit_card_number, company)
+VALUES ('[REDACTED_PERSON_1]', '[REDACTED_EMAIL_ADDRESS_1]', '[REDACTED_PHONE_NUMBER_1]', '[REDACTED_IP_ADDRESS_1]', '[REDACTED_CREDIT_CARD_RE_1]', 'Test LLC');</pre
+    >
+  </div>
 
-interface TreeNode {
-  name: string;
-  children?: TreeNode[];
-  time?: string;
-  expanded?: boolean;  // To handle the expansion state
-}
-
-@Component({
-  selector: 'app-generation',
-  templateUrl: './generation.component.html',
-  styleUrls: ['./generation.component.css']
-})
-export class GenerationComponent {
-  // Tree structure with nodes and time data
-  treeData: TreeNode[] = [
-    {
-      name: 'Company financial statement',
-      time: '15.12 Sec',
-      expanded: true,
-      children: [
-        { name: 'RunnableSequence', time: '0.96 Sec' },
-        { name: 'RunnableParallel', time: '9.96 Sec', expanded: true, children: [
-          { name: 'RunnablePassthrough', time: '15.12 Sec' },
-          { name: 'RunnableSequence', time: '15.12 Sec' },
-          { name: 'VectorStoreRetriever', time: '15.12 Sec' },
-          { name: 'format_docs', time: '15.12 Sec' }
-        ]}
-      ]
-    },
-    {
-      name: 'PromptTemplate',
-      time: '15.12 Sec',
-      children: [
-        { name: 'AzureChatOpenAI', time: '15.12 Sec' },
-        { name: 'StrOutputParser', time: '11.12 Sec' }
-      ]
-    }
-  ];
-
-  // Toggle the expanded state of a node
-  toggleNode(node: TreeNode): void {
-    node.expanded = !node.expanded;
-  }
-}
-
-
-<div class="generation-container">
-  <header>
-    <h1>Generation</h1>
-    <div class="header-info">
-      <p>Job ID: 908dkfj09dsfd93</p>
-      <p>User ID: ActiveChatOpenAI</p>
-      <p>Time: 4/5/2024, 10:47 PM</p>
-    </div>
-  </header>
-
-  <!-- Sidebar with Tree View -->
-  <aside class="sidebar">
-    <ul class="tree-root">
-      <li *ngFor="let node of treeData">
-        <div class="tree-node">
-          <button (click)="toggleNode(node)" class="expand-btn">
-            {{ node.expanded ? '-' : '+' }}
-          </button>
-          {{ node.name }}
-          <span class="time">{{ node.time }}</span>
-        </div>
-        <!-- Recursively display child nodes -->
-        <ul *ngIf="node.children && node.expanded" class="tree-children">
-          <li *ngFor="let child of node.children">
-            <div class="tree-node">
-              <button *ngIf="child.children" (click)="toggleNode(child)" class="expand-btn">
-                {{ child.expanded ? '-' : '+' }}
-              </button>
-              {{ child.name }}
-              <span class="time">{{ child.time }}</span>
-            </div>
-            <ul *ngIf="child.children && child.expanded" class="tree-children">
-              <li *ngFor="let grandchild of child.children">
-                <div class="tree-node">
-                  {{ grandchild.name }}
-                  <span class="time">{{ grandchild.time }}</span>
-                </div>
-              </li>
-            </ul>
-          </li>
-        </ul>
-      </li>
-    </ul>
-  </aside>
-
-  <!-- Main Content (unchanged from earlier) -->
-  <main>
-    <!-- Content related to generation process -->
-  </main>
-
-  <!-- Scores Section (unchanged from earlier) -->
-  <div class="scores-section">
-    <!-- Scores content goes here -->
+  <!-- Input Box -->
+  <div class="input-box">
+    <h3>Input</h3>
+    <p>
+      Text to prepend to sanitized prompt: Make an SQL insert statement to add a
+      new user to our database running on MySQL. Name is [REDACTED_PERSON_1].
+      Email is [REDACTED_EMAIL_ADDRESS_1] but also possible to contact him with
+      [REDACTED_EMAIL_ADDRESS_2] email. Phone number is
+      [REDACTED_PHONE_NUMBER_1] and the IP address is
+      [REDACTED_IP_ADDRESS_1]. And credit card number is
+      [REDACTED_CREDIT_CARD_RE_1]. He works in Test LLC.
+    </p>
   </div>
 </div>
 
 
-.generation-container {
-  display: grid;
-  grid-template-columns: 1fr 3fr 1fr;
-  grid-gap: 20px;
-  padding: 20px;
-}
-
-header {
-  grid-column: 1 / span 3;
+.sql-container {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px;
-  background-color: #f4f4f4;
-}
-
-.header-info p {
-  margin: 0;
-}
-
-.sidebar {
-  background-color: #f9f9f9;
+  flex-direction: column;
+  gap: 20px;
   padding: 20px;
 }
 
-.tree-root, .tree-children {
-  list-style-type: none;
-  padding-left: 15px;
-}
-
-.tree-node {
-  display: flex;
-  align-items: center;
-  padding: 5px 0;
-}
-
-.expand-btn {
-  width: 20px;
-  height: 20px;
-  margin-right: 10px;
-  background-color: transparent;
-  border: none;
-  font-size: 18px;
-  line-height: 18px;
-  cursor: pointer;
-}
-
-.time {
-  margin-left: auto;
-  color: gray;
-  font-size: 12px;
-}
-
-.scores-section {
-  background-color: #fafafa;
-  padding: 20px;
+.output-box,
+.input-box {
+  border: 1px solid #ccc;
   border-radius: 8px;
+  padding: 20px;
+  background-color: #f9f9f9;
+}
+
+.output-box h3,
+.input-box h3 {
+  margin-top: 0;
+}
+
+pre {
+  background-color: #e0e0e0;
+  padding: 10px;
+  border-radius: 4px;
 }

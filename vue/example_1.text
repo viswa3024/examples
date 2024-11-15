@@ -11,7 +11,7 @@
             >
               <lazy-table-filtrable-column
                 :column="column"
-                :data="data"
+                :data="paginatedResults"
                 :filters="filters"
                 v-if="column.filtrable"
                 @applyFilters="onApplyFilters"
@@ -36,10 +36,7 @@
       <template v-else>
         <div class="table-info__body">
           <ul>
-            <li
-              v-for="item in paginatedResults"
-              :key="String(item.id)"
-            >
+            <li v-for="item in paginatedResults" :key="String(item.id)">
               <div class="table-info__item">
                 <base-checkbox
                   v-if="globalActions"
@@ -54,30 +51,98 @@
                   class="table-info__item__col"
                 >
                   <span :class="column.class">
-                    <span v-if="column.type === 'action'">
-                      <a
-                        href="#"
-                        @click.prevent="onActionClicked(item.kind, item)"
-                        >{{ itemValue(item, column) }}</a>
+                    <a
+                      v-if="column.type === 'action'"
+                      href="#"
+                      @click.prevent="onActionClicked(item.kind, item)"
+                      >{{ itemValue(item, column) }}</a
+                    >
+                    <span v-else-if="column.type === 'link'">
+                      <nuxt-link v-if="item.link" :to="item.link"
+                        >{{ itemValue(item, column) }}</nuxt-link
+                      >
+                      <span v-else>{{ itemValue(item, column) }}</span>
+                      <base-action-tooltip tooltip="Copied">
+                        <base-button
+                          title="Copy to clipboard"
+                          class="table-info__actions__button button-icon"
+                          @click.prevent="onActionClicked('copy-name', item)"
+                        >
+                          <svgicon name="copy" width="16" height="16" />
+                        </base-button>
+                      </base-action-tooltip>
+                    </span>
+                    <base-date
+                      format="date-relative-now"
+                      v-else-if="column.type === 'date'"
+                      :date="itemValue(item, column)"
+                    />
+                    <span v-else-if="column.type === 'number'">
+                      {{ itemValue(item, column) | formatNumber }}
+                    </span>
+                    <span
+                      v-else-if="!isNaN(itemValue(item, column)) && column.type === 'percentage'"
+                    >
+                      {{ itemValue(item, column) | percent }}
+                    </span>
+                    <span v-else-if="column.type === 'array'">
+                      <p
+                        v-for="(arrayItem, index) in itemValue(item, column)"
+                        :key="index"
+                      >
+                        {{ arrayItem
+                        }}{{
+                          index + 1 === itemValue(item, column).length ? "" : ","
+                        }}
+                      </p>
+                    </span>
+                    <span v-else-if="column.type === 'object'">
+                      <p
+                        v-for="key in Object.keys(itemValue(item, column))"
+                        :key="key"
+                      >
+                        <strong>{{ key }}:</strong>
+                        {{ itemValue(item, column)[key] }}
+                      </p>
                     </span>
                     <span v-else>{{ itemValue(item, column) }}</span>
                   </span>
                 </span>
+                <div v-if="visibleActions" class="table-info__actions">
+                  <base-action-tooltip
+                    v-for="action in filterActions"
+                    :key="action.index"
+                    :tooltip="action.tooltip"
+                  >
+                    <base-button
+                      :title="action.title"
+                      class="table-info__actions__button button-icon"
+                      @click="onActionClicked(action.name, item)"
+                    >
+                      <svgicon
+                        v-if="action.icon !== undefined"
+                        :name="action.icon"
+                        width="16"
+                        height="16"
+                      />
+                    </base-button>
+                  </base-action-tooltip>
+                </div>
               </div>
             </li>
           </ul>
         </div>
-        <div class="pagination-controls">
+        <div class="pagination">
           <button
             :disabled="currentPage === 1"
-            @click="currentPage--"
+            @click="changePage(currentPage - 1)"
           >
             Previous
           </button>
           <span>Page {{ currentPage }} of {{ totalPages }}</span>
           <button
             :disabled="currentPage === totalPages"
-            @click="currentPage++"
+            @click="changePage(currentPage + 1)"
           >
             Next
           </button>
@@ -94,62 +159,68 @@ export default {
       type: Array,
       default: () => [],
     },
-    actions: Array,
     columns: Array,
-    querySearch: String,
-    activeFilters: Array,
-    sortedOrder: String,
-    sortedByField: String,
+    itemsPerPage: {
+      type: Number,
+      default: 10,
+    },
   },
   data() {
     return {
       currentPage: 1,
-      itemsPerPage: 10, // Adjust the number of items per page as needed
-      sortOrder: this.sortedOrder || "desc",
-      sortedBy: this.sortedByField || null,
-      filters: {},
     };
   },
   computed: {
-    tableIsEmpty() {
-      return this.filteredResults.length === 0;
-    },
     totalPages() {
       return Math.ceil(this.filteredResults.length / this.itemsPerPage);
     },
     paginatedResults() {
-      const start = (this.currentPage - 1) * this.itemsPerPage;
-      const end = start + this.itemsPerPage;
-      return this.filteredResults.slice(start, end);
+      const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+      const endIndex = startIndex + this.itemsPerPage;
+      return this.filteredResults.slice(startIndex, endIndex);
     },
     filteredResults() {
-      // Add filtering and sorting logic here
-      const results = this.data; // Apply your actual filtering logic
-      return results.sort((a, b) => {
-        const modifier = this.sortOrder === "desc" ? -1 : 1;
-        return a[this.sortedBy] < b[this.sortedBy]
-          ? -1 * modifier
-          : a[this.sortedBy] > b[this.sortedBy]
-          ? 1 * modifier
-          : 0;
-      });
+      return this.data; // Your existing filtering logic goes here
+    },
+    tableIsEmpty() {
+      return this.paginatedResults.length === 0;
     },
   },
   methods: {
+    changePage(page) {
+      if (page > 0 && page <= this.totalPages) {
+        this.currentPage = page;
+      }
+    },
+    itemValue(item, column) {
+      if (column.subfield) {
+        return item[column.field][column.subfield];
+      }
+      return item[column.field];
+    },
     sort(column) {
-      this.sortedBy = column.field;
-      this.sortOrder = this.sortOrder === "asc" ? "desc" : "asc";
-      this.currentPage = 1; // Reset to first page when sorting
+      // Sorting logic
     },
   },
 };
 </script>
 
 <style scoped>
-.pagination-controls {
+.pagination {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
-  margin-top: 1em;
+  margin: 10px 0;
+}
+.pagination button {
+  margin: 0 5px;
+  padding: 5px 10px;
+  border: 1px solid #ccc;
+  background-color: #f9f9f9;
+  cursor: pointer;
+}
+.pagination button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 </style>

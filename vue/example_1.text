@@ -36,36 +36,51 @@
       <template v-else>
         <div class="table-info__body">
           <ul>
-            <li v-for="item in paginatedResults" :key="String(item.id)">
+            <li
+              v-for="item in paginatedResults"
+              :key="String(item.id)"
+            >
               <div class="table-info__item">
-                <!-- Item rendering code remains the same -->
+                <base-checkbox
+                  v-if="globalActions"
+                  v-model="item.selectedRecord"
+                  class="list__item__checkbox"
+                  :value="item.name"
+                  @change="onCheckboxChanged($event, item.id)"
+                />
                 <span
                   v-for="(column, idx) in columns"
                   :key="idx"
                   class="table-info__item__col"
                 >
-                  <span :class="column.class">{{ itemValue(item, column) }}</span>
+                  <span :class="column.class">
+                    <span v-if="column.type === 'action'">
+                      <a
+                        href="#"
+                        @click.prevent="onActionClicked(item.kind, item)"
+                        >{{ itemValue(item, column) }}</a>
+                    </span>
+                    <span v-else>{{ itemValue(item, column) }}</span>
+                  </span>
                 </span>
               </div>
             </li>
           </ul>
-          <div class="pagination">
-            <button
-              :disabled="currentPage === 1"
-              @click="currentPage--"
-              class="pagination-button"
-            >
-              Previous
-            </button>
-            <span>Page {{ currentPage }} of {{ totalPages }}</span>
-            <button
-              :disabled="currentPage === totalPages"
-              @click="currentPage++"
-              class="pagination-button"
-            >
-              Next
-            </button>
-          </div>
+        </div>
+        <div class="pagination-controls">
+          <button
+            :disabled="currentPage === 1"
+            @click="currentPage--"
+          >
+            Previous
+          </button>
+          <span>Page {{ currentPage }} of {{ totalPages }}</span>
+          <button
+            :disabled="currentPage === totalPages"
+            @click="currentPage++"
+          >
+            Next
+          </button>
         </div>
       </template>
     </div>
@@ -79,15 +94,19 @@ export default {
       type: Array,
       default: () => [],
     },
-    // Other props remain unchanged
+    actions: Array,
+    columns: Array,
+    querySearch: String,
+    activeFilters: Array,
+    sortedOrder: String,
+    sortedByField: String,
   },
   data() {
     return {
       currentPage: 1,
-      itemsPerPage: 10, // Change as needed
-      sortOrder: this.sortedOrder,
-      visibleActions: true,
-      sortedBy: this.sortedByField,
+      itemsPerPage: 10, // Adjust the number of items per page as needed
+      sortOrder: this.sortedOrder || "desc",
+      sortedBy: this.sortedByField || null,
       filters: {},
     };
   },
@@ -95,69 +114,42 @@ export default {
     tableIsEmpty() {
       return this.filteredResults.length === 0;
     },
-    filteredResults() {
-      // Filtering and sorting logic remains unchanged
-      return this.data
-        .filter((item) => this.matchSearch(item))
-        .filter((item) => this.matchFilters(item))
-        .sort(this.itemComparator);
+    totalPages() {
+      return Math.ceil(this.filteredResults.length / this.itemsPerPage);
     },
     paginatedResults() {
       const start = (this.currentPage - 1) * this.itemsPerPage;
       const end = start + this.itemsPerPage;
       return this.filteredResults.slice(start, end);
     },
-    totalPages() {
-      return Math.ceil(this.filteredResults.length / this.itemsPerPage);
+    filteredResults() {
+      // Add filtering and sorting logic here
+      const results = this.data; // Apply your actual filtering logic
+      return results.sort((a, b) => {
+        const modifier = this.sortOrder === "desc" ? -1 : 1;
+        return a[this.sortedBy] < b[this.sortedBy]
+          ? -1 * modifier
+          : a[this.sortedBy] > b[this.sortedBy]
+          ? 1 * modifier
+          : 0;
+      });
     },
   },
   methods: {
-    matchSearch(item) {
-      if (!this.querySearch) return true;
-      const query = this.querySearch.toLowerCase();
-      return this.searchOn
-        ? item[this.searchOn]?.toLowerCase().includes(query)
-        : Object.values(item).some((val) =>
-            val.toString().toLowerCase().includes(query)
-          );
-    },
-    matchFilters(item) {
-      // Filtering logic remains unchanged
-      return Object.keys(this.filters).every((key) =>
-        this.filters[key].includes(item[key])
-      );
-    },
-    itemComparator(a, b) {
-      // Sorting logic remains unchanged
-      const modifier = this.sortOrder === "desc" ? -1 : 1;
-      return a[this.sortedBy] < b[this.sortedBy]
-        ? -1 * modifier
-        : a[this.sortedBy] > b[this.sortedBy]
-        ? 1 * modifier
-        : 0;
-    },
     sort(column) {
-      // Sorting method remains unchanged
+      this.sortedBy = column.field;
+      this.sortOrder = this.sortOrder === "asc" ? "desc" : "asc";
+      this.currentPage = 1; // Reset to first page when sorting
     },
   },
 };
 </script>
 
 <style scoped>
-.pagination {
+.pagination-controls {
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
+  align-items: center;
   margin-top: 1em;
-}
-.pagination-button {
-  margin: 0 0.5em;
-  padding: 0.5em 1em;
-  background-color: #f5f5f5;
-  border: 1px solid #ccc;
-  cursor: pointer;
-}
-.pagination-button:disabled {
-  cursor: not-allowed;
-  opacity: 0.5;
 }
 </style>

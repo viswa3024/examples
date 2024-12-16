@@ -124,3 +124,31 @@ async def get_logs(query: dict):
         return {"logs": logs}
     except RuntimeError as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+
+
+
+
+
+
+
+======================================
+
+if existing_doc.get("found"):
+    action = "update"
+    repository.update_data(DATA_INDEX, doc_id, data.dict())
+    
+    # Preserve the existing create_time, set a new update_time
+    create_time = existing_doc["_source"].get("create_time", datetime.utcnow().isoformat())
+    update_time = datetime.utcnow()  # Update this for the latest change
+else:
+    action = "insert"
+    create_time = datetime.utcnow()  # Set creation time for new records
+    update_time = create_time        # Same as creation time for a new record
+    repository.insert_data(
+        DATA_INDEX, 
+        doc_id, 
+        {**data.dict(), "create_time": create_time.isoformat(), "update_time": update_time.isoformat()}
+    )
+

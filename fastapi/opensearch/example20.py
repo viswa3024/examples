@@ -128,3 +128,13 @@ Delete Entire Index
 DELETE /<index_name>
 
 DELETE /opensearch-create-data-index
+
+
+Delete Index (Check Existence First)
+
+HEAD /<index_name>
+
+
+HEAD /opensearch-create-data-index
+DELETE /opensearch-create-data-index
+

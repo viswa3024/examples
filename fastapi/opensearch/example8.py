@@ -72,3 +72,37 @@ async def handle_data(data: DataModel, user: str):
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+
+
+
+
+
+
+
+
+===================================
+data_model.py
+
+from pydantic import BaseModel
+
+class DataModel(BaseModel):
+    name: str
+    username: str
+    address: str
+    language: str
+    region: str  # New field added for region
+
+
+log_model.py
+
+from pydantic import BaseModel
+from datetime import datetime
+
+class LogModel(BaseModel):
+    user: str
+    action: str
+    create_time: datetime = None
+    update_time: datetime = None
+

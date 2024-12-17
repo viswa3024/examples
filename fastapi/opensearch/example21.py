@@ -826,3 +826,30 @@ Response:
 
 Summary
 The as_form function is a clever utility that enhances Pydantic models to work seamlessly with form data in FastAPI. It dynamically adds an as_form method, which simplifies the creation of model instances from Form fields, ensuring clean, reusable, and validation-ready code.
+
+
+=================================
+
+
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Observable } from 'rxjs';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class ApiService {
+
+  private apiUrl = 'http://127.0.0.1:8000/submit-data/';
+
+  constructor(private http: HttpClient) {}
+
+  submitData(data: any, file: File): Observable<any> {
+    const formData = new FormData();
+    formData.append('data', JSON.stringify(data)); // Append JSON data
+    formData.append('file', file, file.name); // Append the file
+
+    return this.http.post(this.apiUrl, formData);
+  }
+}
+

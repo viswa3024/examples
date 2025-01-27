@@ -173,3 +173,10 @@
 </div>
 
 
+
+[ngStyle]="{
+        'border-color': tab.active ? tabBorderColor : 'transparent',
+        'border-left': orientation === 'vertical' && tab.active ? tabBorderColor : (orientation === 'vertical' && !tab.active ? '2px solid grey' : 'none'),
+        'border-bottom': orientation === 'horizontal' && tab.active ? tabBorderColor : (orientation === 'horizontal' && !tab.active ? '2px solid grey' : 'none')
+      }"
+

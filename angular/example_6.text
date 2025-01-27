@@ -145,3 +145,31 @@
   <ng-content></ng-content>
 </div>
 
+
+
+
+
+<div [ngClass]="orientation === 'vertical' ? 'tabs-vertical' : 'tabs-horizontal'">
+  <!-- Tab headers -->
+  <div class="tabs-header">
+    <button
+      *ngFor="let tab of tabs"
+      [attr.tabindex]="tab.tabindex"
+      [class.active]="tab.active"
+      (click)="selectTab(tab)"
+      [ngStyle]="{
+        'border-color': tab.active ? tabBorderColor || 'blue' : 'transparent',
+        'border-left': orientation === 'vertical' && tab.active ? tabBorderColor || 'blue' : (orientation === 'vertical' && !tab.active ? '2px solid grey' : 'none'),
+        'border-bottom': orientation === 'horizontal' && tab.active ? tabBorderColor || 'blue' : (orientation === 'horizontal' && !tab.active ? '2px solid grey' : 'none')
+      }"
+    >
+      {{ tab.heading }}
+    </button>
+  </div>
+</div>
+
+<div class="tabs-content">
+  <ng-content></ng-content>
+</div>
+
+

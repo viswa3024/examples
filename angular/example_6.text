@@ -1,0 +1,115 @@
+<div [ngClass]="orientation === 'vertical' ? 'tabs-vertical' : 'tabs-horizontal'">
+  <!-- Tab headers -->
+  <div class="tabs-header">
+    <button
+      *ngFor="let tab of tabs"
+      [attr.tabindex]="tab.tabindex"
+      [class.active]="tab.active"
+      (click)="selectTab(tab)"
+      [ngStyle]="{
+        'border-color': tab.active ? tabBorderColor || 'blue' : 'transparent',
+        'border-left': orientation === 'vertical' && tab.active ? tabBorderColor || 'blue' : 'none',
+        'border-bottom': orientation === 'horizontal' && tab.active ? tabBorderColor || 'blue' : 'none'
+      }"
+    >
+      {{ tab.heading }}
+    </button>
+  </div>
+</div>
+
+<div class="tabs-content">
+  <ng-content></ng-content>
+</div>
+
+
+
+
+.tabs-horizontal .tabs-header {
+  display: flex;
+  border-bottom: 2px solid #ccc;
+}
+
+.tabs-vertical .tabs-header {
+  display: flex;
+  flex-direction: column;
+  border-right: 2px solid #ccc;
+}
+
+.tabs-header button {
+  padding: 10px 15px;
+  margin: 0;
+  border: none;
+  background: white;
+  cursor: pointer;
+  transition: border-color 0.3s ease;
+}
+
+.tabs-header button:hover {
+  border-color: grey;
+}
+
+.tabs-header button.active {
+  border-color: blue; /* Default active tab border color */
+}
+
+.tabs-vertical .tabs-header button {
+  border-bottom: none;
+  border-left: 2px solid transparent;
+}
+
+.tabs-vertical .tabs-header button:hover {
+  border-left: 2px solid grey;
+}
+
+.tabs-vertical .tabs-header button.active {
+  border-left: 2px solid blue; /* Default active tab left border color */
+}
+
+.tabs-content {
+  flex: 1;
+  padding: 15px;
+  border: 1px solid #ccc;
+  border-top: none;
+  background: white;
+}
+
+.tabs-vertical .tabs-content {
+  border-left: none;
+}
+
+
+<!-- Horizontal Tabs Example -->
+<app-tabs [tabBorderColor]="'red'" orientation="horizontal">
+  <app-tab
+    id="test1"
+    heading="Test 1"
+    [tabindex]="1"
+    (selected)="onTabSelect('test test1')"
+    [active]="'test1' === selectedTab"
+  ></app-tab>
+  <app-tab
+    id="test2"
+    heading="Test 2"
+    [tabindex]="2"
+    (selected)="onTabSelect('test test2')"
+    [active]="'test2' === selectedTab"
+  ></app-tab>
+</app-tabs>
+
+<!-- Vertical Tabs Example -->
+<app-tabs [tabBorderColor]="'green'" orientation="vertical">
+  <app-tab
+    id="test1"
+    heading="Test 1"
+    [tabindex]="1"
+    (selected)="onTabSelect('test test1')"
+    [active]="'test1' === selectedTab"
+  ></app-tab>
+  <app-tab
+    id="test2"
+    heading="Test 2"
+    [tabindex]="2"
+    (selected)="onTabSelect('test test2')"
+    [active]="'test2' === selectedTab"
+  ></app-tab>
+</app-tabs>

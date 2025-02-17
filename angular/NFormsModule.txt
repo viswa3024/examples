@@ -1,0 +1,11 @@
+ibm-form-group	A wrapper component for grouping form elements with a label and optional helper text.
+ibm-label	Provides a label for form controls to enhance accessibility.
+ibmText	Directive to style text input fields according to Carbon Design guidelines.
+ibmTextArea	Directive for multi-line text input fields (text areas).
+ibmSelect	Directive for dropdown selection menus.
+ibm-checkbox	Component for checkbox inputs.
+ibm-radio-group	Component to group radio buttons.
+ibm-radio	Component for individual radio button inputs.
+ibm-file-uploader	Component for file selection and upload functionality.
+Form Validation (via invalidText)	Used to show error messages in case of validation failure on form controls.
+ngModel (or formControlName)	Angular directives for binding form controls to model data in reactive or template-driven forms.

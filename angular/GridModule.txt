@@ -1,0 +1,3 @@
+ibm-grid	The container that holds rows and columns, used to define a grid system.
+ibm-row	Defines a horizontal row inside the grid, containing columns.
+ibm-column	Represents individual columns within a row. The width of the column is defined by the col attribute (1 to 12).

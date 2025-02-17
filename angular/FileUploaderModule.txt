@@ -1,0 +1,6 @@
+ibm-file-uploader	Main component for file upload functionality, supporting drag-and-drop, file selection, and removal.
+ibm-file-uploader-drop-container	Container for drag-and-drop file upload functionality.
+ibm-file-uploader-dropzone	Customizable area for drag-and-drop file uploads.
+ibm-file-uploader-item	Represents an individual file item with status, name, and file removal options.
+ibm-file-uploader-status	Status indicator for displaying upload progress.
+ibm-file-uploader-button	Custom button for triggering file selection dialog.

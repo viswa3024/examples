@@ -1,0 +1,5 @@
+ibm-toggle	A toggle button that allows users to switch between two states (e.g., On/Off, Enabled/Disabled).	<ibm-toggle [(ngModel)]="isToggled" label="Toggle Example"></ibm-toggle>
+ibm-toggle-group	A group of toggle buttons, which can be used to display multiple related toggle options.	<ibm-toggle-group [(ngModel)]="selectedOption" [options]="toggleOptions"></ibm-toggle-group>
+ibm-toggle-size	Defines the size of the toggle button. Carbon provides different sizes: sm (small), md (medium).	<ibm-toggle [size]="'sm'"></ibm-toggle>
+ibm-toggle-label	Sets a label to be displayed alongside the toggle button.	<ibm-toggle [label]="'Enable Feature'"></ibm-toggle>
+ibm-toggle-disabled	Disables the toggle button, making it unresponsive to user interaction.	<ibm-toggle [disabled]="true"></ibm-toggle>

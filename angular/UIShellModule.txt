@@ -1,0 +1,81 @@
+<ibm-header>	Creates the top navigation header
+<ibm-header-name>	Displays the brand name in the header
+<ibm-header-menu-button>	Toggle button for side navigation
+<ibm-header-action>	Adds action buttons in the header
+<ibm-header-global>	A container for global actions (search, notifications)
+<ibm-sidenav>	Creates a collapsible side navigation
+<ibm-sidenav-item>	Individual items inside the side navigation
+<ibm-panel>	Used for UI panels (optional)
+
+
+
+Basic Header with Branding
+
+
+<ibm-header aria-label="IBM Carbon">
+  <ibm-header-name href="#" prefix="IBM">
+    Carbon Angular v4
+  </ibm-header-name>
+</ibm-header>
+
+
+Header with Menu Button and Side Navigation
+
+<ibm-header aria-label="IBM Carbon">
+  <ibm-header-menu-button
+    aria-label="Open menu"
+    [ngClass]="'bx--header__action'"
+    (click)="sideNav.open = !sideNav.open">
+  </ibm-header-menu-button>
+
+  <ibm-header-name href="#" prefix="IBM">
+    Carbon Angular v4
+  </ibm-header-name>
+</ibm-header>
+
+<ibm-sidenav #sideNav [open]="false">
+  <ibm-sidenav-item href="#">Dashboard</ibm-sidenav-item>
+  <ibm-sidenav-item href="#">Profile</ibm-sidenav-item>
+  <ibm-sidenav-item href="#">Settings</ibm-sidenav-item>
+</ibm-sidenav>
+
+
+Header with Action Buttons (Search & Notification)
+
+<ibm-header aria-label="IBM Carbon">
+  <ibm-header-menu-button
+    aria-label="Open menu"
+    [ngClass]="'bx--header__action'"
+    (click)="sideNav.open = !sideNav.open">
+  </ibm-header-menu-button>
+
+  <ibm-header-name href="#" prefix="IBM">
+    Carbon Angular v4
+  </ibm-header-name>
+
+  <ibm-header-global>
+    <ibm-header-action aria-label="Search">
+      <svg ibmIconSearch size="20"></svg>
+    </ibm-header-action>
+
+    <ibm-header-action aria-label="Notifications">
+      <svg ibmIconNotification size="20"></svg>
+    </ibm-header-action>
+  </ibm-header-global>
+</ibm-header>
+
+
+Side Navigation with Active State
+
+<ibm-sidenav [open]="true">
+  <ibm-sidenav-item href="#" [active]="true">Home</ibm-sidenav-item>
+  <ibm-sidenav-item href="#">About</ibm-sidenav-item>
+  <ibm-sidenav-item href="#">Contact</ibm-sidenav-item>
+</ibm-sidenav>
+
+
+Collapsible Panel
+
+<ibm-panel [expanded]="true" title="Settings">
+  <p>Some settings go here...</p>
+</ibm-panel>

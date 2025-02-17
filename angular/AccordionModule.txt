@@ -1,0 +1,4 @@
+ibm-accordion	The main wrapper component for the accordion. It holds all the accordion items.
+ibm-accordion-item	Defines each individual item in the accordion. It can contain a title and the content for that item.
+ibm-accordion-header	The header part of the ibm-accordion-item, typically contains the title of the accordion item.
+ibm-accordion-content	The content section of the ibm-accordion-item. It can contain any HTML content to be revealed when the item is expanded.

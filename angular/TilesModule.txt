@@ -1,0 +1,6 @@
+Component	Description
+ibm-clickable-tile	Clickable tile that navigates to a URL.
+ibm-selection-tile	Selectable tile (radio button style).
+ibm-expandable-tile	Expandable tile with fold/unfold content.
+ibm-tile-group	Group for ibm-selection-tile.
+ibm-tile	Basic tile without interactive behavior.

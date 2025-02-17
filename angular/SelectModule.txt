@@ -1,0 +1,10 @@
+<ibm-select>	The main dropdown/select component that binds to a model and displays the options.	<ibm-select [(ngModel)]="selectedOption" label="Select an option">
+<ibm-select-item *ngFor="let option of options" [value]="option.value">{{ option.label }}</ibm-select-item>
+<ibm-select-item>	Defines an individual item inside the <ibm-select> dropdown.	<ibm-select-item [value]="option.value">{{ option.label }}</ibm-select-item>
+<ibm-select-footer>	Adds a footer inside the dropdown, useful for additional controls or messages.	<ibm-select-footer><button>Clear</button></ibm-select-footer>
+<ibm-select-placeholder>	Specifies placeholder text before any selection is made.	<ibm-select-placeholder>Select an option</ibm-select-placeholder>
+[(ngModel)]	Binds the selected value to the model in the component class (two-way data binding).	<ibm-select [(ngModel)]="selectedOption">
+[disabled]	Disables the select component, preventing any user interaction.	<ibm-select [(ngModel)]="selectedOption" [disabled]="isDisabled">
+[invalid]	Marks the select as invalid (used for form validation).	<ibm-select [(ngModel)]="selectedOption" [invalid]="hasError">
+[open]	Manages whether the dropdown is opened or closed programmatically.	<ibm-select [(ngModel)]="selectedOption" [open]="isOpen">
+[label]	Provides a label for the select input field.	<ibm-select [(ngModel)]="selectedOption" label="Select an option">

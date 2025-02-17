@@ -1,0 +1,2 @@
+carbon-radio	Represents a single radio button that can be used inside a radio group, allowing users to select an option from a set of choices.
+carbon-radio-group	A container component that groups radio buttons together. It ensures only one radio button can be selected at a time.

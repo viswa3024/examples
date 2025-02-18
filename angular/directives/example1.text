@@ -128,3 +128,55 @@ export class CustomGridDirective {
 
 ng generate directive directive-name
 ng g d directive-name
+
+
+
+====================
+
+
+/* Basic grid container styling */
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr); /* 12 columns for large screens */
+  gap: 16px;
+}
+
+/* Default column styling (mobile first approach) */
+.column {
+  background-color: lightgrey;
+  padding: 16px;
+  grid-column: span 12;  /* Full width on small screens */
+}
+
+/* Medium screens: 6 columns layout */
+@media (min-width: 42rem) {
+  .col-md-6 {
+    grid-column: span 6; /* Half width on medium screens */
+  }
+}
+
+/* Large screens: 4 columns layout */
+@media (min-width: 66rem) {
+  .col-lg-4 {
+    grid-column: span 4; /* One-third width on large screens */
+  }
+}
+
+/* Extra large screens (optional): 4 columns layout */
+@media (min-width: 82rem) {
+  .col-xl-4 {
+    grid-column: span 4; /* One-third width on extra-large screens */
+  }
+}
+
+
+
+<div class="grid-container">
+  <div class="column col-sm-12 col-md-6 col-lg-4">
+    Column 1
+  </div>
+  <div class="column col-sm-12 col-md-6 col-lg-4">
+    Column 2
+  </div>
+</div>
+

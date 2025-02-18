@@ -1,0 +1,130 @@
+import { NgModule } from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
+import { CustomGridDirective } from './directives/custom-grid.directive';  // Import customGrid directive
+import { CustomRowDirective } from './directives/custom-row.directive';  // Import customRow directive
+import { CustomColDirective } from './directives/custom-col.directive';  // Import customCol directive
+import { AppComponent } from './app.component';
+
+@NgModule({
+  declarations: [
+    AppComponent,
+    CustomGridDirective,    // Declare customGrid directive
+    CustomRowDirective,     // Declare customRow directive
+    CustomColDirective      // Declare customCol directive
+  ],
+  imports: [BrowserModule],
+  bootstrap: [AppComponent],
+})
+export class AppModule {}
+
+==================
+
+<div customGrid>
+  <div customRow>
+    <div customCol [columnNumbers]="{ 'sm': 4, 'md': 6, 'lg': 8 }">
+      Column 1
+    </div>
+    <div customCol [columnNumbers]="{ 'sm': 4, 'md': 6, 'lg': 4 }">
+      Column 2
+    </div>
+  </div>
+</div>
+
+========================
+
+.custom-grid {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.custom-row {
+  display: flex;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.custom-col {
+  padding: 10px;
+  box-sizing: border-box;
+  border: 1px solid #ccc;
+  text-align: center;
+}
+
+/* Small Screens */
+.col-sm-4 { width: 33.33%; }
+.col-sm-6 { width: 50%; }
+.col-sm-8 { width: 66.66%; }
+
+/* Medium Screens */
+.col-md-4 { width: 33.33%; }
+.col-md-6 { width: 50%; }
+.col-md-8 { width: 66.66%; }
+
+/* Large Screens */
+.col-lg-4 { width: 33.33%; }
+.col-lg-6 { width: 50%; }
+.col-lg-8 { width: 66.66%; }
+
+/* Responsive Media Queries */
+@media (max-width: 600px) {
+  .col-sm-4, .col-sm-6, .col-sm-8 { width: 100%; }
+}
+
+@media (min-width: 601px) and (max-width: 1024px) {
+  .col-md-4, .col-md-6, .col-md-8 { width: 100%; }
+}
+
+@media (min-width: 1025px) {
+  .col-lg-4, .col-lg-6, .col-lg-8 { width: 100%; }
+}
+
+
+
+===============================
+
+
+import { Directive, Input, HostBinding } from '@angular/core';
+
+@Directive({
+  selector: '[customCol]'  // Using 'customCol' as an attribute
+})
+export class CustomColDirective {
+  @Input() columnNumbers: { sm?: number; md?: number; lg?: number } = {};  // Input for column sizes
+
+  @HostBinding('class') get colClass(): string {
+    const sm = this.columnNumbers.sm ? `col-sm-${this.columnNumbers.sm}` : '';
+    const md = this.columnNumbers.md ? `col-md-${this.columnNumbers.md}` : '';
+    const lg = this.columnNumbers.lg ? `col-lg-${this.columnNumbers.lg}` : '';
+    return `custom-col ${sm} ${md} ${lg}`;  // Dynamically generate the CSS class string
+  }
+}
+
+================================
+
+import { Directive, HostBinding } from '@angular/core';
+
+@Directive({
+  selector: '[customRow]'  // Using 'customRow' as an attribute
+})
+export class CustomRowDirective {
+  @HostBinding('class') class = 'custom-row';  // Add 'custom-row' class to the host element
+}
+
+===========================
+
+
+import { Directive, HostBinding } from '@angular/core';
+
+@Directive({
+  selector: '[customGrid]'  // Using 'customGrid' as an attribute
+})
+export class CustomGridDirective {
+  @HostBinding('class') class = 'custom-grid';  // Add 'custom-grid' class to the host element
+}
+
+
+===================
+
+ng generate directive directive-name
+ng g d directive-name

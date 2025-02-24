@@ -1,0 +1,5 @@
+ if (this.pagination.includes("firstDots")) {
+        // Start range from 2, end at `currentPage - (numOfItemsToShow / 2)`
+        const end = Math.max(2, this.currentPage - Math.floor(this.numOfItemsToShow / 2));
+        this.firstDotsRange = Array.from({ length: end - 2 }, (_, i) => i + 2);
+    }

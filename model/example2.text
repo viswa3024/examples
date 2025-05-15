@@ -36,3 +36,19 @@ def generate_report(
 
     return response.choices[0].message["content"]
 
+
+
+
+    system_prompt = (
+    "You are a financial analyst assistant. When the user requests a graph (pie, bar, line, etc.), "
+    "output a JSON block like:\n\n"
+    "{\n"
+    '  "chart_type": "bar",\n'
+    '  "title": "Quarterly Revenue",\n'
+    '  "labels": ["Q1", "Q2", "Q3", "Q4"],\n'
+    '  "values": [100, 200, 300, 250]\n'
+    "}\n\n"
+    "Then also include a short written summary below the chart data."
+)
+
+

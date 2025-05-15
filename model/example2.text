@@ -1,394 +1,201 @@
-import openai
+**PROJECT STRUCTURE**
 
-openai.api_key = "YOUR_OPENAI_API_KEY"
-
-def generate_report(
-    query: str,
-    retrieved_context: str = "",
-    model: str = "gpt-3.5-turbo-16k",
-    temperature: float = 0.7,
-    top_p: float = 1.0,
-    n: int = 1,
-    max_tokens: int = 16000,
-    frequency_penalty: float = 0.0,
-    presence_penalty: float = 0.0
-) -> str:
-    system_prompt = (
-        "You are a financial analyst assistant. Based on the user's query and context, generate a detailed financial report. "
-        "Include data breakdowns, summaries, and mention charts if asked. If graph types are specified (e.g., pie, bar, line), describe them clearly."
-    )
-
-    messages = [
-        {"role": "system", "content": system_prompt},
-        {"role": "user", "content": f"Query: {query}\n\nContext: {retrieved_context}"}
-    ]
-
-    response = openai.ChatCompletion.create(
-        model=model,
-        messages=messages,
-        temperature=temperature,
-        top_p=top_p,
-        n=n,
-        max_tokens=max_tokens,
-        frequency_penalty=frequency_penalty,
-        presence_penalty=presence_penalty
-    )
-
-    return response.choices[0].message["content"]
-
-
-
-
-    system_prompt = (
-    "You are a financial analyst assistant. When the user requests a graph (pie, bar, line, etc.), "
-    "output a JSON block like:\n\n"
-    "{\n"
-    '  "chart_type": "bar",\n'
-    '  "title": "Quarterly Revenue",\n'
-    '  "labels": ["Q1", "Q2", "Q3", "Q4"],\n'
-    '  "values": [100, 200, 300, 250]\n'
-    "}\n\n"
-    "Then also include a short written summary below the chart data."
-)
-
-
-
-chart_utils.py
-
-
-import matplotlib.pyplot as plt
-import io
-import base64
-
-def generate_chart_image(chart_type, labels, values, title="Chart"):
-    plt.clf()
-    if chart_type == "bar":
-        plt.bar(labels, values)
-    elif chart_type == "line":
-        plt.plot(labels, values, marker="o")
-    elif chart_type == "pie":
-        plt.pie(values, labels=labels, autopct="%1.1f%%")
-    else:
-        return None
-
-    plt.title(title)
-
-    buf = io.BytesIO()
-    plt.savefig(buf, format='png')
-    buf.seek(0)
-    img_base64 = base64.b64encode(buf.read()).decode('utf-8')
-    buf.close()
-    return f"data:image/png;base64,{img_base64}"
-
-
-==============
-
-
-import json
-from .chart_utils import generate_chart_image
-
-def generate_report_with_chart(user_query: str, documents: list[str]) -> dict:
-    prompt = (
-        "You are a financial assistant. Based on the user's question and context, generate a chart "
-        "in the following format (JSON only, no explanation):\n\n"
-        "{\n"
-        '  "chart_type": "bar",\n'
-        '  "title": "Quarterly Revenue",\n'
-        '  "labels": ["Q1", "Q2", "Q3", "Q4"],\n'
-        '  "values": [100, 200, 300, 250]\n'
-        "}\n\n"
-        "Also provide a short summary."
-    )
-
-    full_prompt = f"{prompt}\n\nUser Query: {user_query}\n\nDocuments:\n" + "\n".join(documents)
-    response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo-16k",
-        messages=[{"role": "system", "content": prompt}, {"role": "user", "content": full_prompt}],
-        temperature=0.7,
-    )
-    answer = response.choices[0].message.content
-
-    # Attempt to parse chart JSON
-    chart_data = None
-    try:
-        chart_json_match = re.search(r"\{[\s\S]*?\}", answer)
-        if chart_json_match:
-            chart_data = json.loads(chart_json_match.group(0))
-    except Exception:
-        chart_data = None
-
-    summary_text = answer.replace(json.dumps(chart_data), "") if chart_data else answer
-
-    chart_img = None
-    if chart_data:
-        chart_img = generate_chart_image(
-            chart_type=chart_data["chart_type"],
-            labels=chart_data["labels"],
-            values=chart_data["values"],
-            title=chart_data.get("title", "Chart"),
-        )
-
-    return {
-        "summary": summary_text.strip(),
-        "chart_image": chart_img  # base64 image or None
-    }
-
-
-
-@app.post("/generate")
-async def generate_report(request: ReportRequest):
-    docs = get_contextual_docs(request.query)
-    report = generate_report_with_chart(request.query, docs)
-    return report  # Contains 'summary' and optional 'chart_image'
-
-
-========================
-
-
-
-# ✅ COMPLETE RAG APP WITH MULTIPLE CHART SUPPORT (GPT-3.5-TURBO, FASTAPI, NEXT.JS)
-
----
-
-## 🧠 STEP 1: BACKEND SETUP
-
-### 📁 Directory Structure
-```
-rag-app/
+rag-financial-app/
 ├── backend/
 │   ├── main.py
-│   ├── rag_utils.py
-│   ├── chart_utils.py
+│   ├── openai_utils.py
 │   ├── requirements.txt
-├── frontend/ (see Step 2)
-```
+│   └── .env
+└── frontend/
+    ├── components/
+    │   └── QueryForm.js
+    ├── pages/
+    │   └── index.js
+    └── package.json
 
-### 📦 backend/requirements.txt
-```txt
+=========================
+BACKEND (FastAPI + OpenAI)
+=========================
+
+# backend/requirements.txt
 fastapi
 uvicorn
-matplotlib
-python-multipart
 openai
-```
+python-dotenv
 
-### 🧠 backend/rag_utils.py
-```python
+# backend/.env
+OPENAI_API_KEY=your_openai_key_here
+
+# backend/openai_utils.py
 import openai
-import re
-import json
-from .chart_utils import generate_chart_image
+import os
+from dotenv import load_dotenv
 
-def generate_report_with_chart(user_query: str, documents: list[str]) -> dict:
-    system_prompt = (
-        "You are a financial assistant that creates multiple chart specs from user queries.\n"
-        "Return only a valid JSON array. Each item in the array should include: chart_type, labels, values, colors (optional), and title.\n"
-        "Fix typos like 'labes' -> 'labels', 'colers' -> 'colors', 'tital' -> 'title'.\n"
-        "Don't include anything outside the JSON array."
-    )
+load_dotenv()
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
-    context = "\n".join(documents)
-    full_prompt = f"User Query: {user_query}\n\nContext:\n{context}"
-
+def generate_report(prompt: str):
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo-16k",
         messages=[
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": full_prompt}
-        ],
-        temperature=0.5
+            {"role": "system", "content": "You are a financial analyst that generates reports and JSON chart data."},
+            {"role": "user", "content": prompt}
+        ]
     )
+    return response['choices'][0]['message']['content']
 
-    answer = response.choices[0].message.content.strip()
-    summary_text = ""
-    chart_images = []
-
-    try:
-        chart_json_match = re.search(r"\[.*\]", answer, re.DOTALL)
-        if chart_json_match:
-            chart_array = json.loads(chart_json_match.group(0))
-            for chart_data in chart_array:
-                img = generate_chart_image(
-                    chart_type=chart_data.get("chart_type", "bar"),
-                    labels=chart_data.get("labels", []),
-                    values=chart_data.get("values", []),
-                    title=chart_data.get("title", "Chart"),
-                    colors=chart_data.get("colors")
-                )
-                if img:
-                    chart_images.append(img)
-            summary_text = answer.replace(chart_json_match.group(0), "").strip()
-    except Exception:
-        chart_images = []
-        summary_text = answer
-
-    return {
-        "summary": summary_text,
-        "chart_images": chart_images
-    }
-```
-
-### 📊 backend/chart_utils.py
-```python
-import matplotlib.pyplot as plt
-import io
-import base64
-
-def generate_chart_image(chart_type, labels, values, title="Chart", colors=None):
-    plt.clf()
-    colors = colors or ["blue"] * len(labels)
-
-    if chart_type == "bar":
-        plt.bar(labels, values, color=colors)
-    elif chart_type == "line":
-        plt.plot(labels, values, marker="o", color=colors[0])
-    elif chart_type == "pie":
-        plt.pie(values, labels=labels, autopct="%1.1f%%", colors=colors)
-    else:
-        return None
-
-    plt.title(title)
-    plt.tight_layout()
-
-    buf = io.BytesIO()
-    plt.savefig(buf, format='png')
-    buf.seek(0)
-    img_base64 = base64.b64encode(buf.read()).decode('utf-8')
-    buf.close()
-    return f"data:image/png;base64,{img_base64}"
-```
-
-### 🚀 backend/main.py
-```python
-from fastapi import FastAPI
-from pydantic import BaseModel
-from typing import List
-import os
-import openai
-from rag_utils import generate_report_with_chart
-
-openai.api_key = os.getenv("OPENAI_API_KEY")
+# backend/main.py
+from fastapi import FastAPI, Query
+from fastapi.middleware.cors import CORSMiddleware
+from openai_utils import generate_report
 
 app = FastAPI()
 
-class ReportRequest(BaseModel):
-    query: str
-    documents: List[str]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-@app.post("/generate")
-async def generate_report(req: ReportRequest):
-    result = generate_report_with_chart(req.query, req.documents)
-    return result
-```
+@app.get("/generate/")
+def generate(query: str = Query(...)):
+    result = generate_report(query)
+    return {"report": result}
 
----
+# Run backend
+# > cd backend
+# > uvicorn main:app --reload
 
-## 💻 STEP 2: FRONTEND (Next.js)
+=====================
+FRONTEND (Next.js + Chart.js)
+=====================
 
-### 🧱 frontend/pages/index.tsx
-```tsx
-import { useState } from "react";
+# frontend/package.json (simplified)
+{
+  "dependencies": {
+    "axios": "^1.6.0",
+    "chart.js": "^4.3.0",
+    "react-chartjs-2": "^5.2.0",
+    "next": "latest",
+    "react": "latest",
+    "react-dom": "latest"
+  }
+}
 
-export default function Home() {
-  const [query, setQuery] = useState("");
-  const [documents, setDocuments] = useState("");
-  const [response, setResponse] = useState<any>(null);
+# Install frontend dependencies
+# > cd frontend
+# > npm install
 
-  const submit = async () => {
-    const res = await fetch("http://localhost:8000/generate", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ query, documents: documents.split("\n") }),
+# frontend/components/QueryForm.js
+import { useState } from 'react';
+import axios from 'axios';
+import { Bar, Pie, Line } from 'react-chartjs-2';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  ArcElement,
+  PointElement,
+  LineElement,
+  Tooltip,
+  Legend
+} from 'chart.js';
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  ArcElement,
+  PointElement,
+  LineElement,
+  Tooltip,
+  Legend
+);
+
+const parseChartData = (text) => {
+  try {
+    const jsonStart = text.indexOf('{');
+    const json = text.slice(jsonStart);
+    return JSON.parse(json);
+  } catch {
+    return null;
+  }
+};
+
+export default function QueryForm() {
+  const [query, setQuery] = useState('');
+  const [report, setReport] = useState('');
+  const [chartData, setChartData] = useState(null);
+  const [chartType, setChartType] = useState('');
+
+  const handleSubmit = async () => {
+    const res = await axios.get('http://localhost:8000/generate/', {
+      params: { query }
     });
-    const data = await res.json();
-    setResponse(data);
+    setReport(res.data.report);
+
+    const parsed = parseChartData(res.data.report);
+    if (parsed) {
+      setChartType(parsed.type);
+      setChartData({
+        labels: parsed.labels,
+        datasets: [
+          {
+            label: parsed.label || 'Data',
+            data: parsed.data,
+            backgroundColor: [
+              'rgba(255, 99, 132, 0.5)',
+              'rgba(54, 162, 235, 0.5)',
+              'rgba(255, 206, 86, 0.5)',
+              'rgba(75, 192, 192, 0.5)',
+              'rgba(153, 102, 255, 0.5)'
+            ]
+          }
+        ]
+      });
+    }
+  };
+
+  const renderChart = () => {
+    if (!chartData) return null;
+    if (chartType === 'bar') return <Bar data={chartData} />;
+    if (chartType === 'pie') return <Pie data={chartData} />;
+    if (chartType === 'line') return <Line data={chartData} />;
+    return <p>Chart type not recognized.</p>;
   };
 
   return (
-    <div className="p-6">
-      <h1 className="text-xl font-bold">RAG Financial Report Generator</h1>
+    <div>
       <textarea
-        className="border p-2 w-full my-2"
-        rows={3}
-        placeholder="Enter your query"
+        rows="4"
+        cols="80"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
+        placeholder="Enter financial query here"
       />
-      <textarea
-        className="border p-2 w-full my-2"
-        rows={5}
-        placeholder="Enter documents (one per line)"
-        value={documents}
-        onChange={(e) => setDocuments(e.target.value)}
-      />
-      <button onClick={submit} className="bg-blue-600 text-white px-4 py-2 rounded">
-        Generate
-      </button>
-
-      {response && (
-        <div className="mt-4">
-          <p className="font-semibold">Summary:</p>
-          <p>{response.summary}</p>
-          {response.chart_images?.map((img: string, idx: number) => (
-            <img key={idx} src={img} alt={`Chart ${idx}`} className="mt-4 max-w-md" />
-          ))}
-        </div>
-      )}
+      <br />
+      <button onClick={handleSubmit}>Generate Report</button>
+      <pre style={{ whiteSpace: 'pre-wrap', marginTop: '1em' }}>{report}</pre>
+      <div style={{ width: '600px', height: '400px', marginTop: '2em' }}>{renderChart()}</div>
     </div>
   );
 }
-```
 
----
+# frontend/pages/index.js
+import QueryForm from '../components/QueryForm';
 
-## 📌 STEP 3: RUNNING
-
-### ✅ Start Backend
-```bash
-cd backend
-uvicorn main:app --reload --port 8000
-```
-
-### ✅ Start Frontend
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
----
-
-## 🧪 EXAMPLE REQUEST
-```json
-POST /generate
-{
-  "query": "I want a pie chart with labes Q1 Q2 Q3 Q4 and values 30 20 25 25 and a bar graph with labes A B C colers red green blue",
-  "documents": [
-    "Q1: 30",
-    "Q2: 20",
-    "Q3: 25",
-    "Q4: 25",
-    "A: 100",
-    "B: 150",
-    "C: 120"
-  ]
+export default function Home() {
+  return (
+    <div style={{ padding: '2rem' }}>
+      <h1>📊 Financial Report Generator</h1>
+      <QueryForm />
+    </div>
+  );
 }
-```
 
-## ✅ EXAMPLE RESPONSE
-```json
-{
-  "summary": "",
-  "chart_images": [
-    "data:image/png;base64,...",
-    "data:image/png;base64,..."
-  ]
-}
-```
-
----
-
-Let me know if you'd like to extend this to allow charts to be downloaded or for CSV upload.
-
-
-
+# Run frontend
+# > cd frontend
+# > npm run dev

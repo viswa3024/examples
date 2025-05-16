@@ -1,0 +1,890 @@
+Create RAG application 
+
+Technologies:
+Model: gpt-35-turbo-16k
+API: fastapi
+UI: NextJs
+
+Requirement:
+Generate financial reports based on user query, give summary and generategraphs based on summary, graphs can be pie, bar, line chart and etc
+
+give code from scratch, give all steps don't miss any step
+
+
+ChatGPT said:
+To create a Retrieval-Augmented Generation (RAG) application that:
+
+Uses gpt-35-turbo-16k for generating financial summaries,
+
+Offers graph visualizations (pie, bar, line, etc.) based on the summaries,
+
+Uses FastAPI for the backend and Next.js for the frontend,
+
+I'll walk you through all steps with code.
+✅ Project Architecture
+vbnet
+Copy
+Edit
+rag-financial-report/
+├── backend/
+│   ├── main.py
+│   ├── rag_utils.py
+│   └── requirements.txt
+├── frontend/
+│   └── (Next.js 14+ app with App Router)
+└── README.md
+🔧 STEP 1: Set Up the Backend with FastAPI
+1.1 backend/requirements.txt
+txt
+Copy
+Edit
+fastapi
+uvicorn
+openai
+pydantic
+python-multipart
+pandas
+matplotlib
+plotly
+1.2 backend/rag_utils.py – RAG + Summary + Graph Generator
+python
+Copy
+Edit
+import openai
+import pandas as pd
+import plotly.express as px
+from io import BytesIO
+import base64
+import matplotlib.pyplot as plt
+
+openai.api_key = "YOUR_OPENAI_API_KEY"  # or set via env var
+
+def generate_summary(query: str, context: str) -> str:
+    """Generate financial summary using GPT-3.5."""
+    prompt = f"""
+You are a financial assistant. A user asked: "{query}". 
+Using the context below, generate a concise financial report summary:\n\n{context}
+"""
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo-16k",
+        messages=[{"role": "user", "content": prompt}],
+        temperature=0.7
+    )
+    return response.choices[0].message.content.strip()
+
+
+def generate_plot(df: pd.DataFrame, chart_type: str, x_col: str, y_col: str) -> str:
+    """Generate graph based on chart type and return it as base64 string."""
+    if chart_type == "bar":
+        fig = px.bar(df, x=x_col, y=y_col)
+    elif chart_type == "line":
+        fig = px.line(df, x=x_col, y=y_col)
+    elif chart_type == "pie":
+        fig = px.pie(df, names=x_col, values=y_col)
+    else:
+        raise ValueError("Unsupported chart type")
+
+    # Return the figure as a base64 string
+    img_bytes = fig.to_image(format="png")
+    encoded = base64.b64encode(img_bytes).decode('utf-8')
+    return f"data:image/png;base64,{encoded}"
+1.3 backend/main.py – FastAPI Server
+python
+Copy
+Edit
+from fastapi import FastAPI, UploadFile, Form
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+import pandas as pd
+from rag_utils import generate_summary, generate_plot
+
+app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+@app.post("/generate-report")
+async def generate_report(
+    query: str = Form(...),
+    chart_type: str = Form(...),
+    x_col: str = Form(...),
+    y_col: str = Form(...),
+    file: UploadFile = None
+):
+    if not file:
+        return JSONResponse(content={"error": "No file uploaded"}, status_code=400)
+
+    df = pd.read_csv(file.file)
+
+    # Prepare context from CSV (limiting for token space)
+    context = df.to_string(index=False)[:10000]
+
+    summary = generate_summary(query, context)
+    chart_base64 = generate_plot(df, chart_type, x_col, y_col)
+
+    return {"summary": summary, "chart": chart_base64}
+1.4 Run FastAPI Server
+bash
+Copy
+Edit
+cd backend
+pip install -r requirements.txt
+uvicorn main:app --reload --port 8000
+🌐 STEP 2: Frontend with Next.js 14 (App Router)
+2.1 Initialize Frontend App
+bash
+Copy
+Edit
+npx create-next-app@latest frontend --app --ts
+cd frontend
+npm install axios
+2.2 app/page.tsx – Upload Form + Response UI
+tsx
+Copy
+Edit
+"use client";
+import { useState } from "react";
+import axios from "axios";
+
+export default function Home() {
+  const [file, setFile] = useState<File | null>(null);
+  const [query, setQuery] = useState("");
+  const [chartType, setChartType] = useState("bar");
+  const [xCol, setXCol] = useState("");
+  const [yCol, setYCol] = useState("");
+  const [summary, setSummary] = useState("");
+  const [chart, setChart] = useState("");
+
+  const handleSubmit = async (e: any) => {
+    e.preventDefault();
+    if (!file) return alert("Upload a CSV file.");
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("query", query);
+    formData.append("chart_type", chartType);
+    formData.append("x_col", xCol);
+    formData.append("y_col", yCol);
+
+    const res = await axios.post("http://localhost:8000/generate-report", formData);
+    setSummary(res.data.summary);
+    setChart(res.data.chart);
+  };
+
+  return (
+    <main className="p-6 max-w-4xl mx-auto">
+      <h1 className="text-2xl font-bold mb-4">Financial RAG Report Generator</h1>
+
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <input type="file" accept=".csv" onChange={(e) => setFile(e.target.files?.[0] || null)} />
+        <input type="text" placeholder="Enter your query" value={query} onChange={(e) => setQuery(e.target.value)} />
+        <input type="text" placeholder="X Column Name" value={xCol} onChange={(e) => setXCol(e.target.value)} />
+        <input type="text" placeholder="Y Column Name" value={yCol} onChange={(e) => setYCol(e.target.value)} />
+
+        <select value={chartType} onChange={(e) => setChartType(e.target.value)}>
+          <option value="bar">Bar Chart</option>
+          <option value="line">Line Chart</option>
+          <option value="pie">Pie Chart</option>
+        </select>
+
+        <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">Generate</button>
+      </form>
+
+      {summary && (
+        <>
+          <h2 className="text-xl font-semibold mt-6">Summary</h2>
+          <p className="bg-gray-100 p-4 rounded">{summary}</p>
+        </>
+      )}
+
+      {chart && (
+        <>
+          <h2 className="text-xl font-semibold mt-6">Generated Chart</h2>
+          <img src={chart} alt="Generated Chart" />
+        </>
+      )}
+    </main>
+  );
+}
+2.3 Run Next.js App
+bash
+Copy
+Edit
+cd frontend
+npm run dev
+✅ Testing the App
+Prepare a CSV file with financial data (revenue, month, region, etc.).
+
+Start backend (uvicorn).
+
+Start frontend (npm run dev).
+
+Upload CSV, enter a query like “Summarize revenue trends” and set chart type + columns.
+
+Get a GPT-generated summary and chart visual.
+
+📌 Optional Enhancements
+🔍 Add vector store (e.g., FAISS) for real retrieval from document chunks.
+
+🧠 Use LangChain or Haystack to manage documents and context.
+
+🔐 Add authentication and file history.
+
+💾 Store outputs in a database (PostgreSQL or SQLite).
+
+Would you like a working GitHub repo or Docker setup too?
+
+
+
+
+
+
+
+You said:
+i don't have any pdf and any data, graphs need to genrate based on model response content
+
+
+ChatGPT said:
+Perfect — if you don’t have PDFs or uploaded data, and want the model itself to generate content + graphs, then here’s how your RAG-like app will work:
+
+🧠 UPDATED REQUIREMENT
+User enters a query (e.g., “Generate financial report for Q1 2024”).
+
+gpt-3.5-turbo-16k imagines a financial summary.
+
+The model also hallucinates sample tabular data (like sales, regions, revenue).
+
+We extract that data, convert to a DataFrame.
+
+Graphs (bar, line, pie, etc.) are created from that generated content.
+
+✅ ARCHITECTURE
+vbnet
+Copy
+Edit
+rag-financial-auto/
+├── backend/
+│   ├── main.py
+│   ├── gpt_utils.py
+│   └── requirements.txt
+├── frontend/
+│   └── Next.js App (with App Router)
+└── README.md
+🛠 BACKEND: FastAPI + GPT + Graphs
+1.1 backend/requirements.txt
+txt
+Copy
+Edit
+fastapi
+uvicorn
+openai
+pydantic
+pandas
+plotly
+1.2 gpt_utils.py
+python
+Copy
+Edit
+import openai
+import pandas as pd
+import base64
+import plotly.express as px
+from io import BytesIO
+
+openai.api_key = "YOUR_OPENAI_API_KEY"  # or set via env
+
+def call_gpt(query: str) -> tuple[str, pd.DataFrame]:
+    prompt = f"""
+You are a financial assistant.
+
+1. Generate a brief financial report summary for the query: "{query}".
+2. Also create a CSV-style table containing fictional but realistic financial data.
+3. Columns can include: Month, Revenue, Expense, Profit, Region, Product, etc.
+4. Return both summary and CSV data clearly marked.
+
+Example format:
+
+### Summary:
+... your summary ...
+
+### CSV:
+Month,Revenue,Expense,Profit
+Jan,10000,7000,3000
+Feb,12000,8000,4000
+...
+"""
+
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo-16k",
+        messages=[{"role": "user", "content": prompt}],
+        temperature=0.7
+    )
+
+    text = response['choices'][0]['message']['content']
+    
+    summary = text.split("### CSV:")[0].replace("### Summary:", "").strip()
+    csv_data = text.split("### CSV:")[1].strip()
+
+    df = pd.read_csv(pd.compat.StringIO(csv_data))
+    return summary, df
+
+def generate_plot(df: pd.DataFrame, chart_type: str, x: str, y: str) -> str:
+    if chart_type == "bar":
+        fig = px.bar(df, x=x, y=y)
+    elif chart_type == "line":
+        fig = px.line(df, x=x, y=y)
+    elif chart_type == "pie":
+        fig = px.pie(df, names=x, values=y)
+    else:
+        raise ValueError("Invalid chart type")
+
+    img_bytes = fig.to_image(format="png")
+    return f"data:image/png;base64,{base64.b64encode(img_bytes).decode()}"
+1.3 main.py
+python
+Copy
+Edit
+from fastapi import FastAPI, Form
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from gpt_utils import call_gpt, generate_plot
+
+app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"], allow_methods=["*"], allow_headers=["*"]
+)
+
+@app.post("/generate")
+async def generate(
+    query: str = Form(...),
+    chart_type: str = Form(...),
+    x_col: str = Form(...),
+    y_col: str = Form(...)
+):
+    try:
+        summary, df = call_gpt(query)
+        chart = generate_plot(df, chart_type, x_col, y_col)
+        return {"summary": summary, "chart": chart}
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code=500)
+1.4 Run the backend
+bash
+Copy
+Edit
+cd backend
+pip install -r requirements.txt
+uvicorn main:app --reload
+🌐 FRONTEND: Next.js UI (App Router)
+2.1 Initialize frontend
+bash
+Copy
+Edit
+npx create-next-app frontend --app --ts
+cd frontend
+npm install axios
+2.2 app/page.tsx
+tsx
+Copy
+Edit
+"use client";
+import { useState } from "react";
+import axios from "axios";
+
+export default function Home() {
+  const [query, setQuery] = useState("");
+  const [chartType, setChartType] = useState("bar");
+  const [xCol, setXCol] = useState("Month");
+  const [yCol, setYCol] = useState("Revenue");
+  const [summary, setSummary] = useState("");
+  const [chart, setChart] = useState("");
+
+  const handleSubmit = async (e: any) => {
+    e.preventDefault();
+    const formData = new FormData();
+    formData.append("query", query);
+    formData.append("chart_type", chartType);
+    formData.append("x_col", xCol);
+    formData.append("y_col", yCol);
+
+    const res = await axios.post("http://localhost:8000/generate", formData);
+    setSummary(res.data.summary);
+    setChart(res.data.chart);
+  };
+
+  return (
+    <main className="p-6 max-w-3xl mx-auto">
+      <h1 className="text-2xl font-bold mb-4">AI Financial Report Generator</h1>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <input
+          type="text"
+          className="w-full p-2 border"
+          placeholder="Enter a financial query..."
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+        />
+
+        <div className="flex gap-4">
+          <input type="text" placeholder="X Column" value={xCol} onChange={(e) => setXCol(e.target.value)} />
+          <input type="text" placeholder="Y Column" value={yCol} onChange={(e) => setYCol(e.target.value)} />
+        </div>
+
+        <select value={chartType} onChange={(e) => setChartType(e.target.value)}>
+          <option value="bar">Bar</option>
+          <option value="line">Line</option>
+          <option value="pie">Pie</option>
+        </select>
+
+        <button type="submit" className="bg-blue-600 text-white px-4 py-2">Generate</button>
+      </form>
+
+      {summary && (
+        <div className="mt-6">
+          <h2 className="text-xl font-semibold">Summary</h2>
+          <p className="bg-gray-100 p-4 rounded">{summary}</p>
+        </div>
+      )}
+
+      {chart && (
+        <div className="mt-6">
+          <h2 className="text-xl font-semibold">Chart</h2>
+          <img src={chart} alt="Generated Chart" />
+        </div>
+      )}
+    </main>
+  );
+}
+✅ Result Example
+User enters:
+
+“Generate quarterly financial report for 2024”
+
+→ Output:
+
+Summary: GPT-generated paragraph about revenue, profits, and market trends.
+
+Chart: Visual from hallucinated table (e.g., Revenue per Month, Profit by Region).
+
+🚀 To Deploy or Extend
+Add dropdown to auto-select x/y columns from GPT’s data.
+
+Use LangChain if you want chaining, memory, or vector search later.
+
+Replace hallucinated CSV with file upload or DB in future.
+
+Would you like this packaged as a GitHub repo or Docker setup next?
+
+
+
+
+
+
+
+You said:
+user can request type f graph, he can customise graph also like colors, labels and title
+
+example query  Generate a bar chart report of revenue by month for Q1 2024. colors red, green, blue title revenue details
+
+
+ChatGPT said:
+Great — now we’re evolving into a fully customizable AI chart generation app, where:
+
+✅ User query includes:
+Chart type (bar, line, pie…)
+
+Axes (e.g., “revenue by month”)
+
+Style: colors, title, labels, etc.
+
+🧠 New Flow
+We’ll:
+
+Use the user query directly to:
+
+Generate a summary
+
+Generate table data
+
+Extract chart config: type, x/y, colors, title
+
+Plotly will render chart using that configuration.
+
+🧱 Updated Backend (backend/gpt_utils.py)
+🔁 Replace with:
+python
+Copy
+Edit
+import openai
+import pandas as pd
+import base64
+import plotly.express as px
+from io import BytesIO
+import re
+
+openai.api_key = "YOUR_OPENAI_API_KEY"  # or set via env
+
+def call_gpt(query: str) -> dict:
+    prompt = f"""
+You are a financial assistant.
+
+Given the user query: "{query}", do the following:
+1. Generate a brief financial report summary.
+2. Create fictional but realistic tabular data in CSV format.
+3. Extract chart configuration: chart_type (bar/line/pie), x_axis, y_axis, title, color list.
+
+Respond in the following format (very strict!):
+
+### Summary
+<summary text>
+
+### CSV
+<csv-style table>
+
+### ChartConfig
+chart_type: bar
+x_axis: Month
+y_axis: Revenue
+title: Revenue Details
+colors: red, green, blue
+"""
+
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo-16k",
+        messages=[{"role": "user", "content": prompt}],
+        temperature=0.7
+    )
+
+    content = response['choices'][0]['message']['content']
+
+    summary = re.search(r"### Summary\n(.*?)\n### CSV", content, re.S).group(1).strip()
+    csv_text = re.search(r"### CSV\n(.*?)\n### ChartConfig", content, re.S).group(1).strip()
+    config_block = re.search(r"### ChartConfig\n(.*)", content, re.S).group(1)
+
+    # parse CSV
+    df = pd.read_csv(pd.compat.StringIO(csv_text))
+
+    # parse config
+    def extract(field):
+        match = re.search(fr"{field}:\s*(.*)", config_block)
+        return match.group(1).strip() if match else ""
+
+    chart_type = extract("chart_type")
+    x_axis = extract("x_axis")
+    y_axis = extract("y_axis")
+    title = extract("title")
+    colors = [c.strip() for c in extract("colors").split(",")]
+
+    return {
+        "summary": summary,
+        "dataframe": df,
+        "chart_type": chart_type,
+        "x_axis": x_axis,
+        "y_axis": y_axis,
+        "title": title,
+        "colors": colors
+    }
+
+def generate_plot(df, chart_type, x, y, title, colors):
+    if chart_type == "bar":
+        fig = px.bar(df, x=x, y=y, title=title, color_discrete_sequence=colors)
+    elif chart_type == "line":
+        fig = px.line(df, x=x, y=y, title=title, color_discrete_sequence=colors)
+    elif chart_type == "pie":
+        fig = px.pie(df, names=x, values=y, title=title, color_discrete_sequence=colors)
+    else:
+        raise ValueError("Unsupported chart type")
+
+    img_bytes = fig.to_image(format="png")
+    return f"data:image/png;base64,{base64.b64encode(img_bytes).decode()}"
+🧩 Update main.py
+python
+Copy
+Edit
+from fastapi import FastAPI, Form
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from gpt_utils import call_gpt, generate_plot
+
+app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"]
+)
+
+@app.post("/generate")
+async def generate(query: str = Form(...)):
+    try:
+        result = call_gpt(query)
+        chart = generate_plot(
+            result["dataframe"],
+            result["chart_type"],
+            result["x_axis"],
+            result["y_axis"],
+            result["title"],
+            result["colors"]
+        )
+        return {"summary": result["summary"], "chart": chart}
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code=500)
+🎨 Update Frontend (app/page.tsx)
+Replace form with just the query input. GPT will handle everything else!
+
+tsx
+Copy
+Edit
+"use client";
+import { useState } from "react";
+import axios from "axios";
+
+export default function Home() {
+  const [query, setQuery] = useState("");
+  const [summary, setSummary] = useState("");
+  const [chart, setChart] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: any) => {
+    e.preventDefault();
+    setLoading(true);
+    const formData = new FormData();
+    formData.append("query", query);
+
+    const res = await axios.post("http://localhost:8000/generate", formData);
+    setSummary(res.data.summary);
+    setChart(res.data.chart);
+    setLoading(false);
+  };
+
+  return (
+    <main className="p-6 max-w-3xl mx-auto">
+      <h1 className="text-2xl font-bold mb-4">Custom AI Chart Generator</h1>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <textarea
+          className="w-full p-2 border"
+          rows={4}
+          placeholder="Example: Generate a bar chart report of revenue by month for Q1 2024. Colors red, green, blue. Title revenue details"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+        />
+        <button type="submit" className="bg-blue-600 text-white px-4 py-2">
+          {loading ? "Generating..." : "Generate Report"}
+        </button>
+      </form>
+
+      {summary && (
+        <div className="mt-6">
+          <h2 className="text-xl font-semibold">Summary</h2>
+          <p className="bg-gray-100 p-4 rounded">{summary}</p>
+        </div>
+      )}
+
+      {chart && (
+        <div className="mt-6">
+          <h2 className="text-xl font-semibold">Chart</h2>
+          <img src={chart} alt="Generated Chart" />
+        </div>
+      )}
+    </main>
+  );
+}
+✅ Example Prompt
+“Generate a bar chart report of revenue by month for Q1 2024. Colors red, green, blue. Title: revenue details”
+
+→ GPT responds with:
+
+Summary about revenue trends
+
+Table:
+
+sql
+Copy
+Edit
+Month,Revenue
+Jan,10000
+Feb,15000
+Mar,17000
+ChartConfig:
+
+makefile
+Copy
+Edit
+chart_type: bar
+x_axis: Month
+y_axis: Revenue
+title: Revenue Details
+colors: red, green, blue
+→ FastAPI creates the bar chart from Plotly and sends it to Next.js.
+
+📦 Optional Improvements
+Add dropdowns to override GPT's config.
+
+Use LangChain tools for better parsing.
+
+Export chart as PDF or PNG.
+
+Add dark/light mode toggle.
+
+Would you like me to zip all this into a GitHub repo template or generate a Docker setup for one-click run?
+
+
+
+
+
+
+
+You said:
+need default chart type pie and default colors, default labels and default title , no need to through error
+
+
+ChatGPT said:
+Perfect — to ensure the backend never fails (even if GPT misses some info), we’ll:
+
+✅ Add defaults:
+Config	Default
+chart_type	"pie"
+x_axis	First column of DataFrame
+y_axis	Second column of DataFrame
+title	"Financial Chart"
+colors	["#636EFA", "#EF553B", "#00CC96", "#AB63FA"] (Plotly default colors)
+
+🧠 Update gpt_utils.py
+Replace your current call_gpt() and generate_plot() with this version:
+
+python
+Copy
+Edit
+import openai
+import pandas as pd
+import base64
+import plotly.express as px
+from io import BytesIO
+import re
+
+openai.api_key = "YOUR_OPENAI_API_KEY"  # or use os.getenv
+
+DEFAULTS = {
+    "chart_type": "pie",
+    "title": "Financial Chart",
+    "colors": ["#636EFA", "#EF553B", "#00CC96", "#AB63FA"]
+}
+
+def call_gpt(query: str) -> dict:
+    prompt = f"""
+You are a financial assistant.
+
+Given the user query: "{query}", do the following:
+1. Generate a brief financial report summary.
+2. Create fictional but realistic tabular data in CSV format.
+3. Extract chart configuration: chart_type (bar/line/pie), x_axis, y_axis, title, color list.
+
+Respond in the following format:
+
+### Summary
+<summary>
+
+### CSV
+<csv>
+
+### ChartConfig
+chart_type: bar
+x_axis: Month
+y_axis: Revenue
+title: Revenue Details
+colors: red, green, blue
+"""
+
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo-16k",
+        messages=[{"role": "user", "content": prompt}],
+        temperature=0.7
+    )
+
+    content = response['choices'][0]['message']['content']
+
+    # Parse sections
+    summary = re.search(r"### Summary\n(.*?)\n### CSV", content, re.S)
+    csv_text = re.search(r"### CSV\n(.*?)\n### ChartConfig", content, re.S)
+    config_block = re.search(r"### ChartConfig\n(.*)", content, re.S)
+
+    summary = summary.group(1).strip() if summary else "Summary not provided."
+    csv_text = csv_text.group(1).strip() if csv_text else "Category,Value\nA,30\nB,70"
+    config_block = config_block.group(1) if config_block else ""
+
+    df = pd.read_csv(pd.compat.StringIO(csv_text))
+
+    def extract(field):
+        match = re.search(fr"{field}:\s*(.*)", config_block)
+        return match.group(1).strip() if match else ""
+
+    chart_type = extract("chart_type") or DEFAULTS["chart_type"]
+    title = extract("title") or DEFAULTS["title"]
+    colors_raw = extract("colors")
+    colors = [c.strip() for c in colors_raw.split(",")] if colors_raw else DEFAULTS["colors"]
+
+    # x/y axis fallback
+    x_axis = extract("x_axis") or df.columns[0]
+    y_axis = extract("y_axis") or (df.columns[1] if len(df.columns) > 1 else df.columns[0])
+
+    return {
+        "summary": summary,
+        "dataframe": df,
+        "chart_type": chart_type.lower(),
+        "x_axis": x_axis,
+        "y_axis": y_axis,
+        "title": title,
+        "colors": colors
+    }
+
+def generate_plot(df, chart_type, x, y, title, colors):
+    try:
+        if chart_type == "bar":
+            fig = px.bar(df, x=x, y=y, title=title, color_discrete_sequence=colors)
+        elif chart_type == "line":
+            fig = px.line(df, x=x, y=y, title=title, color_discrete_sequence=colors)
+        elif chart_type == "pie":
+            fig = px.pie(df, names=x, values=y, title=title, color_discrete_sequence=colors)
+        else:
+            # Fallback to pie chart
+            fig = px.pie(df, names=x, values=y, title=title, color_discrete_sequence=colors)
+    except Exception:
+        # Handle any fallback (e.g., invalid columns)
+        fig = px.pie(df, names=df.columns[0], values=df.columns[1], title="Default Chart", color_discrete_sequence=DEFAULTS["colors"])
+
+    img_bytes = fig.to_image(format="png")
+    return f"data:image/png;base64,{base64.b64encode(img_bytes).decode()}"
+🔧 No changes needed in FastAPI or Next.js frontend
+Your backend will never crash, and:
+
+Always shows a chart
+
+Uses "pie" if type missing or invalid
+
+Assigns default title/colors/axes if needed
+
+✅ Sample fallback behavior
+If user only types:
+
+“Create a revenue chart for last quarter.”
+
+And GPT skips ChartConfig, your backend still returns:
+
+Default summary
+
+Fictional CSV
+
+A colorful pie chart
+
+Let me know if you'd like:
+
+Export to PDF/PNG
+
+Switch to chart.js in frontend instead of Plotly images
+
+Save reports for download or sharing
+
+Would you like a zip or GitHub repo now?

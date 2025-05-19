@@ -1,0 +1,64 @@
+Here are several example user queries your RAG app will understand and respond to — including summary, generated CSV data, and a chart (with user preferences if specified):
+
+✅ Basic Request (uses all defaults)
+"Generate a financial report for 2023 Q1."
+
+✅ Summary: GPT generates a short description of Q1.
+
+✅ Chart: Pie chart (default)
+
+✅ Colors: Default Plotly palette
+
+✅ Title: “Financial Chart”
+
+✅ Customized Chart Type
+"Generate a bar chart of revenue by month for Q1 2024."
+
+🧠 GPT will extract:
+
+chart_type: bar
+
+x_axis: Month
+
+y_axis: Revenue
+
+title: “Revenue by Month”
+
+🎨 Colors: Uses defaults if not specified
+
+✅ Customized Colors & Title
+"Show a pie chart of product sales. Use red, green, blue colors and title it 'Product Sales Breakdown'."
+
+GPT will return:
+
+chart_type: pie
+
+title: "Product Sales Breakdown"
+
+colors: ["red", "green", "blue"]
+
+✅ Fully Customized
+"Generate a line chart showing expenses over months. Title it 'Monthly Expenses'. Colors should be orange and purple."
+
+chart_type: line
+
+title: "Monthly Expenses"
+
+colors: ["orange", "purple"]
+
+✅ Incomplete Input (Triggers defaults)
+"Chart my 2023 profits."
+
+If GPT doesn’t extract valid CSV or config:
+
+You’ll still get:
+
+A pie chart
+
+Default colors
+
+Title: "Financial Chart"
+
+Dummy CSV: e.g. Category,Value\nA,50\nB,30\nC,20
+
+Would you like me to generate a few complete mock responses (summary + CSV + chart image preview) as examples next?

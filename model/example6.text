@@ -1,0 +1,59 @@
+import matplotlib.pyplot as plt
+import io
+import base64
+
+def generate_plot(df, chart_type="pie", x=None, y=None, title="Financial Chart", colors=None):
+    def match_column(df, col_name):
+        if not col_name or not isinstance(col_name, str):
+            return df.columns[0]
+        col_name = col_name.strip().lower()
+        for col in df.columns:
+            if col.lower() == col_name:
+                return col
+        return df.columns[0]
+
+    # Default colors if none
+    colors = colors or ["#636EFA", "#EF553B", "#00CC96", "#AB63FA"]
+    chart_type = chart_type.lower() if chart_type else "pie"
+
+    # Final fallback in case DataFrame is missing or broken
+    if df is None or df.empty or len(df.columns) < 2:
+        df = fallback_dataframe()
+        chart_type = "pie"
+        title = "Fallback Financial Chart"
+
+    # Safely match columns
+    x = match_column(df, x)
+    y = match_column(df, y)
+
+    fig, ax = plt.subplots()
+
+    try:
+        if chart_type == "bar":
+            ax.bar(df[x], df[y], color=colors)
+            ax.set_xlabel(x)
+            ax.set_ylabel(y)
+        elif chart_type == "line":
+            ax.plot(df[x], df[y], color=colors[0])
+            ax.set_xlabel(x)
+            ax.set_ylabel(y)
+        elif chart_type == "pie":
+            ax.pie(df[y], labels=df[x], colors=colors, autopct='%1.1f%%')
+        else:
+            ax.pie(df[y], labels=df[x], colors=colors, autopct='%1.1f%%')  # default
+        ax.set_title(title)
+    except Exception as e:
+        # If all fails, draw fallback pie chart
+        ax.clear()
+        df = fallback_dataframe()
+        ax.pie(df["Value"], labels=df["Category"], colors=colors, autopct='%1.1f%%')
+        ax.set_title("Fallback Financial Chart")
+
+    # Convert to image
+    buf = io.BytesIO()
+    plt.tight_layout()
+    plt.savefig(buf, format="png")
+    plt.close(fig)
+    buf.seek(0)
+    img_base64 = base64.b64encode(buf.read()).decode("utf-8")
+    return f"data:image/png;base64,{img_base64}"

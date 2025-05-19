@@ -1,0 +1,14 @@
+elif chart_type == "line":
+    for i, col in enumerate(df.columns):
+        if col != x:
+            ax.plot(df[x], df[col], label=col, color=extended_colors[i % len(extended_colors)])
+    ax.set_xlabel(x)
+    ax.set_ylabel("Values")
+    ax.legend()
+
+
+
+    elif chart_type == "line":
+    ax.plot(df[x], df[y], marker='o', linestyle='-', color=extended_colors[0])
+    ax.set_xlabel(x)
+    ax.set_ylabel(y)

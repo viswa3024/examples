@@ -1,0 +1,33 @@
+from fastapi.responses import JSONResponse
+...
+
+@app.post("/generate")
+def generate_chart(request: UserRequest):
+    query = request.query
+    result = call_gpt(query)
+
+    img = generate_plot(
+        df=result["dataframe"],
+        chart_type=result["chart_type"],
+        x=result["x_axis"],
+        y=result["y_axis"],
+        title=result["title"],
+        colors=result["colors"]
+    )
+
+    # Serialize DataFrame to JSON-friendly format
+    df_serialized = result["dataframe"].to_dict(orient="records")
+
+    return JSONResponse(content={
+        "summary": result["summary"],
+        "chart": img,
+        "complete_data": {
+            "summary": result["summary"],
+            "dataframe": df_serialized,
+            "chart_type": result["chart_type"],
+            "x_axis": result["x_axis"],
+            "y_axis": result["y_axis"],
+            "title": result["title"],
+            "colors": result["colors"]
+        }
+    })

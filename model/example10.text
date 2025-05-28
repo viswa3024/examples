@@ -92,3 +92,18 @@ def generate_plot(df, chart_type, x, y, title, colors):
 
     img_bytes = fig.to_image(format="png")
     return f"data:image/png;base64,{base64.b64encode(img_bytes).decode()}"
+
+
+
+
+    # Clean up markdown code block wrapping
+csv_text = csv_text.group(1).strip() if csv_text else ""
+
+# Remove ```csv and ``` if present
+if csv_text.startswith("```csv"):
+    csv_text = csv_text.replace("```csv", "").strip()
+if csv_text.endswith("```"):
+    csv_text = csv_text[:-3].strip()
+
+df = pd.read_csv(StringIO(csv_text))
+

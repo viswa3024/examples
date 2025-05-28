@@ -1,0 +1,105 @@
+import google.generativeai as genai
+from google.oauth2 import service_account
+import pandas as pd
+import base64
+import plotly.express as px
+from io import BytesIO, StringIO
+import re
+import json
+
+# Load credentials from a local file (replace with your path)
+with open("credentials.json", "r") as f:
+    info = json.load(f)
+
+creds = service_account.Credentials.from_service_account_info(info)
+
+# Configure generative AI with credentials
+genai.configure(credentials=creds)
+
+DEFAULTS = {
+    "chart_type": "pie",
+    "title": "Financial Chart",
+    "colors": ["#636EFA", "#EF553B", "#00CC96", "#AB63FA"]
+}
+
+def call_gpt(query: str) -> dict:
+    prompt = f"""
+You are a financial assistant.
+
+Given the user query: "{query}", do the following:
+1. Generate a brief financial report summary.
+2. Create fictional but realistic tabular data in CSV format.
+3. Extract chart configuration: chart_type (bar/line/pie), x_axis, y_axis, title, color list.
+
+Respond in the following format:
+
+### Summary
+<summary>
+
+### CSV
+<csv>
+
+### ChartConfig
+chart_type: bar
+x_axis: Month
+y_axis: Revenue
+title: Revenue Details
+colors: red, green, blue
+"""
+
+    model = genai.GenerativeModel(model_name="gemini-1.0-pro-002")
+    response = model.generate_content(prompt)
+    content = response.text.strip()
+
+    # Parse sections
+    summary = re.search(r"### Summary\n(.*?)\n### CSV", content, re.S)
+    csv_text = re.search(r"### CSV\n(.*?)\n### ChartConfig", content, re.S)
+    config_block = re.search(r"### ChartConfig\n(.*)", content, re.S)
+
+    summary = summary.group(1).strip() if summary else "Summary not provided."
+    csv_text = csv_text.group(1).strip() if csv_text else "Category,Value\nA,30\nB,70"
+    config_block = config_block.group(1) if config_block else ""
+
+    # Clean code block markers if present
+    csv_text = re.sub(r"^```csv\n|```$", "", csv_text.strip(), flags=re.MULTILINE)
+
+    df = pd.read_csv(StringIO(csv_text))
+
+    def extract(field):
+        match = re.search(fr"{field}:\s*(.*)", config_block)
+        return match.group(1).strip() if match else ""
+
+    chart_type = extract("chart_type") or DEFAULTS["chart_type"]
+    title = extract("title") or DEFAULTS["title"]
+    colors_raw = extract("colors")
+    colors = [c.strip() for c in colors_raw.split(",")] if colors_raw else DEFAULTS["colors"]
+
+    # x/y axis fallback
+    x_axis = extract("x_axis") or df.columns[0]
+    y_axis = extract("y_axis") or (df.columns[1] if len(df.columns) > 1 else df.columns[0])
+
+    return {
+        "summary": summary,
+        "dataframe": df,
+        "chart_type": chart_type.lower(),
+        "x_axis": x_axis,
+        "y_axis": y_axis,
+        "title": title,
+        "colors": colors
+    }
+
+def generate_plot(df, chart_type, x, y, title, colors):
+    try:
+        if chart_type == "bar":
+            fig = px.bar(df, x=x, y=y, title=title, color_discrete_sequence=colors)
+        elif chart_type == "line":
+            fig = px.line(df, x=x, y=y, title=title, color_discrete_sequence=colors)
+        elif chart_type == "pie":
+            fig = px.pie(df, names=x, values=y, title=title, color_discrete_sequence=colors)
+        else:
+            fig = px.pie(df, names=x, values=y, title=title, color_discrete_sequence=colors)
+    except Exception:
+        fig = px.pie(df, names=df.columns[0], values=df.columns[1], title="Default Chart", color_discrete_sequence=DEFAULTS["colors"])
+
+    img_bytes = fig.to_image(format="png")
+    return f"data:image/png;base64,{base64.b64encode(img_bytes).decode()}"

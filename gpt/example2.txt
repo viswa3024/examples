@@ -1,0 +1,5 @@
+docker run -i -t -d -p 8080:80 \
+  -e JWT_ENABLED=false \
+  -e DS_BRAND_NAME="Test" \
+  --name onlyoffice-document-server \
+  onlyoffice/documentserver

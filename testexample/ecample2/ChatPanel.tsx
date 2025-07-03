@@ -7,8 +7,13 @@ export default function ChatPanel({ onPdfClick }: { onPdfClick: (url: string) =>
     { sender: 'bot', text: 'Welcome to Chat bot' },
   ]);
   const [input, setInput] = useState('');
-  const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [showScrollButton, setShowScrollButton] = useState(false);
+  const [textareaHeight, setTextareaHeight] = useState(48);
+
 
   // const handleSend = () => {
   //   if (!input.trim()) return;
@@ -40,6 +45,7 @@ export default function ChatPanel({ onPdfClick }: { onPdfClick: (url: string) =>
   // 💡 Reset height on clear
   if (textareaRef.current) {
     textareaRef.current.style.height = 'auto';
+     setTextareaHeight(48);
   }
 };
 
@@ -52,18 +58,41 @@ export default function ChatPanel({ onPdfClick }: { onPdfClick: (url: string) =>
     scrollToBottom();
   }, [messages]);
 
-  const adjustTextareaHeight = () => {
+  useEffect(() => {
+  const container = messagesContainerRef.current;
+  if (!container) return;
+
+  const handleScroll = () => {
+    const isAtBottom =
+      container.scrollHeight - container.scrollTop - container.clientHeight < 50;
+    setShowScrollButton(!isAtBottom);
+  };
+
+  container.addEventListener('scroll', handleScroll);
+  return () => container.removeEventListener('scroll', handleScroll);
+}, []);
+
+//   const adjustTextareaHeight = () => {
+//   const el = textareaRef.current;
+//   if (el) {
+//     el.style.height = 'auto'; // reset first
+//     el.style.height = Math.min(el.scrollHeight, 160) + 'px'; // 5 rows max
+//   }
+// };
+
+const adjustTextareaHeight = () => {
   const el = textareaRef.current;
   if (el) {
-    el.style.height = 'auto'; // reset first
-    el.style.height = Math.min(el.scrollHeight, 160) + 'px'; // 5 rows max
+    el.style.height = 'auto';
+    const newHeight = Math.min(el.scrollHeight, 160); // max 5 rows
+    el.style.height = newHeight + 'px';
+    setTextareaHeight(newHeight);
   }
 };
-
   return (
     <div className="h-full bg-white flex flex-col">
       {/* Chat messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4" ref={messagesContainerRef}>
         {messages.map((msg: any, idx) => (
           <div
             key={idx}
@@ -85,7 +114,100 @@ export default function ChatPanel({ onPdfClick }: { onPdfClick: (url: string) =>
           </div>
         ))}
         <div ref={messagesEndRef} />
+
+        {/* {showScrollButton && (
+    <button
+      onClick={scrollToBottom}
+      className="absolute bottom-4 right-4 bg-blue-600 text-white rounded-full p-2 shadow hover:bg-blue-700"
+      title="Scroll to latest"
+    >
+      ⬇️
+    </button>
+  )} */}
+
+  {/* {showScrollButton && (
+  <button
+    onClick={scrollToBottom}
+    className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-white text-black rounded-full shadow-md w-8 h-8 flex items-center justify-center border border-gray-300 hover:shadow-lg transition-all"
+    title="Scroll to latest"
+  >
+    <span className="text-xl leading-none">↓</span>
+  </button>
+)} */}
+
+ {/* {showScrollButton && (
+    <button
+      onClick={scrollToBottom}
+      className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-white text-black rounded-full shadow-md w-8 h-8 flex items-center justify-center border border-gray-300 hover:shadow-lg transition-all z-10"
+      title="Scroll to latest"
+    >
+      <span className="text-xl leading-none">↓</span>
+    </button>
+  )} */}
+
+   {/* {showScrollButton && (
+    <button
+      onClick={scrollToBottom}
+      className="fixed bottom-[80px] left-1/2 -translate-x-1/2 bg-white text-black rounded-full shadow-md w-8 h-8 flex items-center justify-center border border-gray-300 hover:shadow-lg z-50"
+      title="Scroll to latest"
+    >
+      <span className="text-xl leading-none">↓</span>
+    </button>
+  )} */}
       </div>
+
+      {/* {showScrollButton && (
+    <div className="absolute bottom-[72px] left-1/2 -translate-x-1/2 z-20">
+      <button
+        onClick={scrollToBottom}
+        className="bg-white text-black rounded-full shadow-md w-8 h-8 flex items-center justify-center border border-gray-300 hover:shadow-lg"
+        title="Scroll to latest"
+      >
+        <span className="text-xl leading-none">↓</span>
+      </button>
+    </div>
+  )} */}
+
+  {showScrollButton && (
+  <div
+    className="absolute left-1/2 -translate-x-1/2 z-20"
+    style={{ bottom: textareaHeight + 40 }} // 24px margin above textarea
+  >
+    <button
+      onClick={scrollToBottom}
+      className="w-10 h-10 bg-white rounded-full text-black  shadow-md w-8 h-8 flex items-center justify-center border border-gray-300 hover:shadow-lg"
+      style={{ borderRadius: '50%' }}
+      title="Scroll to latest"
+    >
+      {/* <span className="text-xl leading-none"> ↓ </span> */}
+        
+       {/* <span className="text-xl leading-none">
+
+        <svg xmlns="http://www.w3.org/2000/svg"
+     fill="none"
+     viewBox="0 0 24 24"
+     strokeWidth={2}
+     stroke="currentColor"
+     className="w-5 h-5">
+  <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+</svg>
+        
+        
+        </span> */}
+
+         <svg
+    width="20"
+    height="20"
+    viewBox="0 0 20 20"
+    fill="currentColor"
+    xmlns="http://www.w3.org/2000/svg"
+    className="text-gray-700"
+  >
+    <path d="M9.33468 3.33333C9.33468 2.96617 9.6326 2.66847 9.99972 2.66829C10.367 2.66829 10.6648 2.96606 10.6648 3.33333V15.0609L15.363 10.3626L15.4675 10.2777C15.7255 10.1074 16.0762 10.1357 16.3034 10.3626C16.5631 10.6223 16.5631 11.0443 16.3034 11.304L10.4704 17.137C10.2108 17.3967 9.7897 17.3966 9.52999 17.137L3.69601 11.304L3.61105 11.1995C3.44054 10.9414 3.46874 10.5899 3.69601 10.3626C3.92328 10.1354 4.27479 10.1072 4.53292 10.2777L4.63741 10.3626L9.33468 15.0599V3.33333Z"></path>
+  </svg>
+    </button>
+  </div>
+)}
 
       {/* Input section */}
       <div className="border-t bg-white p-3">

@@ -3,3 +3,6 @@
       .replace(/[-:]/g, '')
       .replace('T', '-')
       .split('.')[0]; 
+
+
+const timestamp = now.toISOString().slice(0, 10).replace(/-/g, ''); // 'YYYYMMDD'

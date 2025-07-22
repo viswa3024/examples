@@ -1,0 +1,5 @@
+ const timestamp = now
+      .toISOString()
+      .replace(/[-:]/g, '')
+      .replace('T', '-')
+      .split('.')[0]; 

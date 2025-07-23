@@ -1,0 +1,37 @@
+const url = encodeURIComponent('https://calibre-ebook.com/downloads/demos/demo.docx');
+const res = await fetch(`/api/docx?remoteUrl=${url}`);
+
+
+// src/app/api/docx/route.ts
+import { NextRequest, NextResponse } from 'next/server';
+
+export async function GET(request: NextRequest) {
+  const remoteUrl = request.nextUrl.searchParams.get('remoteUrl');
+
+  if (!remoteUrl) {
+    return NextResponse.json({ error: 'Missing remoteUrl parameter' }, { status: 400 });
+  }
+
+  try {
+    const response = await fetch(remoteUrl);
+
+    if (!response.ok) {
+      return NextResponse.json({ error: 'Failed to fetch .docx file from remote URL' }, { status: 500 });
+    }
+
+    const arrayBuffer = await response.arrayBuffer();
+    const fileBuffer = Buffer.from(arrayBuffer);
+
+    return new NextResponse(fileBuffer, {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'Content-Disposition': 'attachment; filename="demo.docx"',
+        'Access-Control-Allow-Origin': '*',
+      },
+    });
+  } catch (error) {
+    console.error('API Error:', error);
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+  }
+}

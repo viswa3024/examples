@@ -1,0 +1,42 @@
+pipeline {
+    agent any
+    
+    tools {
+        maven "maven-3.9.10"
+    }
+    
+    stages{
+        stage('clone the dev project'){
+            steps{
+                git branch: 'main', changelog: false, poll: false, url: 'https://github.com/ramesharpu/dev-project.git'
+            }
+        }
+        stage('build the dev code'){
+            steps{
+                bat "mvn clean install"
+            }
+            post {
+                success{
+                    junit '**/target/surefire-reports/TEST-*.xml'
+                    archiveArtifacts artifacts: 'target/*jar', followSymlinks: false
+                }
+            }
+        }
+        stage('clone the test project'){
+            steps{
+                git branch: 'main', changelog: false, poll: false, url: 'https://github.com/ramesharpu/selenium-demo.git'
+            }
+        }
+        stage('run the functional testcase'){
+            steps{
+                bat 'mvn test'
+            }
+            post {
+                success {
+                    testNG()
+                    allure includeProperties: false, jdk: '', results: [[path: 'allure-results']]
+                }
+            }
+        }
+    }
+}

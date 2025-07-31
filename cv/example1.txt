@@ -1,0 +1,77 @@
+Full Stack Developer with 9 years of hands-on experience in designing, developing, and deploying scalable web applications and microservices across diverse technology stacks.
+
+Proficient in Java (Spring Boot) and Python (FastAPI) for backend development with solid expertise in unit testing using JUnit and Pytest.
+
+Skilled in modern frontend frameworks including Angular, React, and Next.js, delivering responsive and performant user interfaces.
+
+Experienced with DevOps and cloud technologies, including AWS, Docker, Kubernetes, and Jenkins, enabling smooth CI/CD pipelines and containerized deployments.
+
+Strong foundation in Object-Oriented Programming (OOPs) principles, system design, and architectural patterns, ensuring clean, maintainable, and scalable codebases.
+
+
+
+====================================
+
+Full Stack Developer with 9 years of experience in building scalable, high-performance web applications and APIs using modern frontend and backend technologies.
+
+Proficient in Java (Spring Boot) and Python (FastAPI) for backend services, with strong testing practices using JUnit and Pytest.
+
+Frontend expertise in Angular, React, and Next.js, delivering intuitive and dynamic user experiences.
+
+Well-versed in DevOps tools and cloud infrastructure: AWS, Docker, Kubernetes, and Jenkins, ensuring robust CI/CD workflows and containerized deployments.
+
+Strong in Object-Oriented Programming (OOPs) and system design principles, with a solid academic foundation holding a Master of Computer Applications (MCA) degree.
+
+==================================
+
+Full Stack Developer with 9 years of experience in designing and developing scalable, end-to-end web applications and microservices across diverse domains.
+
+Strong backend development skills using Java (Spring Boot) and Python (FastAPI), with robust testing practices using JUnit and Pytest.
+
+Skilled in frontend frameworks such as Angular, React, and Next.js, delivering modern, responsive, and interactive UIs.
+
+Hands-on experience in Generative AI, AI/ML, and Agentic AI systems, integrating intelligent features into applications and building AI-powered solutions.
+
+Proficient in AWS, Docker, Kubernetes, and Jenkins for DevOps and cloud-native deployments, with a solid grasp of OOP principles and clean architecture.
+
+Holds a Master of Computer Applications (MCA) degree with strong problem-solving skills and a continuous learning mindset.
+
+=============================================
+
+
+Full Stack Developer with 9 years of experience in building scalable web applications and microservices using Java (Spring Boot), Python (FastAPI), Node.js, and modern frontend frameworks like Angular, React, and Next.js.
+
+Strong background in Generative AI, Machine Learning, and Agentic AI, with hands-on implementation of intelligent features and AI-powered applications.
+
+Proficient in AWS, Docker, Kubernetes, and Jenkins for cloud-native deployments and CI/CD, with strong focus on OOPs, system design, and clean code practices.
+
+Holds a Master of Computer Applications (MCA) and demonstrates expertise in testing frameworks (JUnit, Pytest) and a commitment to continuous learning and innovation.
+
+=======================================
+
+Full Stack Developer with 9 years of experience in building scalable web applications and microservices using Java (Spring Boot), Python (FastAPI), Node.js, and modern frontend frameworks like Angular, React, and Next.js.
+
+Strong background in Generative AI, Machine Learning, and Agentic AI, with hands-on implementation of intelligent features and AI-powered applications.
+
+Proficient in AWS, Docker, Kubernetes, and Jenkins for cloud-native deployments and CI/CD, with solid expertise in OOPs and clean architectural design.
+
+Holds a Master of Computer Applications (MCA) and is skilled in automated testing using JUnit and Pytest to ensure code quality and reliability.
+
+=========================================
+
+Full Stack Developer with 9 years of experience in building scalable web applications and microservices using Java (Spring Boot), Python (FastAPI), Node.js, and modern frontend frameworks like Angular, React, and Next.js.
+
+Strong background in Generative AI, Machine Learning, and Agentic AI, with hands-on implementation of intelligent features and AI-powered applications.
+
+Proficient in AWS, Docker, Kubernetes, and Jenkins for cloud-native deployments and CI/CD, with expertise in OOPs, system design, and test automation using JUnit and Pytest.
+
+Holds a Master of Computer Applications (MCA) degree with strong problem-solving skills and a continuous learning mindset.
+
+===========================================
+
+Full Stack Developer with 9 years of experience in building scalable web applications and microservices using Java (Spring Boot), Python (FastAPI), Node.js, and modern frontend frameworks like Angular, React, and Next.js.
+Experienced in developing intelligent systems with Generative AI, Machine Learning, and Agentic AI integrations.
+Proficient in AWS, Docker, Kubernetes, and Jenkins for cloud-native deployments and CI/CD automation.
+Strong in Object-Oriented Programming (OOPs), clean architecture, and system design principles.
+Well-versed in writing and maintaining testable code using JUnit and Pytest.
+Holds a Master of Computer Applications (MCA) degree with excellent problem-solving abilities and a passion for continuous learning.

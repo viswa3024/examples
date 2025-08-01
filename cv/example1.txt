@@ -127,3 +127,21 @@ Testing: JUnit, Pytest
 AI/ML: Generative AI, Machine Learning, Agentic AI
 
 Core Strengths: OOPs, System Design, CI/CD, Scalable Architecture
+
+
+==================
+
+
+Selected Experiences
+
+Designed and developed full stack applications using Java (Spring Boot) and Python (FastAPI) on the backend, with modern frontend frameworks like Angular, React, and Next.js, delivering responsive and scalable enterprise solutions.
+
+Built and deployed serverless APIs using AWS Lambda, integrated with DynamoDB and S3, enabling cost-effective and scalable cloud-native solutions.
+
+Working on GenAI Gator project at TCS, a smart conversational assistant that enables intelligent navigation and task execution across internal tools and platforms.
+
+Contributing to GenAI Sec Suite at TCS, focused on AI-driven security utilities, including automated content generation, access auditing, and compliance report generation.
+
+Implemented CI/CD pipelines using Jenkins and Docker, and deployed applications to Kubernetes and PCF environments, ensuring streamlined delivery and high system availability.
+
+Possess strong understanding of AI/ML and Agentic AI concepts, with ongoing exploration of applying them to real-world full stack and enterprise applications.

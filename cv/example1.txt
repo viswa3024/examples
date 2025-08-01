@@ -145,3 +145,26 @@ Contributing to GenAI Sec Suite at TCS, focused on AI-driven security utilities,
 Implemented CI/CD pipelines using Jenkins and Docker, and deployed applications to Kubernetes and PCF environments, ensuring streamlined delivery and high system availability.
 
 Possess strong understanding of AI/ML and Agentic AI concepts, with ongoing exploration of applying them to real-world full stack and enterprise applications.
+
+
+
+====================================
+
+
+Skillset
+
+Languages & Frameworks: Java, Spring Boot, Python, FastAPI, Node.js, Express.js
+
+Frontend: Angular, React, Next.js
+
+DevOps & Cloud: AWS (EC2, Lambda for serverless APIs, S3), PCF, Docker, Kubernetes, Jenkins
+
+Databases: PostgreSQL, MySQL, MongoDB, DynamoDB, Elasticsearch
+
+Authentication & Security: OAuth2, JWT, Keycloak
+
+Testing: JUnit, Pytest
+
+AI/ML: Generative AI, Machine Learning, Agentic AI (conceptual knowledge)
+
+Core Strengths: OOPs, System Design, CI/CD, Scalable Architecture

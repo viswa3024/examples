@@ -1,0 +1,1 @@
+https://medium.com/@atefe.khosravi1995/using-elasticsearch-8-in-a-spring-boot-application-2c047093593a

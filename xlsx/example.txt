@@ -1,0 +1,3 @@
+https://github.com/plotly/datasets/raw/refs/heads/master/data-matlab-excel-example.xlsx
+
+https://github.com/plotly/datasets/raw/refs/heads/master/supermarket_sales.xlsx

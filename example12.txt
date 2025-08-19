@@ -1,0 +1,38 @@
+<div className="overflow-auto border rounded-lg">
+  <table className="border-collapse w-full">
+    <tbody>
+      {sheets[activeSheet].data.map((row, rIdx) => (
+        <tr key={rIdx}>
+          {row.map((cell, cIdx) => {
+            // Determine display value
+            const displayValue =
+              typeof cell === "boolean" ? (cell ? "true" : "false") : cell;
+
+            return (
+              <td key={cIdx} className="border p-1">
+                <input
+                  value={displayValue}
+                  onChange={(e) => {
+                    let newValue: string | boolean | number = e.target.value;
+
+                    // If original cell was boolean, convert back to boolean
+                    if (typeof cell === "boolean") {
+                      newValue = e.target.value === "true";
+                    }
+                    // If original cell was number, convert back to number
+                    else if (typeof cell === "number") {
+                      newValue = Number(e.target.value);
+                    }
+
+                    handleEditBkp(rIdx, cIdx, newValue);
+                  }}
+                  className="w-full border-none outline-none p-1"
+                />
+              </td>
+            );
+          })}
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>

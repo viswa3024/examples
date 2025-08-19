@@ -1,0 +1,353 @@
+Customer type,Rating,Gender,Product line,Unit price
+Member,7.1,Male,Food and beveragesdddddd,36.36
+Member,7.6,Male,Fashion accessories,51.34
+Normal,4.1,Female,Sports and travel,40.62
+Member,6.8,Female,Sports and travel,19.15
+Normal,9.8,Male,Electronic accessories,61.41
+Normal,5,Male,Sports and travel,45.58
+Normal,6.4,Male,Sports and travel, Sports and travelSports and travelSports and travelSports and travelSports and travelSports and travelSports and travelSports and travelSports and travelSports and travelSports and travelSports and travelSports and travelSports and travelSports and travelSports and travelSports and travelSports and travelSports and travelSports and travelSports and travelSports and travelSports and travelSports and travelSports and travelSports and travelSports and travelSports and travelSports and travelSports and travel,78.77
+Normal,4.5,Female,Fashion accessories,64.99
+Normal,7,Female,Sports and travel,34.81
+Member,7.9,Female,Fashion accessories,88.15
+Member,4,Male,Health and beauty,51.13
+Member,4.7,Female,Home and lifestyle,89.25
+Member,8.6,Female,Electronic accessories,12.1
+Normal,9.3,Female,Health and beauty,10.99
+Member,7.7,Female,Home and lifestyle,88.61
+Member,7.1,Female,Home and lifestyle,47.38
+Normal,7.3,Female,Electronic accessories,66.06
+Member,7.1,Male,Health and beauty,75.88
+Normal,6.6,Female,Sports and travel,83.14
+Normal,5.5,Female,Fashion accessories,79.86
+Normal,6.1,Male,Health and beauty,99.96
+Normal,6,Female,Fashion accessories,62.18
+Member,8.5,Male,Fashion accessories,98.7
+Member,7.5,Male,Sports and travel,82.33
+Member,8.9,Male,Food and beverages,57.89
+Normal,8.6,Female,Health and beauty,17.75
+Normal,8.9,Male,Electronic accessories,75.88
+Normal,6.9,Male,Sports and travel,72.61
+Normal,9.7,Female,Sports and travel,19.1
+Normal,4.2,Female,Home and lifestyle,49.01
+Member,9.7,Male,Electronic accessories,66.35
+Normal,7.7,Female,Food and beverages,84.05
+Member,7,Male,Food and beverages,83.77
+Member,5.6,Male,Health and beauty,60.47
+Normal,9.4,Male,Home and lifestyle,74.67
+Member,9.2,Female,Health and beauty,81.51
+Member,5,Female,Electronic accessories,48.62
+Normal,9.1,Male,Home and lifestyle,30.68
+Normal,9.2,Male,Fashion accessories,74.1
+Normal,6.5,Female,Sports and travel,15.34
+Normal,9,Female,Electronic accessories,13.78
+Normal,9.2,Female,Fashion accessories,45.44
+Normal,6.2,Female,Food and beverages,90.24
+Member,9.2,Male,Health and beauty,80.47
+Normal,4.9,Male,Fashion accessories,89.69
+Member,4,Male,Food and beverages,98.53
+Member,8.9,Male,Home and lifestyle,58.9
+Member,4.2,Male,Home and lifestyle,62.65
+Normal,4.4,Female,Fashion accessories,83.25
+Normal,6.7,Male,Electronic accessories,38.6
+Member,5,Female,Fashion accessories,73.96
+Member,5.9,Male,Electronic accessories,93.78
+Member,4.9,Male,Electronic accessories,74.79
+Member,9,Female,Food and beverages,84.63
+Normal,5.5,Male,Health and beauty,70.01
+Member,5,Female,Sports and travel,29.22
+Normal,6,Male,Electronic accessories,96.37
+Member,9.7,Female,Sports and travel,40.05
+Member,5.9,Male,Home and lifestyle,55.57
+Normal,7,Female,Home and lifestyle,51.07
+Normal,5,Male,Health and beauty,62.87
+Normal,8.6,Female,Electronic accessories,56.13
+Member,8.8,Female,Home and lifestyle,21.54
+Member,7.2,Male,Fashion accessories,93.22
+Member,8.6,Male,Sports and travel,26.67
+Normal,7.3,Female,Electronic accessories,93.88
+Normal,6.8,Female,Fashion accessories,42.57
+Member,7.7,Male,Food and beverages,38.47
+Member,6.2,Female,Electronic accessories,21.43
+Normal,4.5,Female,Home and lifestyle,96.52
+Normal,9.9,Female,Health and beauty,55.81
+Normal,7.4,Male,Fashion accessories,83.24
+Member,8,Female,Sports and travel,64.83
+Normal,7.9,Female,Health and beauty,23.03
+Member,6.5,Male,Sports and travel,57.12
+Normal,9.5,Female,Sports and travel,23.75
+Normal,8.7,Male,Food and beverages,19.79
+Normal,7.8,Female,Home and lifestyle,15.8
+Member,7.9,Male,Sports and travel,17.14
+Normal,6,Male,Sports and travel,60.95
+Normal,9.9,Female,Food and beverages,99.69
+Member,5.4,Female,Home and lifestyle,83.77
+Normal,9.1,Female,Fashion accessories,81.68
+Member,7.8,Female,Food and beverages,89.14
+Normal,5.2,Male,Fashion accessories,30.61
+Normal,8.9,Male,Fashion accessories,42.08
+Normal,7.6,Male,Health and beauty,64.08
+Member,6.8,Female,Sports and travel,68.12
+Member,5,Female,Food and beverages,47.63
+Member,4.9,Female,Health and beauty,62.82
+Normal,7.3,Male,Food and beverages,27.22
+Member,9.1,Female,Fashion accessories,31.9
+Normal,5.9,Male,Fashion accessories,21.32
+Member,4.5,Male,Sports and travel,78.07
+Member,9.4,Male,Food and beverages,80.05
+Normal,9.6,Male,Food and beverages,89.48
+Member,9.8,Male,Food and beverages,59.59
+Member,8.1,Male,Electronic accessories,11.94
+Normal,9.4,Male,Home and lifestyle,21.52
+Member,6.7,Female,Sports and travel,48.5
+Member,7,Female,Fashion accessories,96.7
+Member,9.3,Male,Home and lifestyle,81.01
+Member,6.4,Female,Home and lifestyle,49.1
+Normal,5.1,Female,Health and beauty,34.21
+Member,5.4,Female,Sports and travel,89.8
+Normal,6.3,Female,Food and beverages,81.21
+Normal,5,Male,Sports and travel,37.14
+Normal,9.3,Female,Sports and travel,80.97
+Normal,9.6,Male,Sports and travel,93.38
+Member,9.1,Female,Health and beauty,74.69
+Normal,4.2,Female,Fashion accessories,99.1
+Normal,7.5,Female,Fashion accessories,39.62
+Member,5.8,Male,Sports and travel,75.82
+Member,7.8,Male,Health and beauty,20.97
+Normal,4.4,Male,Sports and travel,46.42
+Member,5.5,Female,Home and lifestyle,60.87
+Normal,9,Female,Sports and travel,32.25
+Normal,9.8,Female,Electronic accessories,84.05
+Normal,5.2,Female,Food and beverages,48.51
+Normal,4.8,Male,Home and lifestyle,95.58
+Normal,4,Female,Electronic accessories,23.65
+Member,7,Female,Home and lifestyle,35.54
+Member,5.6,Male,Fashion accessories,38.54
+Normal,9.3,Male,Sports and travel,64.59
+Member,6.7,Female,Sports and travel,70.19
+Member,7,Male,Fashion accessories,40.61
+Normal,4.6,Female,Fashion accessories,73.52
+Normal,6.1,Male,Electronic accessories,45.35
+Normal,5.2,Female,Sports and travel,95.44
+Normal,7.7,Male,Home and lifestyle,37.48
+Normal,7.1,Female,Fashion accessories,49.32
+Normal,6.2,Male,Health and beauty,40.35
+Member,4.7,Male,Electronic accessories,20.77
+Normal,8.7,Female,Home and lifestyle,45.38
+Normal,4.9,Female,Home and lifestyle,97.37
+Member,8.1,Male,Health and beauty,90.5
+Member,7.7,Female,Health and beauty,72.11
+Normal,7.7,Female,Fashion accessories,65.74
+Member,9.4,Male,Food and beverages,48.5
+Normal,9.9,Female,Food and beverages,40.94
+Member,7.6,Female,Food and beverages,21.04
+Member,7.6,Female,Electronic accessories,46.57
+Normal,5.7,Female,Electronic accessories,42.42
+Member,7.5,Female,Electronic accessories,44.84
+Member,6.8,Male,Fashion accessories,17.94
+Member,5.5,Male,Sports and travel,79.93
+Normal,6.7,Male,Sports and travel,64.19
+Normal,9.5,Male,Fashion accessories,12.78
+Member,9,Male,Fashion accessories,32.62
+Member,5.8,Male,Home and lifestyle,78.38
+Member,7.5,Male,Home and lifestyle,53.3
+Member,8.6,Male,Fashion accessories,49.04
+Member,8.8,Female,Health and beauty,95.95
+Member,6,Female,Food and beverages,33.21
+Normal,9,Male,Electronic accessories,58.76
+Normal,5.4,Female,Sports and travel,14.36
+Member,9.7,Female,Sports and travel,87.16
+Normal,6.9,Male,Sports and travel,21.87
+Member,6.6,Female,Electronic accessories,79.59
+Normal,8,Male,Food and beverages,81.71
+Normal,6.4,Male,Food and beverages,33.33
+Member,4.3,Female,Electronic accessories,74.22
+Normal,7.6,Female,Food and beverages,52.6
+Normal,5.5,Female,Health and beauty,99.19
+Normal,6.2,Male,Food and beverages,31.77
+Member,5.8,Female,Home and lifestyle,10.53
+Member,5.7,Male,Home and lifestyle,47.59
+Normal,5.1,Male,Sports and travel,83.78
+Member,7.3,Male,Electronic accessories,88.67
+Normal,9.7,Female,Fashion accessories,37.95
+Member,6.7,Male,Fashion accessories,59.86
+Member,9.5,Female,Fashion accessories,54.07
+Normal,5.7,Male,Health and beauty,34.31
+Member,9.9,Female,Fashion accessories,97.61
+Member,5,Male,Health and beauty,66.47
+Normal,5.8,Male,Electronic accessories,55.87
+Member,6.1,Female,Fashion accessories,17.48
+Member,4.3,Male,Sports and travel,71.92
+Normal,8.4,Male,Home and lifestyle,73.28
+Normal,8.4,Female,Health and beauty,39.42
+Member,6.3,Female,Sports and travel,15.49
+Member,7.3,Male,Health and beauty,33.81
+Normal,4.2,Male,Electronic accessories,72.13
+Normal,9.7,Male,Sports and travel,58.91
+Normal,4.9,Male,Health and beauty,17.41
+Normal,5.5,Male,Electronic accessories,87.08
+Normal,8.8,Male,Food and beverages,84.83
+Member,5.6,Male,Food and beverages,41.66
+Member,5.2,Male,Fashion accessories,51.36
+Member,4.9,Female,Home and lifestyle,94.59
+Member,5.1,Female,Sports and travel,90.63
+Member,8,Male,Sports and travel,67.26
+Normal,5,Male,Health and beauty,53.19
+Member,6.5,Female,Home and lifestyle,89.21
+Member,6.1,Male,Fashion accessories,15.43
+Member,8.4,Male,Health and beauty,75.37
+Member,5.7,Female,Fashion accessories,20.01
+Member,6.6,Male,Health and beauty,55.5
+Member,5.9,Female,Sports and travel,27.93
+Normal,8.5,Female,Electronic accessories,63.22
+Normal,5.1,Female,Home and lifestyle,12.03
+Member,4.5,Male,Home and lifestyle,60.01
+Member,5.4,Female,Home and lifestyle,72.35
+Member,8.5,Female,Food and beverages,68.54
+Normal,7,Male,Sports and travel,63.06
+Member,9.1,Female,Food and beverages,78.88
+Member,4.4,Male,Home and lifestyle,70.74
+Member,9,Male,Sports and travel,80.93
+Member,8.8,Male,Electronic accessories,77.72
+Normal,5.9,Female,Fashion accessories,31.73
+Normal,8,Male,Home and lifestyle,97.5
+Member,5.6,Female,Sports and travel,31.67
+Member,4.5,Female,Sports and travel,93.72
+Normal,8.9,Female,Fashion accessories,29.42
+Normal,5,Male,Fashion accessories,60.74
+Normal,9.3,Female,Food and beverages,97.03
+Member,9.7,Male,Electronic accessories,37.06
+Normal,7.8,Male,Health and beauty,96.11
+Normal,6.5,Male,Food and beverages,51.28
+Member,4.1,Female,Sports and travel,11.85
+Normal,8,Female,Home and lifestyle,77.95
+Member,5.1,Female,Sports and travel,21.98
+Member,5.5,Male,Electronic accessories,18.77
+Normal,7.9,Male,Sports and travel,23.01
+Member,6,Male,Food and beverages,65.65
+Normal,9.1,Female,Home and lifestyle,67.09
+Member,9.9,Male,Health and beauty,86.8
+Normal,5.6,Male,Food and beverages,24.94
+Member,9.6,Male,Sports and travel,82.93
+Normal,5.7,Male,Sports and travel,42.47
+Normal,5.4,Female,Electronic accessories,41.65
+Normal,8.6,Female,Sports and travel,22.38
+Normal,9,Female,Electronic accessories,50.23
+Normal,8.3,Female,Health and beauty,57.22
+Member,7.2,Female,Health and beauty,36.26
+Member,5.4,Male,Food and beverages,50.49
+Normal,6.4,Male,Electronic accessories,83.08
+Normal,4.7,Female,Electronic accessories,60.88
+Normal,7.7,Female,Home and lifestyle,11.43
+Member,9.9,Male,Sports and travel,89.06
+Normal,6.1,Female,Home and lifestyle,42.91
+Member,9.8,Male,Electronic accessories,52.89
+Normal,8.1,Male,Food and beverages,11.53
+Member,7.1,Female,Home and lifestyle,21.82
+Member,8.9,Female,Sports and travel,98.13
+Member,7,Male,Electronic accessories,40.3
+Member,9.4,Female,Home and lifestyle,24.24
+Normal,7.6,Male,Electronic accessories,10.56
+Normal,7.2,Male,Home and lifestyle,73.22
+Normal,8.4,Male,Health and beauty,58.15
+Normal,4.2,Female,Sports and travel,51.54
+Normal,4.2,Male,Health and beauty,99.16
+Member,9.9,Female,Fashion accessories,63.88
+Member,6.8,Female,Health and beauty,39.62
+Member,9.5,Female,Health and beauty,19.15
+Member,4.3,Male,Home and lifestyle,63.56
+Normal,6.1,Male,Sports and travel,25.7
+Normal,8.6,Male,Food and beverages,54.67
+Member,8.9,Male,Health and beauty,53.17
+Member,9.5,Female,Fashion accessories,18.08
+Member,6.2,Female,Sports and travel,90.74
+Member,7.2,Male,Fashion accessories,86.68
+Normal,9.3,Female,Fashion accessories,54.28
+Member,7.8,Male,Sports and travel,12.76
+Normal,8.8,Female,Food and beverages,93.26
+Normal,8,Female,Food and beverages,28.86
+Member,9.7,Male,Electronic accessories,73.26
+Normal,6.7,Male,Fashion accessories,99.82
+Normal,4.1,Female,Sports and travel,93.14
+Normal,6,Female,Sports and travel,76.6
+Member,6.6,Female,Sports and travel,22.01
+Member,9.7,Female,Electronic accessories,66.65
+Normal,8.2,Female,Fashion accessories,12.09
+Member,6,Male,Electronic accessories,91.56
+Normal,7.8,Male,Electronic accessories,75.66
+Normal,5.5,Male,Electronic accessories,51.69
+Member,7.4,Female,Fashion accessories,84.87
+Normal,6.6,Male,Food and beverages,19.25
+Normal,8.5,Female,Sports and travel,93.18
+Member,4.7,Female,Home and lifestyle,21.9
+Member,8.7,Male,Home and lifestyle,19.36
+Member,7.9,Female,Home and lifestyle,86.72
+Normal,7.6,Male,Electronic accessories,22.01
+Normal,9.2,Female,Fashion accessories,36.85
+Normal,6,Female,Health and beauty,20.38
+Member,4.1,Female,Fashion accessories,68.71
+Normal,4.2,Male,Food and beverages,73.06
+Normal,6.7,Female,Electronic accessories,74.71
+Member,5.2,Male,Fashion accessories,65.23
+Normal,7.8,Male,Food and beverages,13.79
+Member,6.2,Male,Health and beauty,62
+Member,4.3,Male,Food and beverages,24.31
+Normal,6.4,Female,Electronic accessories,23.46
+Member,4,Male,Health and beauty,69.37
+Member,9.7,Female,Health and beauty,21.12
+Member,4.9,Female,Sports and travel,23.08
+Normal,5.4,Female,Fashion accessories,23.82
+Member,8.1,Male,Food and beverages,17.44
+Normal,6.5,Female,Fashion accessories,81.37
+Member,5,Female,Fashion accessories,74.29
+Member,4.4,Male,Fashion accessories,56.04
+Normal,5.7,Female,Home and lifestyle,45.68
+Normal,6.3,Male,Food and beverages,21.12
+Member,4,Female,Food and beverages,72.88
+Normal,8.3,Female,Food and beverages,43.18
+Normal,4.9,Female,Fashion accessories,60.96
+Member,6.1,Male,Electronic accessories,72.17
+Normal,6.5,Male,Sports and travel,76.4
+Member,6.6,Female,Home and lifestyle,87.37
+Normal,4.3,Male,Home and lifestyle,62.19
+Member,7,Female,Sports and travel,36.98
+Normal,7.5,Female,Health and beauty,78.89
+Normal,9.6,Female,Food and beverages,88.36
+Normal,9,Male,Home and lifestyle,69.4
+Normal,6.9,Male,Fashion accessories,69.08
+Member,9.6,Female,Home and lifestyle,35.38
+Member,6.9,Male,Sports and travel,72.6
+Normal,8.2,Female,Sports and travel,44.86
+Normal,8.1,Male,Food and beverages,72.39
+Normal,6.4,Female,Food and beverages,96.68
+Normal,9,Male,Fashion accessories,39.21
+Member,8.4,Male,Health and beauty,96.16
+Member,5.3,Female,Health and beauty,27.07
+Member,4.3,Male,Home and lifestyle,58.07
+Normal,5.1,Male,Sports and travel,44.63
+Member,4.5,Female,Fashion accessories,51.89
+Member,7.4,Female,Food and beverages,36.77
+Member,4.8,Male,Food and beverages,68.98
+Normal,5.7,Male,Home and lifestyle,25.55
+Member,4.5,Female,Food and beverages,98.52
+Normal,9.8,Female,Home and lifestyle,63.15
+Normal,5.9,Male,Electronic accessories,26.23
+Member,6.9,Female,Sports and travel,27.04
+Normal,9.6,Male,Food and beverages,33.88
+Normal,9.8,Female,Fashion accessories,76.06
+Member,5.6,Male,Electronic accessories,87.87
+Member,8.4,Male,Health and beauty,58.22
+Normal,4.3,Female,Health and beauty,77.5
+Normal,9.1,Male,Fashion accessories,15.62
+Normal,4.1,Male,Home and lifestyle,53.44
+Normal,9.2,Female,Food and beverages,71.2
+Member,9,Male,Health and beauty,81.23
+Member,8.7,Male,Home and lifestyle,39.39
+Normal,4.3,Male,Home and lifestyle,22.96
+Normal,7.6,Female,Electronic accessories,43
+Normal,5.9,Female,Home and lifestyle,69.81
+Normal,6.2,Male,Fashion accessories,47.97
+Normal,7.9,Male,Fashion accessories,27.38
+Member,9.8,Male,Electronic accessories,24.18
+Member,9.5,Female,Food and beverages,74.6
+Normal,8.8,Female,Electronic accessories,26.31
+Member,5.1,Male,Home and lifestyle,85.72

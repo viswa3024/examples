@@ -1,0 +1,64 @@
+const handleLoadUrl = async () => {
+  if (!fileUrl) {
+    console.warn("⚠️ No file URL provided");
+    return;
+  }
+
+  try {
+    const response = await fetch("/api/load-xlsx", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ url: fileUrl }),
+    });
+
+    // 🔹 Handle non-OK responses
+    if (!response.ok) {
+      throw new Error(`Server error: ${response.status} ${response.statusText}`);
+    }
+
+    const result = await response.json();
+
+    // 🔹 Ensure data exists
+    if (!result?.data) {
+      throw new Error("No data received from server");
+    }
+
+    let workbook: XLSX.WorkBook;
+    try {
+      const data = new Uint8Array(result.data);
+      workbook = XLSX.read(data, { type: "array" });
+    } catch (parseErr) {
+      throw new Error("Failed to parse XLSX file");
+    }
+
+    // 🔹 Extract sheets
+    const sheetData: SheetData[] = workbook.SheetNames.map((name) => {
+      const ws = workbook.Sheets[name];
+      const data: (string | number)[][] = XLSX.utils.sheet_to_json(ws, { header: 1, blankrows: true }) as any;
+      const merges: XLSX.Range[] = ws["!merges"] || [];
+      return { name, data, merges };
+    });
+
+    if (!sheetData.length) {
+      throw new Error("No sheets found in workbook");
+    }
+
+    setSheets(sheetData);
+    setActiveSheet(0);
+
+    // 🔹 Validate headers
+    const headers = sheetData[0].data[0] || [];
+    const validEditableColumns = masterEditableColumns.filter((col) => headers.includes(col));
+    setEditableColumns(validEditableColumns);
+
+    // 🔹 Get filename safely
+    const fileName = fileUrl.split("/").pop() || "Unknown.xlsx";
+    console.log("Loaded file:", fileName);
+
+    convertSheetToJson(sheetData[0]);
+
+  } catch (err: any) {
+    console.error("❌ Failed to load XLSX from URL:", err.message || err);
+    alert(`Error: ${err.message || "Something went wrong while loading file"}`);
+  }
+};

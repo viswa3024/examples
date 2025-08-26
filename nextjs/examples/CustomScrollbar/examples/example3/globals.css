@@ -1,0 +1,32 @@
+/* --- hide native scrollbar when the script marks an element --- */
+.custom-scroll-hide {
+  scrollbar-width: none;       /* Firefox */
+  -ms-overflow-style: none;    /* IE/Edge Legacy */
+}
+.custom-scroll-hide::-webkit-scrollbar {
+  display: none;               /* Chrome / Safari / Edge */
+}
+
+/* --- overlay + thumb styling (can be tweaked) --- */
+.custom-scrollbar-overlay {
+  /* overlay itself is inserted absolutely inside the scrollable element */
+  pointer-events: auto;
+  user-select: none;
+}
+
+/* Thumb visuals */
+.custom-scrollbar-thumb {
+  background: linear-gradient(180deg, #4facfe, #00f2fe);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.06);
+  transition: background-color .12s ease, opacity .12s ease;
+}
+
+/* Thumb hover */
+.custom-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #43e97b, #38f9d7);
+}
+
+/* Hide overlay/controls on coarse-pointer devices (mobile) so native touch scrolling works */
+@media (pointer: coarse) {
+  .custom-scrollbar-overlay { display: none !important; }
+}

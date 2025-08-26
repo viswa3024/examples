@@ -1,0 +1,228 @@
+// components/GlobalCustomScrollbar.tsx
+"use client";
+
+import { useEffect } from "react";
+
+/**
+ * GlobalCustomScrollbar
+ * - attach per-element custom scrollbar overlays to all scrollable elements automatically
+ * - call this component once (e.g. in app/layout.tsx)
+ */
+export default function GlobalCustomScrollbar(): null {
+  useEffect(() => {
+    const PROCESSED_ATTR = "data-csb-processed";
+    const overlays: HTMLElement[] = [];
+    const cleanupFns: Array<() => void> = [];
+
+    function isVisible(el: HTMLElement) {
+      return el.offsetParent !== null || el === document.body || el === document.documentElement;
+    }
+
+    function isScrollable(el: HTMLElement) {
+      try {
+        const style = getComputedStyle(el);
+        const oy = style.overflowY;
+        return (
+          (oy === "auto" || oy === "scroll" || oy === "overlay") &&
+          el.scrollHeight > el.clientHeight
+        );
+      } catch {
+        return false;
+      }
+    }
+
+    function attachTo(el: HTMLElement) {
+      if (el.hasAttribute(PROCESSED_ATTR)) return;
+      if (!isVisible(el)) return;
+
+      // mark as processed early to avoid races
+      el.setAttribute(PROCESSED_ATTR, "1");
+
+      // hide native scrollbar for this element
+      el.classList.add("custom-scroll-hide");
+
+      // ensure positioned so absolute overlay is positioned relative to el
+      const computed = getComputedStyle(el).position;
+      let changedPos = false;
+      if (computed === "static" || !computed) {
+        el.style.position = "relative";
+        changedPos = true;
+        el.dataset.csbOrigPos = "static";
+      }
+
+      // overlay (track)
+      const overlay = document.createElement("div");
+      overlay.className = "custom-scrollbar-overlay";
+      // style basics (can be overriden in CSS)
+      overlay.style.position = "absolute";
+      overlay.style.top = "0";
+      overlay.style.right = "2px";
+      overlay.style.bottom = "0";
+      overlay.style.width = "6px";
+      overlay.style.pointerEvents = "auto";
+      overlay.style.zIndex = "9999";
+      overlay.style.display = "flex";
+      overlay.style.alignItems = "flex-start";
+      overlay.style.justifyContent = "center";
+
+      // thumb
+      const thumb = document.createElement("div");
+      thumb.className = "custom-scrollbar-thumb";
+      thumb.style.position = "absolute";
+      thumb.style.top = "0";
+      thumb.style.width = "100%";
+      thumb.style.borderRadius = "9999px";
+      thumb.style.cursor = "pointer";
+      thumb.style.willChange = "transform";
+
+      overlay.appendChild(thumb);
+      el.appendChild(overlay);
+      overlays.push(overlay);
+
+      // update thumb size/position
+      function updateThumb() {
+        const ch = el.clientHeight;
+        const contentH = el.scrollHeight;
+        if (contentH <= ch) {
+          thumb.style.display = "none";
+          return;
+        }
+        thumb.style.display = "block";
+        const thumbH = Math.max((ch * ch) / contentH, 20); // min 20px
+        const maxThumbTop = ch - thumbH;
+        const scrollRatio = (el.scrollTop || 0) / Math.max(1, contentH - ch);
+        const top = Math.max(0, Math.min(maxThumbTop, scrollRatio * maxThumbTop));
+        thumb.style.height = `${thumbH}px`;
+        thumb.style.transform = `translateY(${top}px)`;
+      }
+
+      updateThumb();
+
+      // listeners
+      const onScroll = () => updateThumb();
+      el.addEventListener("scroll", onScroll);
+      cleanupFns.push(() => el.removeEventListener("scroll", onScroll));
+
+      const onResize = () => updateThumb();
+      window.addEventListener("resize", onResize);
+      cleanupFns.push(() => window.removeEventListener("resize", onResize));
+
+      // pointer drag handling (works for mouse & touch via pointer events)
+      let dragging = false;
+      let startY = 0;
+      let startScroll = 0;
+      let thumbHeight = 0;
+
+      function onPointerDown(e: PointerEvent) {
+        e.preventDefault();
+        dragging = true;
+        startY = e.clientY;
+        startScroll = el.scrollTop;
+        thumbHeight = thumb.offsetHeight;
+        document.addEventListener("pointermove", onPointerMove);
+        document.addEventListener("pointerup", onPointerUp);
+        document.body.style.userSelect = "none";
+      }
+
+      function onPointerMove(e: PointerEvent) {
+        if (!dragging) return;
+        const ch = el.clientHeight;
+        const maxThumbTop = ch - thumbHeight || 1;
+        const maxScroll = el.scrollHeight - ch;
+        const delta = e.clientY - startY;
+        const scrollDelta = (delta / maxThumbTop) * maxScroll;
+        el.scrollTop = Math.max(0, Math.min(maxScroll, startScroll + scrollDelta));
+      }
+
+      function onPointerUp() {
+        dragging = false;
+        document.removeEventListener("pointermove", onPointerMove);
+        document.removeEventListener("pointerup", onPointerUp);
+        document.body.style.userSelect = "";
+      }
+
+      thumb.addEventListener("pointerdown", onPointerDown);
+      cleanupFns.push(() => thumb.removeEventListener("pointerdown", onPointerDown));
+
+      // click on overlay -> page scroll jump
+      function onOverlayClick(e: MouseEvent) {
+        if (e.target === thumb) return; // handled by drag
+        const rect = overlay.getBoundingClientRect();
+        const clickY = e.clientY - rect.top;
+        const ch = el.clientHeight;
+        const contentH = el.scrollHeight;
+        const thumbH = thumb.offsetHeight;
+        const maxThumbTop = ch - thumbH || 1;
+        const ratio = Math.max(0, Math.min(1, (clickY - thumbH / 2) / maxThumbTop));
+        const newScroll = ratio * (contentH - ch);
+        el.scrollTop = newScroll;
+      }
+      overlay.addEventListener("click", onOverlayClick);
+      cleanupFns.push(() => overlay.removeEventListener("click", onOverlayClick));
+
+      // observe children resize (content size change) via ResizeObserver
+      const ro = new (window as any).ResizeObserver?.(() => updateThumb());
+      if (ro) {
+        ro.observe(el);
+        cleanupFns.push(() => ro.disconnect());
+      }
+
+      // record that we changed position so cleanup can restore
+      if (changedPos) el.dataset.csbChangedPos = "1";
+    } // attachTo
+
+    // scan and attach to all currently scrollable elements
+    function scanAndAttach() {
+      // iterate only element nodes for performance
+      const nodes = Array.from(document.querySelectorAll<HTMLElement>("*"));
+      for (const el of nodes) {
+        try {
+          if (el.hasAttribute(PROCESSED_ATTR)) continue;
+          if (isScrollable(el)) attachTo(el);
+        } catch {
+          // ignore cross-origin or weird elements
+        }
+      }
+    }
+
+    // initial scan (after a micro-delay to let client-side render settle)
+    const initialTimer = setTimeout(scanAndAttach, 50);
+
+    // observe DOM changes and attribute changes (style/class) to auto-attach to new scrollables
+    let scanTimer: any = null;
+    const mo = new MutationObserver(() => {
+      if (scanTimer) clearTimeout(scanTimer);
+      scanTimer = setTimeout(scanAndAttach, 120); // debounce bursts
+    });
+    mo.observe(document.body, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ["class", "style"],
+    });
+
+    // cleanup on unmount
+    return () => {
+      clearTimeout(initialTimer);
+      mo.disconnect();
+      // run cleanup functions
+      cleanupFns.forEach((fn) => {
+        try {
+          fn();
+        } catch {}
+      });
+      // remove overlays and restore classes/position markers
+      document.querySelectorAll<HTMLElement>("[data-csb-processed]").forEach((el) => {
+        el.classList.remove("custom-scroll-hide");
+        el.removeAttribute("data-csb-processed");
+        if (el.dataset.csbChangedPos) {
+          el.style.position = "";
+          delete el.dataset.csbChangedPos;
+        }
+      });
+      overlays.forEach((o) => o.remove());
+    };
+  }, []);
+
+  return null;
+}

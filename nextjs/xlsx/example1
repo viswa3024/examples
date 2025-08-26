@@ -1,0 +1,93 @@
+const handleDownloadStyledXLSX = async () => {
+  if (sheets.length === 0) return;
+
+  const workbook = new ExcelJS.Workbook();
+
+  sheets.forEach((sheet) => {
+    const ws = workbook.addWorksheet(sheet.name);
+
+    // default row height for the whole sheet
+    ws.properties.defaultRowHeight = 50;
+
+    // 👉 Remove "Rating" column from sheet data
+    const ratingIndex = sheet.data[0].findIndex(
+      (h) => typeof h === "string" && h.toLowerCase() === "rating"
+    );
+    const filteredData =
+      ratingIndex !== -1
+        ? sheet.data.map((row) => row.filter((_, idx) => idx !== ratingIndex))
+        : sheet.data;
+
+    // 👉 Find max columns count
+    const maxCols = Math.max(...filteredData.map((row) => row.length));
+
+    // Add rows with padding (main data first)
+    filteredData.forEach((row) => {
+      const normalizedRow = [...row];
+      while (normalizedRow.length < maxCols) {
+        normalizedRow.push(""); // pad empty cells
+      }
+      const addedRow = ws.addRow(normalizedRow);
+
+      // 👉 Apply wrap text for all row cells
+      addedRow.eachCell((cell) => {
+        cell.alignment = { vertical: "middle", horizontal: "left", wrapText: true };
+      });
+    });
+
+    // Apply header styles (row 1 since now no title above)
+    const headerRowIndex = 1;
+    ws.getRow(headerRowIndex).eachCell((cell) => {
+      cell.font = { bold: true, color: { argb: "FFFFFFFF" } }; // white font
+      cell.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FF1F77B4" } }; // blue background
+      cell.alignment = { vertical: "middle", horizontal: "center", wrapText: true };
+    });
+
+    // 👉 Header row height
+    ws.getRow(headerRowIndex).height = 50;
+
+    // 👉 Column widths
+    ws.columns = new Array(maxCols).fill({ width: 25 });
+
+    // Apply merges (ExcelJS is 1-indexed, no shift now)
+    if ((sheet as any).merges) {
+      (sheet as any).merges.forEach((merge: any) => {
+        const startRow = merge.s.r + 1;
+        const startCol = merge.s.c + 1;
+        const endRow = merge.e.r + 1;
+        const endCol = merge.e.c + 1;
+        ws.mergeCells(startRow, startCol, endRow, endCol);
+      });
+    }
+  });
+
+  // 👉 Add "Details" sheet at the end
+  const detailsSheet = workbook.addWorksheet("Details");
+  detailsSheet.properties.defaultRowHeight = 40;
+
+  // Project Title
+  detailsSheet.addRow(["Project Title: AI-based Generative QA System"]);
+  detailsSheet.mergeCells(1, 1, 1, 3); // merge across 3 cols
+  detailsSheet.getRow(1).font = { bold: true, size: 16, color: { argb: "FF000000" } };
+  detailsSheet.getRow(1).alignment = { vertical: "middle", horizontal: "left", wrapText: true };
+  detailsSheet.getRow(1).height = 40;
+
+  // Project Description
+  detailsSheet.addRow([
+    "Project Description: Fine-tuned models for QA and email subject generation",
+  ]);
+  detailsSheet.mergeCells(2, 1, 2, 3);
+  detailsSheet.getRow(2).font = { italic: true, size: 12, color: { argb: "FF333333" } };
+  detailsSheet.getRow(2).alignment = { vertical: "middle", horizontal: "left", wrapText: true };
+  detailsSheet.getRow(2).height = 60;
+
+  // Generate XLSX blob
+  const buffer = await workbook.xlsx.writeBuffer();
+  const blob = new Blob([buffer], {
+    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.setAttribute("download", "Edited_Styled_Sheets.xlsx");
+  link.click();
+};

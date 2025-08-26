@@ -1,0 +1,4 @@
+/* Hide native scrollbar globally for elements with class 'scroll-hide' */
+.scroll-hide::-webkit-scrollbar {
+  display: none;
+}

@@ -91,3 +91,40 @@ const handleDownloadStyledXLSX = async () => {
   link.setAttribute("download", "Edited_Styled_Sheets.xlsx");
   link.click();
 };
+
+
+
+
+
+
+  // 👉 Add "Details" sheet at the end
+  const detailsSheet = workbook.addWorksheet("Details");
+  detailsSheet.properties.defaultRowHeight = 40;
+
+  // Project Title (two cells: label + value)
+  const titleRow = detailsSheet.addRow(["Project Title", "AI-based Generative QA System"]);
+  titleRow.getCell(1).font = { bold: true, size: 14, color: { argb: "FF000000" } };
+  titleRow.getCell(2).font = { size: 14, color: { argb: "FF000000" } };
+  titleRow.eachCell((cell) => {
+    cell.alignment = { vertical: "middle", horizontal: "left", wrapText: true };
+  });
+  titleRow.height = 40;
+
+  // Project Description (two cells: label + value)
+  const descRow = detailsSheet.addRow([
+    "Project Description",
+    "Fine-tuned models for QA and email subject generation",
+  ]);
+  descRow.getCell(1).font = { bold: true, italic: true, size: 12, color: { argb: "FF333333" } };
+  descRow.getCell(2).font = { italic: true, size: 12, color: { argb: "FF333333" } };
+  descRow.eachCell((cell) => {
+    cell.alignment = { vertical: "middle", horizontal: "left", wrapText: true };
+  });
+  descRow.height = 60;
+
+  // Adjust column widths
+  detailsSheet.columns = [
+    { width: 25 }, // label column
+    { width: 80 }, // value column
+  ];
+
